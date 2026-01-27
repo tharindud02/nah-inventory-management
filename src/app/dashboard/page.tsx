@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import {
   Search,
   Bell,
@@ -14,10 +15,13 @@ import {
   DollarSign,
   Users,
   Package,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, signOut } = useAuth();
 
   const inventoryItems = [
     {
@@ -115,247 +119,280 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Inventory Management
-              </h1>
-              <div className="text-sm text-gray-500 flex items-center">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                LAST UPDATED: 2 MINS AGO
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b ml-64">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Inventory Management
+                </h1>
+                <div className="text-sm text-gray-500 flex items-center">
+                  <AlertCircle className="w-4 h-4 mr-1" />
+                  LAST UPDATED: 2 MINS AGO
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search inventory..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 w-64"
+                  />
+                </div>
+                <Button variant="ghost" size="sm">
+                  <Bell className="w-4 h-4" />
+                </Button>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-medium">
+                      {user?.firstName?.charAt(0) ||
+                        user?.email?.charAt(0) ||
+                        "U"}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium">
+                      {user?.firstName && user?.lastName
+                        ? `${user.firstName} ${user.lastName}`
+                        : user?.email || "User"}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {user?.email || "User"}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search inventory..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-64"
-                />
-              </div>
-              <Button variant="ghost" size="sm">
-                <Bell className="w-4 h-4" />
+          </div>
+        </header>
+
+        <div className="flex">
+          {/* Sidebar */}
+          <aside className="w-64 bg-white shadow-sm fixed left-0 top-0 h-screen flex flex-col">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Inventory Hub
+              </h2>
+            </div>
+            <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
+              <Button variant="default" className="w-full justify-start">
+                <Package className="w-4 h-4 mr-2" />
+                Dashboard
               </Button>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-slate-900 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">JD</span>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">Joe Manager</div>
-                  <div className="text-xs text-gray-500">Admin</div>
-                </div>
-              </div>
+              <Button variant="ghost" className="w-full justify-start">
+                <Car className="w-4 h-4 mr-2" />
+                Inventory
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Market Analysis
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                <Search className="w-4 h-4 mr-2" />
+                VIN Intel
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                <DollarSign className="w-4 h-4 mr-2" />
+                Acquisition
+              </Button>
+              <Button variant="ghost" className="w-full justify-start">
+                <Users className="w-4 h-4 mr-2" />
+                Settings
+              </Button>
+            </nav>
+
+            {/* Sign Out Button at Bottom */}
+            <div className="p-4 border-t border-gray-200">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                onClick={signOut}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
             </div>
-          </div>
-        </div>
-      </header>
+          </aside>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-sm min-h-screen">
-          <nav className="p-4 space-y-2">
-            <Button variant="default" className="w-full justify-start">
-              <Package className="w-4 h-4 mr-2" />
-              Dashboard
-            </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <Car className="w-4 h-4 mr-2" />
-              Inventory
-            </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Market Analysis
-            </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <Search className="w-4 h-4 mr-2" />
-              VIN Intel
-            </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <DollarSign className="w-4 h-4 mr-2" />
-              Acquisition
-            </Button>
-            <Button variant="ghost" className="w-full justify-start">
-              <Users className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
-          </nav>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">TOTAL RETAIL VALUE</p>
-                    <p className="text-2xl font-bold">$2.4M</p>
-                    <p className="text-sm text-green-600 flex items-center">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      +12.5%
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-blue-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      TOTAL WHOLESALE VALUE
-                    </p>
-                    <p className="text-2xl font-bold">$1.8M</p>
-                    <p className="text-sm text-green-600 flex items-center">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      +8.3%
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-green-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      TOTAL PROJECTED GROSS PROFIT
-                    </p>
-                    <p className="text-2xl font-bold">$600K</p>
-                    <p className="text-sm text-green-600 flex items-center">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      +15.2%
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-purple-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">ACTIVE INVENTORY</p>
-                    <p className="text-2xl font-bold">142</p>
-                    <p className="text-sm text-red-600 flex items-center">
-                      <TrendingDown className="w-3 h-3 mr-1" />
-                      -3.2%
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <Car className="w-6 h-6 text-orange-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Alerts Section */}
-          <div className="flex space-x-4 mb-6">
-            <Button
-              variant="outline"
-              className="bg-red-50 border-red-200 text-red-700"
-            >
-              <AlertCircle className="w-4 h-4 mr-2" />
-              Overpriced (12)
-            </Button>
-            <Button
-              variant="outline"
-              className="bg-yellow-50 border-yellow-200 text-yellow-700"
-            >
-              <AlertCircle className="w-4 h-4 mr-2" />
-              Attention Required (8)
-            </Button>
-          </div>
-
-          {/* Filters */}
-          <div className="bg-white rounded-lg p-4 mb-6 flex items-center justify-between">
-            <div className="flex space-x-4">
-              <select className="border rounded px-3 py-2 text-sm">
-                <option>Price Range</option>
-                <option>$0 - $25,000</option>
-                <option>$25,000 - $50,000</option>
-                <option>$50,000+</option>
-              </select>
-              <select className="border rounded px-3 py-2 text-sm">
-                <option>Days on Lot</option>
-                <option>0-30 days</option>
-                <option>31-60 days</option>
-                <option>60+ days</option>
-              </select>
-              <select className="border rounded px-3 py-2 text-sm">
-                <option>Make/Model</option>
-                <option>All Makes</option>
-                <option>Toyota</option>
-                <option>Honda</option>
-                <option>Ford</option>
-              </select>
-            </div>
-            <div className="text-sm text-gray-600">
-              <strong>142 TOTAL UNITS</strong>
-            </div>
-          </div>
-
-          {/* Inventory Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {inventoryItems.map((item) => (
-              <Card key={item.id} className="overflow-hidden">
-                <div className="aspect-video bg-gray-200 relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Car className="w-12 h-12 text-gray-400" />
-                  </div>
-                  <div
-                    className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${getStatusColor(item.status)}`}
-                  >
-                    {getStatusIcon(item.status)}
-                    <span className="uppercase">{item.status}</span>
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-lg">
-                    {item.year} {item.make} {item.model}
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-2">VIN: {item.vin}</p>
-                  <div className="flex justify-between items-center">
+          {/* Main Content */}
+          <main className="flex-1 ml-64 p-6">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">
-                        {item.mileage.toLocaleString()} miles
+                        TOTAL RETAIL VALUE
                       </p>
-                      <p className="text-xl font-bold">
-                        ${item.price.toLocaleString()}
+                      <p className="text-2xl font-bold">$2.4M</p>
+                      <p className="text-sm text-green-600 flex items-center">
+                        <TrendingUp className="w-3 h-3 mr-1" />
+                        +12.5%
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600">Market</p>
-                      <p className="text-sm font-medium text-green-600">
-                        +2.3%
-                      </p>
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <DollarSign className="w-6 h-6 text-blue-600" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </main>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        TOTAL WHOLESALE VALUE
+                      </p>
+                      <p className="text-2xl font-bold">$1.8M</p>
+                      <p className="text-sm text-green-600 flex items-center">
+                        <TrendingUp className="w-3 h-3 mr-1" />
+                        +8.3%
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <DollarSign className="w-6 h-6 text-green-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        TOTAL PROJECTED GROSS PROFIT
+                      </p>
+                      <p className="text-2xl font-bold">$600K</p>
+                      <p className="text-sm text-green-600 flex items-center">
+                        <TrendingUp className="w-3 h-3 mr-1" />
+                        +15.2%
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="w-6 h-6 text-purple-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">ACTIVE INVENTORY</p>
+                      <p className="text-2xl font-bold">142</p>
+                      <p className="text-sm text-red-600 flex items-center">
+                        <TrendingDown className="w-3 h-3 mr-1" />
+                        -3.2%
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <Car className="w-6 h-6 text-orange-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Alerts Section */}
+            <div className="flex space-x-4 mb-6">
+              <Button
+                variant="outline"
+                className="bg-red-50 border-red-200 text-red-700"
+              >
+                <AlertCircle className="w-4 h-4 mr-2" />
+                Overpriced (12)
+              </Button>
+              <Button
+                variant="outline"
+                className="bg-yellow-50 border-yellow-200 text-yellow-700"
+              >
+                <AlertCircle className="w-4 h-4 mr-2" />
+                Attention Required (8)
+              </Button>
+            </div>
+
+            {/* Filters */}
+            <div className="bg-white rounded-lg p-4 mb-6 flex items-center justify-between">
+              <div className="flex space-x-4">
+                <select className="border rounded px-3 py-2 text-sm">
+                  <option>Price Range</option>
+                  <option>$0 - $25,000</option>
+                  <option>$25,000 - $50,000</option>
+                  <option>$50,000+</option>
+                </select>
+                <select className="border rounded px-3 py-2 text-sm">
+                  <option>Days on Lot</option>
+                  <option>0-30 days</option>
+                  <option>31-60 days</option>
+                  <option>60+ days</option>
+                </select>
+                <select className="border rounded px-3 py-2 text-sm">
+                  <option>Make/Model</option>
+                  <option>All Makes</option>
+                  <option>Toyota</option>
+                  <option>Honda</option>
+                  <option>Ford</option>
+                </select>
+              </div>
+              <div className="text-sm text-gray-600">
+                <strong>142 TOTAL UNITS</strong>
+              </div>
+            </div>
+
+            {/* Inventory Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {inventoryItems.map((item) => (
+                <Card key={item.id} className="overflow-hidden">
+                  <div className="aspect-video bg-gray-200 relative">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Car className="w-12 h-12 text-gray-400" />
+                    </div>
+                    <div
+                      className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1 ${getStatusColor(item.status)}`}
+                    >
+                      {getStatusIcon(item.status)}
+                      <span className="uppercase">{item.status}</span>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-lg">
+                      {item.year} {item.make} {item.model}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-2">
+                      VIN: {item.vin}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          {item.mileage.toLocaleString()} miles
+                        </p>
+                        <p className="text-xl font-bold">
+                          ${item.price.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-600">Market</p>
+                        <p className="text-sm font-medium text-green-600">
+                          +2.3%
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
