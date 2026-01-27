@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, signOut } = useAuth();
+  const router = useRouter();
 
   const inventoryItems = [
     {
@@ -180,29 +182,20 @@ export default function DashboardPage() {
               </h2>
             </div>
             <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
-              <Button variant="default" className="w-full justify-start">
+              <Button
+                className="w-full justify-start text-white"
+                style={{ backgroundColor: "#136dec" }}
+              >
                 <Package className="w-4 h-4 mr-2" />
                 Dashboard
               </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                <Car className="w-4 h-4 mr-2" />
-                Inventory
-              </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Market Analysis
-              </Button>
-              <Button variant="ghost" className="w-full justify-start">
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => router.push("/vin-intel")}
+              >
                 <Search className="w-4 h-4 mr-2" />
                 VIN Intel
-              </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                <DollarSign className="w-4 h-4 mr-2" />
-                Acquisition
-              </Button>
-              <Button variant="ghost" className="w-full justify-start">
-                <Users className="w-4 h-4 mr-2" />
-                Settings
               </Button>
             </nav>
 
