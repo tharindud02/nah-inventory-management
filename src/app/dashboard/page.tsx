@@ -208,12 +208,6 @@ export default function DashboardPage() {
 
             {/* Sign Out Button at Bottom */}
             <div className="p-4 border-t border-gray-200">
-              <div className="mb-3 text-sm text-gray-600">
-                <div className="font-medium text-gray-900">
-                  {user?.firstName} {user?.lastName}
-                </div>
-                <div className="text-xs">{user?.email}</div>
-              </div>
               <Button
                 variant="ghost"
                 className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"

@@ -87,7 +87,11 @@ export const signIn = async (data: SignInData) => {
     console.log("Sign in successful:", response);
     return response;
   } catch (error: any) {
-    console.error("Sign in error:", error);
+    console.error("Sign in error details:", {
+      name: error.name,
+      message: error.message,
+      code: error.__type || error.Code,
+    });
     throw new Error(error.message || "Sign in failed");
   }
 };
@@ -111,9 +115,12 @@ export const confirmSignUp = async (email: string, code: string) => {
 };
 
 export const forgotPassword = async (email: string) => {
+  const secretHash = calculateSecretHash(email);
+
   const command = new ForgotPasswordCommand({
     ClientId: clientId,
     Username: email,
+    SecretHash: secretHash || undefined,
   });
 
   try {

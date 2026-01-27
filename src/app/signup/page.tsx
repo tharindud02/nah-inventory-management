@@ -36,6 +36,7 @@ export default function SignUpPage() {
     password: "",
     confirmPassword: "",
     phone: "",
+    countryCode: "+94",
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +57,12 @@ export default function SignUpPage() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const getFullPhoneNumber = () => {
+    // Remove any non-digit characters from phone number
+    const cleanPhone = formData.phone.replace(/\D/g, "");
+    return `${formData.countryCode}${cleanPhone}`;
   };
 
   const handleCodeChange = (index: number, value: string) => {
@@ -84,6 +91,33 @@ export default function SignUpPage() {
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text");
+    const numericPastedData = pastedData.replace(/[^0-9]/g, "");
+
+    if (numericPastedData.length >= 6) {
+      // Take first 6 digits and distribute them
+      const digits = numericPastedData.slice(0, 6).split("");
+      const newCode = [...confirmationCode];
+
+      digits.forEach((digit, index) => {
+        if (index < 6) {
+          newCode[index] = digit;
+        }
+      });
+
+      setConfirmationCode(newCode);
+
+      // Focus the last filled input
+      const lastFilledIndex = Math.min(5, digits.length - 1);
+      setTimeout(() => {
+        const lastInput = document.getElementById(`code-${lastFilledIndex}`);
+        lastInput?.focus();
+      }, 0);
+    }
+  };
+
   const getFullCode = () => confirmationCode.join("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,13 +131,19 @@ export default function SignUpPage() {
       return;
     }
 
+    if (!formData.phone) {
+      setError("Phone number is required");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       await signUp({
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        phone: formData.phone || undefined,
+        phone: getFullPhoneNumber(), // Use formatted phone number
       });
       // Show confirmation form instead of redirecting
       setSignupSuccess(true);
@@ -188,85 +228,41 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Left side - Features - FIXED POSITION */}
+      {/* Left side - Branding/Preview */}
       <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-slate-900 to-slate-800 overflow-hidden fixed h-screen">
-        <div className="absolute inset-0 opacity-20 bg-grid-pattern"></div>
-
+        <div className="absolute inset-0 bg-linear-to-br from-blue-600/20 to-purple-600/20"></div>
         <div className="relative z-10 flex flex-col justify-center px-12 text-white">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-4">
-              Join Inventory Management
-            </h1>
-            <p className="text-xl text-gray-300 mb-8">
-              Get started with powerful tools to manage your automotive
-              inventory efficiently
+            <h1 className="text-4xl font-bold mb-4">Inventory Hub</h1>
+            <p className="text-xl text-gray-300">
+              Start managing your inventory with powerful tools and insights
             </p>
           </div>
-
-          {/* Features list */}
-          <div className="space-y-6">
-            <div className="flex items-start space-x-4">
-              <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center shrink-0">
-                <Search className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2">
-                  Real-time Analytics
-                </h3>
-                <p className="text-gray-400">
-                  Track inventory performance with live dashboards and detailed
-                  insights
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center shrink-0">
-                <Check className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2">
-                  Market Intelligence
-                </h3>
-                <p className="text-gray-400">
-                  Get AI-powered pricing recommendations and market trend
-                  analysis
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center shrink-0">
-                <Bell className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Smart Alerts</h3>
-                <p className="text-gray-400">
-                  Receive notifications for price changes, inventory issues, and
-                  opportunities
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 p-4 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-            <div className="flex items-center space-x-2 text-sm">
-              <Check className="w-4 h-4 text-green-400" />
-              <span>14-day free trial</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm mt-1">
-              <Check className="w-4 h-4 text-green-400" />
-              <span>No credit card required</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm mt-1">
-              <Check className="w-4 h-4 text-green-400" />
-              <span>Cancel anytime</span>
-            </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+            <h3 className="text-lg font-semibold mb-3">Get Started Today</h3>
+            <ul className="space-y-2 text-gray-300">
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                Real-time inventory tracking
+              </li>
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                Automated stock management
+              </li>
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                Advanced analytics dashboard
+              </li>
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                Multi-location support
+              </li>
+            </ul>
           </div>
         </div>
       </div>
 
-      {/* Right side - Sign Up Form - SCROLLABLE */}
+      {/* Right side - Sign Up Form */}
       <div className="flex-1 lg:ml-[50%] flex items-start justify-center px-4 py-12 sm:px-6 lg:px-8 min-h-screen overflow-y-auto">
         <div className="w-full max-w-lg">
           <div className="text-center mb-8">
@@ -364,9 +360,12 @@ export default function SignUpPage() {
                               handleCodeChange(index, e.target.value)
                             }
                             onKeyDown={(e) => handleCodeKeyDown(index, e)}
+                            onPaste={index === 0 ? handlePaste : undefined}
                             placeholder="0"
                             className="w-12 h-12 text-center text-lg font-mono border-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                             maxLength={1}
+                            inputMode="numeric"
+                            autoComplete="one-time-code"
                             required
                           />
                         ))}
@@ -463,18 +462,43 @@ export default function SignUpPage() {
                       htmlFor="phone"
                       className="text-sm font-medium text-gray-700"
                     >
-                      Phone Number (Optional)
+                      Phone Number *
                     </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        handleInputChange("phone", e.target.value)
-                      }
-                      placeholder="+1 (555) 123-4567"
-                      className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                    />
+                    <div className="flex space-x-2">
+                      <select
+                        value={formData.countryCode}
+                        onChange={(e) =>
+                          handleInputChange("countryCode", e.target.value)
+                        }
+                        className="h-11 px-3 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500 bg-white text-sm"
+                      >
+                        <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
+                        <option value="+1">🇺🇸 +1 (USA)</option>
+                        <option value="+44">🇬🇧 +44 (UK)</option>
+                        <option value="+91">🇮🇳 +91 (India)</option>
+                        <option value="+61">🇦🇺 +61 (Australia)</option>
+                        <option value="+81">🇯🇵 +81 (Japan)</option>
+                        <option value="+49">🇩🇪 +49 (Germany)</option>
+                        <option value="+33">🇫🇷 +33 (France)</option>
+                        <option value="+86">🇨🇳 +86 (China)</option>
+                        <option value="+82">🇰🇷 +82 (South Korea)</option>
+                      </select>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) =>
+                          handleInputChange("phone", e.target.value)
+                        }
+                        placeholder="123456789"
+                        className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500 flex-1"
+                        required
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Enter your phone number without country code (e.g.,
+                      123456789)
+                    </p>
                   </div>
 
                   <div className="space-y-2">

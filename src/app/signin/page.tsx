@@ -34,10 +34,75 @@ export default function SignInPage() {
   const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [confirmationCode, setConfirmationCode] = useState("");
+  const [confirmationCode, setConfirmationCode] = useState([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
+
+  const handleCodeChange = (index: number, value: string) => {
+    // Only allow numbers
+    const numericValue = value.replace(/[^0-9]/g, "");
+    const newCode = [...confirmationCode];
+    newCode[index] = numericValue;
+    setConfirmationCode(newCode);
+
+    // Auto-focus next input
+    if (numericValue && index < 5) {
+      const nextInput = document.getElementById(`code-${index + 1}`);
+      if (nextInput) {
+        nextInput.focus();
+      }
+    }
+  };
+
+  const handleCodeKeyDown = (index: number, e: React.KeyboardEvent) => {
+    // Handle backspace to go to previous input
+    if (e.key === "Backspace" && !confirmationCode[index] && index > 0) {
+      const prevInput = document.getElementById(`code-${index - 1}`);
+      if (prevInput) {
+        prevInput.focus();
+      }
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text");
+    const numericPastedData = pastedData.replace(/[^0-9]/g, "");
+
+    if (numericPastedData.length >= 6) {
+      // Take first 6 digits and distribute them
+      const digits = numericPastedData.slice(0, 6).split("");
+      const newCode = [...confirmationCode];
+
+      digits.forEach((digit, index) => {
+        if (index < 6) {
+          newCode[index] = digit;
+        }
+      });
+
+      setConfirmationCode(newCode);
+
+      // Focus the last filled input
+      const lastFilledIndex = Math.min(5, digits.length - 1);
+      setTimeout(() => {
+        const lastInput = document.getElementById(`code-${lastFilledIndex}`);
+        lastInput?.focus();
+      }, 0);
+    }
+  };
+
+  const getFullCode = () => {
+    return confirmationCode.join("");
+  };
 
   // Check for message from sign-up
   useEffect(() => {
@@ -52,8 +117,27 @@ export default function SignInPage() {
       setSuccess(true);
       setSuccessMessage("Account confirmed! You can now sign in.");
       setError("");
+    } else if (message === "password_reset") {
+      setSuccess(true);
+      setSuccessMessage(
+        "Password reset successfully! You can now sign in with your new password.",
+      );
+      setError("");
     }
   }, [searchParams]);
+
+  // Load saved credentials on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail") || "";
+    const savedPassword = localStorage.getItem("rememberedPassword") || "";
+    const savedRememberMe = localStorage.getItem("rememberMe") === "true";
+
+    if (savedEmail && savedPassword && savedRememberMe) {
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +147,10 @@ export default function SignInPage() {
     setSuccessMessage("");
 
     try {
+      console.log("Attempting sign in with:", {
+        email,
+        passwordLength: password.length,
+      });
       const result = await signIn({ email, password });
 
       // Store tokens in localStorage for the AuthContext to use
@@ -81,6 +169,18 @@ export default function SignInPage() {
         );
       }
 
+      // Handle remember me functionality
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+        localStorage.setItem("rememberedPassword", password);
+        localStorage.setItem("rememberMe", "true");
+      } else {
+        // Clear saved credentials if remember me is not checked
+        localStorage.removeItem("rememberedEmail");
+        localStorage.removeItem("rememberedPassword");
+        localStorage.removeItem("rememberMe");
+      }
+
       await refreshUser();
       console.log("User refreshed, redirecting to dashboard...");
 
@@ -97,6 +197,13 @@ export default function SignInPage() {
         setError(
           "Your account needs confirmation. Please enter the code from your email and click Sign in again.",
         );
+      } else if (
+        err.name === "NotAuthorizedException" ||
+        err.message.includes("Incorrect username or password")
+      ) {
+        setError(
+          "Invalid email or password. Please check your credentials and try again.",
+        );
       } else {
         setError(err.message || "An error occurred during sign in");
       }
@@ -112,15 +219,20 @@ export default function SignInPage() {
     setSuccess(false);
     setSuccessMessage("");
 
-    if (!confirmationCode) {
-      setError("Please enter the confirmation code from your email.");
+    if (!getFullCode() || getFullCode().length !== 6) {
+      setError("Please enter the complete 6-digit confirmation code.");
       setIsLoading(false);
       return;
     }
 
     try {
+      console.log("Attempting confirmation and sign in with:", {
+        email,
+        passwordLength: password.length,
+        confirmationCode,
+      });
       // First confirm the user
-      await confirmSignUp(email, confirmationCode);
+      await confirmSignUp(email, getFullCode());
 
       // Then immediately sign in with the same credentials
       const result = await signIn({ email, password });
@@ -145,10 +257,19 @@ export default function SignInPage() {
       // Redirect immediately without showing success message
       router.push("/dashboard");
     } catch (err: any) {
-      setError(
-        err.message ||
-          "Confirmation failed. Please check the code and try again.",
-      );
+      if (
+        err.name === "NotAuthorizedException" ||
+        err.message.includes("Incorrect username or password")
+      ) {
+        setError(
+          "Invalid email or password. Please check your credentials and try again.",
+        );
+      } else {
+        setError(
+          err.message ||
+            "Confirmation failed. Please check the code and try again.",
+        );
+      }
     } finally {
       setIsLoading(false);
     }
@@ -157,46 +278,43 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left side - Branding/Preview */}
-      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-slate-900 to-slate-800 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-grid-pattern"></div>
-
+      <div className="hidden lg:flex lg:w-1/2 bg-linear-to-br from-slate-900 to-slate-800 overflow-hidden fixed h-screen">
+        <div className="absolute inset-0 bg-linear-to-br from-blue-600/20 to-purple-600/20"></div>
         <div className="relative z-10 flex flex-col justify-center px-12 text-white">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-4">Inventory Management</h1>
-            <p className="text-xl text-gray-300 mb-8">
-              Streamline your automotive inventory with powerful analytics and
-              real-time insights
+            <h1 className="text-4xl font-bold mb-4">Inventory Hub</h1>
+            <p className="text-xl text-gray-300">
+              Your complete inventory management solution for modern businesses
             </p>
           </div>
-
-          {/* Mock dashboard preview */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-white/5 rounded-lg p-4">
-                <div className="text-sm text-gray-400 mb-1">
-                  TOTAL RETAIL VALUE
-                </div>
-                <div className="text-2xl font-bold">$2.4M</div>
-                <div className="text-xs text-green-400">+12.5%</div>
-              </div>
-              <div className="bg-white/5 rounded-lg p-4">
-                <div className="text-sm text-gray-400 mb-1">
-                  ACTIVE INVENTORY
-                </div>
-                <div className="text-2xl font-bold">142</div>
-                <div className="text-xs text-red-400">-3.2%</div>
-              </div>
-            </div>
-
-            <div className="text-sm text-gray-400 text-center">
-              Sign in to access your complete inventory dashboard
-            </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+            <h3 className="text-lg font-semibold mb-3">
+              Why Choose Inventory Hub?
+            </h3>
+            <ul className="space-y-2 text-gray-300">
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                Real-time inventory tracking
+              </li>
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                Automated stock management
+              </li>
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                Advanced analytics dashboard
+              </li>
+              <li className="flex items-center">
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                Multi-location support
+              </li>
+            </ul>
           </div>
         </div>
       </div>
 
       {/* Right side - Sign In Form */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <div className="flex-1 lg:ml-[50%] flex items-start justify-center px-4 py-12 sm:px-6 lg:px-8 min-h-screen overflow-y-auto">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-900 rounded-2xl mb-4">
@@ -312,6 +430,8 @@ export default function SignInPage() {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label
@@ -326,21 +446,31 @@ export default function SignInPage() {
                   <div className="space-y-2">
                     <Label
                       htmlFor="confirmationCode"
-                      className="text-sm font-medium text-gray-700"
+                      className="text-sm font-medium text-gray-700 text-center block"
                     >
                       Confirmation Code
                     </Label>
-                    <Input
-                      id="confirmationCode"
-                      type="text"
-                      value={confirmationCode}
-                      onChange={(e) => setConfirmationCode(e.target.value)}
-                      placeholder="Enter 6-digit code from email"
-                      className="h-11 text-center font-mono"
-                      maxLength={6}
-                      required
-                    />
-                    <p className="text-xs text-gray-500">
+                    <div className="flex space-x-2 justify-center">
+                      {[0, 1, 2, 3, 4, 5].map((index) => (
+                        <Input
+                          key={index}
+                          id={`code-${index}`}
+                          type="text"
+                          value={confirmationCode[index]}
+                          onChange={(e) =>
+                            handleCodeChange(index, e.target.value)
+                          }
+                          onKeyDown={(e) => handleCodeKeyDown(index, e)}
+                          onPaste={index === 0 ? handlePaste : undefined}
+                          className="h-12 w-12 text-center text-lg font-mono border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                          maxLength={1}
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          required
+                        />
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-500 text-center">
                       Check your email for the confirmation code
                     </p>
                   </div>
@@ -351,7 +481,7 @@ export default function SignInPage() {
                   className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium"
                   disabled={
                     isLoading ||
-                    (showConfirmation && confirmationCode.length !== 6)
+                    (showConfirmation && getFullCode().length !== 6)
                   }
                 >
                   {isLoading ? "Signing in..." : "Sign in"}
