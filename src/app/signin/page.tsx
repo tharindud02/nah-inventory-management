@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,12 +13,146 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AlertCircle, Eye, EyeOff, Search, Bell, User } from "lucide-react";
+import {
+  AlertCircle,
+  Eye,
+  EyeOff,
+  Search,
+  Bell,
+  User,
+  Check,
+} from "lucide-react";
+import { signIn, confirmSignUp } from "@/lib/cognito-aws-sdk";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationCode, setConfirmationCode] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { refreshUser } = useAuth();
+
+  // Check for message from sign-up
+  useEffect(() => {
+    const message = searchParams.get("message");
+    if (message === "check_email") {
+      setError(
+        "Account created! Please check your email for the confirmation code, then sign in.",
+      );
+      setSuccess(false);
+      setSuccessMessage("");
+    } else if (message === "account_confirmed") {
+      setSuccess(true);
+      setSuccessMessage("Account confirmed! You can now sign in.");
+      setError("");
+    }
+  }, [searchParams]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+    setSuccess(false);
+    setSuccessMessage("");
+
+    try {
+      const result = await signIn({ email, password });
+
+      // Store tokens in localStorage for the AuthContext to use
+      if (result.AuthenticationResult) {
+        localStorage.setItem(
+          "accessToken",
+          result.AuthenticationResult.AccessToken || "",
+        );
+        localStorage.setItem(
+          "idToken",
+          result.AuthenticationResult.IdToken || "",
+        );
+        localStorage.setItem(
+          "refreshToken",
+          result.AuthenticationResult.RefreshToken || "",
+        );
+      }
+
+      await refreshUser();
+      console.log("User refreshed, redirecting to dashboard...");
+
+      // Redirect immediately without showing success message
+      router.push("/dashboard");
+    } catch (err: any) {
+      console.log("Sign in error:", err);
+      if (
+        err.message.includes("User is not confirmed") ||
+        err.name === "UserNotConfirmedException"
+      ) {
+        // Show confirmation input but don't change the button - keep it as "Sign in"
+        setShowConfirmation(true);
+        setError(
+          "Your account needs confirmation. Please enter the code from your email and click Sign in again.",
+        );
+      } else {
+        setError(err.message || "An error occurred during sign in");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleConfirmationAndSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+    setSuccess(false);
+    setSuccessMessage("");
+
+    if (!confirmationCode) {
+      setError("Please enter the confirmation code from your email.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      // First confirm the user
+      await confirmSignUp(email, confirmationCode);
+
+      // Then immediately sign in with the same credentials
+      const result = await signIn({ email, password });
+
+      if (result.AuthenticationResult) {
+        localStorage.setItem(
+          "accessToken",
+          result.AuthenticationResult.AccessToken || "",
+        );
+        localStorage.setItem(
+          "idToken",
+          result.AuthenticationResult.IdToken || "",
+        );
+        localStorage.setItem(
+          "refreshToken",
+          result.AuthenticationResult.RefreshToken || "",
+        );
+      }
+
+      await refreshUser();
+
+      // Redirect immediately without showing success message
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(
+        err.message ||
+          "Confirmation failed. Please check the code and try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -87,7 +222,34 @@ export default function SignInPage() {
 
           <Card className="border-0 shadow-xl">
             <CardContent className="p-8">
-              <form className="space-y-6">
+              <form
+                onSubmit={
+                  showConfirmation ? handleConfirmationAndSignIn : handleSubmit
+                }
+                className="space-y-6"
+              >
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                    <div className="flex">
+                      <AlertCircle className="h-5 w-5 text-red-400" />
+                      <div className="ml-3">
+                        <p className="text-sm text-red-800">{error}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {success && (
+                  <div className="bg-green-50 border border-green-200 rounded-md p-3">
+                    <div className="flex">
+                      <Check className="h-5 w-5 text-green-400" />
+                      <div className="ml-3">
+                        <p className="text-sm text-green-800">
+                          {successMessage}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label
                     htmlFor="email"
@@ -160,11 +322,39 @@ export default function SignInPage() {
                   </label>
                 </div>
 
+                {showConfirmation && (
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="confirmationCode"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Confirmation Code
+                    </Label>
+                    <Input
+                      id="confirmationCode"
+                      type="text"
+                      value={confirmationCode}
+                      onChange={(e) => setConfirmationCode(e.target.value)}
+                      placeholder="Enter 6-digit code from email"
+                      className="h-11 text-center font-mono"
+                      maxLength={6}
+                      required
+                    />
+                    <p className="text-xs text-gray-500">
+                      Check your email for the confirmation code
+                    </p>
+                  </div>
+                )}
+
                 <Button
                   type="submit"
                   className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white font-medium"
+                  disabled={
+                    isLoading ||
+                    (showConfirmation && confirmationCode.length !== 6)
+                  }
                 >
-                  Sign in
+                  {isLoading ? "Signing in..." : "Sign in"}
                 </Button>
 
                 <div className="relative">
