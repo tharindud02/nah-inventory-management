@@ -14,61 +14,127 @@ import {
   Car,
   DollarSign,
   LogOut,
+  Info,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast, Toaster } from "sonner";
+import { Tooltip } from "react-tooltip";
 
 export default function VINIntelPage() {
   const [vinInput, setVinInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { user, signOut } = useAuth();
   const router = useRouter();
 
-  const recentlyAnalyzedUnits = [
-    {
-      vin: "1HGBH41JXMN109186",
-      make: "Toyota",
-      model: "Camry",
-      year: 2023,
-      analyzedAt: "2 hours ago",
-    },
-    {
-      vin: "2HGBH41JXMN109187",
-      make: "Honda",
-      model: "Accord",
-      year: 2023,
-      analyzedAt: "5 hours ago",
-    },
-    {
-      vin: "3HGBH41JXMN109188",
-      make: "Ford",
-      model: "Mustang",
-      year: 2024,
-      analyzedAt: "1 day ago",
-    },
-  ];
+  const fetchVINData = async (vin: string) => {
+    setIsLoading(true);
 
-  const recentBuildSheets = [
-    {
-      vin: "4HGBH41JXMN109189",
-      make: "Chevrolet",
-      model: "Malibu",
-      year: 2023,
-      pulledAt: "3 hours ago",
-    },
-    {
-      vin: "5HGBH41JXMN109190",
-      make: "BMW",
-      model: "3 Series",
-      year: 2024,
-      pulledAt: "6 hours ago",
-    },
-    {
-      vin: "6HGBH41JXMN109191",
-      make: "Mercedes",
-      model: "C-Class",
-      year: 2024,
-      pulledAt: "2 days ago",
-    },
-  ];
+    try {
+      // Step 1: Generate the VIN report
+      const generateResponse = await fetch("/api/vindata/generate-report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ vin }),
+      });
+
+      if (!generateResponse.ok) {
+        const errorData = await generateResponse.json();
+        throw new Error(
+          errorData.error ||
+            `Failed to generate report: ${generateResponse.status}`,
+        );
+      }
+
+      const generateResult = await generateResponse.json();
+
+      if (!generateResult.success) {
+        throw new Error("Failed to generate VIN report");
+      }
+
+      // Check if we got direct data or need to access via report ID
+      if (generateResult.hasDirectData && generateResult.data) {
+        // We got the data directly, no need for separate access call
+        const vinData = generateResult.data;
+
+        // Store VIN data in sessionStorage to pass to the next page
+        sessionStorage.setItem("vinData", JSON.stringify(vinData));
+        sessionStorage.setItem("vin", vin);
+
+        // Navigate to deep-dive page
+        router.push("/vin-intel/acquisition-intelligence-deep-dive");
+        return;
+      }
+
+      // If we have a report ID, access the report separately
+      if (generateResult.reportId) {
+        const reportId = generateResult.reportId;
+
+        // Step 2: Access the generated report
+        const accessResponse = await fetch("/api/vindata/access-report", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reportId }),
+        });
+
+        if (!accessResponse.ok) {
+          const errorData = await accessResponse.json();
+          throw new Error(
+            errorData.error ||
+              `Failed to access report: ${accessResponse.status}`,
+          );
+        }
+
+        const accessResult = await accessResponse.json();
+
+        if (!accessResult.success) {
+          throw new Error("Failed to retrieve VIN data");
+        }
+
+        const vinData = accessResult.data;
+
+        // Store VIN data in sessionStorage to pass to the next page
+        sessionStorage.setItem("vinData", JSON.stringify(vinData));
+        sessionStorage.setItem("vin", vin);
+        sessionStorage.setItem("reportId", reportId);
+
+        // Navigate to deep-dive page
+        router.push("/vin-intel/acquisition-intelligence-deep-dive");
+      } else {
+        throw new Error("No report ID received from generate endpoint");
+      }
+    } catch (error) {
+      console.error("Error fetching VIN data:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch VIN data. Please check the VIN and try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAnalyzeVIN = () => {
+    if (!vinInput.trim()) {
+      toast.warning("Please enter a VIN number");
+      return;
+    }
+
+    if (vinInput.length !== 17) {
+      toast.error("Please enter a valid 17-digit VIN number");
+      return;
+    }
+
+    fetchVINData(vinInput.trim());
+  };
+
+  const recentlyAnalyzedUnits = [];
+
+  const recentBuildSheets = [];
 
   return (
     <ProtectedRoute>
@@ -119,9 +185,11 @@ export default function VINIntelPage() {
           >
             {/* Hero Section */}
             <div className="text-center w-full max-w-6xl">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Let's see what this car has to offer..
-              </h2>
+              <div className="flex items-center justify-center mb-4">
+                <h2 className="text-4xl font-bold text-gray-900">
+                  Let's see what this car has to offer..
+                </h2>
+              </div>
               <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
                 Enter a Vehicle Identification Number to retrieve high-fidelity
                 equipment data, recall history, and market valuation.
@@ -152,16 +220,22 @@ export default function VINIntelPage() {
                     className="pl-16 pr-36 py-6 text-2xl bg-white shadow-lg border-0 focus:ring-0 focus:border-0 focus:outline-none focus-visible:ring-0 focus-visible:border-0 w-full h-20"
                   />
                   <button
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white px-8 py-4 text-lg font-medium rounded-md flex items-center h-14 transition-colors duration-200 hover:opacity-90"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white px-8 py-4 text-lg font-medium rounded-md flex items-center h-14 transition-colors duration-200 hover:opacity-90 disabled:opacity-50"
                     style={{ backgroundColor: "#136dec" }}
-                    onClick={() =>
-                      router.push(
-                        "/vin-intel/acquisition-intelligence-deep-dive",
-                      )
-                    }
+                    onClick={handleAnalyzeVIN}
+                    disabled={isLoading}
                   >
-                    Analyze VIN
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    {isLoading ? (
+                      <>
+                        <div className="w-5 h-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        Analyze VIN
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </>
+                    )}
                   </button>
                 </div>
 
@@ -193,24 +267,32 @@ export default function VINIntelPage() {
                       </h3>
                     </div>
                     <div className="divide-y divide-gray-100">
-                      {recentlyAnalyzedUnits.map((unit, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between px-4 py-2"
-                        >
-                          <div>
-                            <div className="text-xs font-medium text-gray-800">
-                              {unit.year} {unit.make} {unit.model}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              VIN: {unit.vin}
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            {unit.analyzedAt}
+                      {recentlyAnalyzedUnits.length === 0 ? (
+                        <div className="px-4 py-8 text-center">
+                          <div className="text-sm text-gray-500">
+                            No records found
                           </div>
                         </div>
-                      ))}
+                      ) : (
+                        recentlyAnalyzedUnits.map((unit, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between px-4 py-2"
+                          >
+                            <div>
+                              <div className="text-xs font-medium text-gray-800">
+                                {unit.year} {unit.make} {unit.model}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                VIN: {unit.vin}
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              {unit.analyzedAt}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
@@ -222,24 +304,32 @@ export default function VINIntelPage() {
                       </h3>
                     </div>
                     <div className="divide-y divide-gray-100">
-                      {recentBuildSheets.map((sheet, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between px-4 py-2"
-                        >
-                          <div>
-                            <div className="text-xs font-medium text-gray-800">
-                              {sheet.year} {sheet.make} {sheet.model}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              VIN: {sheet.vin}
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            {sheet.pulledAt}
+                      {recentBuildSheets.length === 0 ? (
+                        <div className="px-4 py-8 text-center">
+                          <div className="text-sm text-gray-500">
+                            No records found
                           </div>
                         </div>
-                      ))}
+                      ) : (
+                        recentBuildSheets.map((sheet, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between px-4 py-2"
+                          >
+                            <div>
+                              <div className="text-xs font-medium text-gray-800">
+                                {sheet.year} {sheet.make} {sheet.model}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                VIN: {sheet.vin}
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              {sheet.pulledAt}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
