@@ -1,12 +1,13 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import type {
+  VehicleSpecs,
+  VehicleSpecsSections,
+  VehicleEquipmentItem,
+  VehicleOption,
+} from "@/types/vehicle-specs";
 
 interface BuildSheetModalProps {
   open: boolean;
@@ -18,12 +19,14 @@ interface BuildSheetModalProps {
     trim?: string;
     vin?: string;
   };
+  vehicleSpecs?: VehicleSpecs | null;
 }
 
 export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
   open,
   onOpenChange,
   vinData,
+  vehicleSpecs,
 }) => {
   const demoBuildSheet = {
     year: "2022",
@@ -116,6 +119,333 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
     totalPrice: "$141,200",
   };
 
+  const formatCurrency = (value?: number | null): string => {
+    if (typeof value === "number" && !Number.isNaN(value)) {
+      return `$${value.toLocaleString()}`;
+    }
+    return "—";
+  };
+
+  const formatOptionText = (value: unknown): string => {
+    if (value == null) return "";
+    if (typeof value === "string") return value;
+    if (typeof value === "number") return value.toString();
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => formatOptionText(item))
+        .filter(Boolean)
+        .join(", ");
+    }
+    if (typeof value === "object") {
+      return Object.values(value)
+        .map((item) => formatOptionText(item))
+        .filter(Boolean)
+        .join(", ");
+    }
+    return "";
+  };
+
+  const safeString = (val: unknown, fallback: string): string => {
+    const result = formatOptionText(val);
+    return result || fallback;
+  };
+
+  const resolveColorText = (
+    colorDetails?: VehicleSpecs["exteriorColorDetails"],
+    fallback?: unknown,
+  ): string => {
+    if (colorDetails) {
+      const fromDetails =
+        colorDetails.name || colorDetails.base || colorDetails.code;
+      if (fromDetails) {
+        return fromDetails;
+      }
+    }
+    return formatOptionText(fallback) || "";
+  };
+
+  const sectionKeywordMap: Record<keyof VehicleSpecsSections, string[]> = {
+    mechanical: [
+      "engine",
+      "transmission",
+      "drivetrain",
+      "powertrain",
+      "suspension",
+      "performance",
+      "fuel",
+    ],
+    interior: ["interior", "comfort", "seat", "steering", "cabin", "console"],
+    exterior: [
+      "exterior",
+      "body",
+      "door",
+      "mirror",
+      "lighting",
+      "paint",
+      "bed",
+      "trailer",
+      "wheel",
+      "tire",
+      "roof",
+      "window",
+    ],
+    safety: [
+      "safety",
+      "driver assist",
+      "airbag",
+      "brake",
+      "collision",
+      "security",
+      "lane",
+      "parking",
+      "cruise",
+      "assist",
+    ],
+    entertainment: [
+      "infotainment",
+      "audio",
+      "entertainment",
+      "display",
+      "screen",
+      "speaker",
+      "voice",
+      "bluetooth",
+      "telematics",
+    ],
+  };
+
+  const deriveSectionsFromSpecs = (
+    specs: VehicleSpecs,
+  ): VehicleSpecsSections => {
+    const buckets: VehicleSpecsSections = {
+      mechanical: [...(specs.sections?.mechanical ?? [])],
+      interior: [...(specs.sections?.interior ?? [])],
+      exterior: [...(specs.sections?.exterior ?? [])],
+      safety: [...(specs.sections?.safety ?? [])],
+      entertainment: [...(specs.sections?.entertainment ?? [])],
+    };
+
+    const addUnique = (key: keyof VehicleSpecsSections, value?: string) => {
+      if (!value) return;
+      const trimmed = value.trim();
+      if (!trimmed) return;
+      if (!buckets[key].includes(trimmed)) {
+        buckets[key].push(trimmed);
+      }
+    };
+
+    const assignSection = (
+      category?: string,
+    ): keyof VehicleSpecsSections | null => {
+      if (!category) return null;
+      const lowered = category.toLowerCase();
+      for (const [section, keywords] of Object.entries(sectionKeywordMap)) {
+        if (keywords.some((keyword) => lowered.includes(keyword))) {
+          return section as keyof VehicleSpecsSections;
+        }
+      }
+      return null;
+    };
+
+    const collectFeatures = (
+      featureSource?: Record<
+        string,
+        { category?: string; description?: string }[]
+      >,
+    ) => {
+      if (!featureSource) return;
+      Object.values(featureSource).forEach((featureList) => {
+        featureList?.forEach((feature) => {
+          const target = assignSection(feature.category);
+          if (target) {
+            addUnique(target, feature.description);
+          }
+        });
+      });
+    };
+
+    collectFeatures(specs.features);
+    collectFeatures(specs.highValueFeatures);
+
+    addUnique("mechanical", specs.engine);
+    addUnique(
+      "mechanical",
+      specs.transmissionDescription || specs.transmission,
+    );
+    addUnique("mechanical", specs.drivetrain);
+    addUnique(
+      "interior",
+      specs.interiorColorDetails?.name || specs.interiorColor
+        ? `Interior Color: ${resolveColorText(specs.interiorColorDetails, specs.interiorColor)}`
+        : "",
+    );
+    addUnique(
+      "exterior",
+      specs.exteriorColorDetails?.name || specs.exteriorColor
+        ? `Exterior Color: ${resolveColorText(specs.exteriorColorDetails, specs.exteriorColor)}`
+        : "",
+    );
+
+    const mpgText =
+      specs.mpg?.city && specs.mpg?.highway
+        ? `MPG: ${specs.mpg.city} city / ${specs.mpg.highway} hwy`
+        : "";
+    addUnique("mechanical", mpgText);
+
+    (Object.keys(buckets) as (keyof VehicleSpecsSections)[]).forEach((key) => {
+      if (buckets[key].length > 12) {
+        buckets[key] = buckets[key].slice(0, 12);
+      }
+    });
+
+    return buckets;
+  };
+
+  const derivedSections = React.useMemo(() => {
+    if (!vehicleSpecs) return null;
+    return deriveSectionsFromSpecs(vehicleSpecs);
+  }, [vehicleSpecs]);
+
+  const summaryRows = [
+    {
+      label: "Year",
+      value:
+        vehicleSpecs?.year?.toString() ||
+        vinData?.year?.toString() ||
+        demoBuildSheet.year,
+    },
+    {
+      label: "Engine",
+      value: safeString(vehicleSpecs?.engine, demoBuildSheet.engine),
+    },
+    {
+      label: "Make",
+      value:
+        safeString(vehicleSpecs?.make, "")?.toUpperCase() ||
+        vinData?.make?.toUpperCase() ||
+        demoBuildSheet.make,
+    },
+    {
+      label: "Transmission",
+      value: safeString(
+        vehicleSpecs?.transmission,
+        demoBuildSheet.transmission,
+      ),
+    },
+    {
+      label: "Model",
+      value:
+        safeString(vehicleSpecs?.model, "")?.toUpperCase() ||
+        vinData?.model?.toUpperCase() ||
+        demoBuildSheet.model,
+    },
+    {
+      label: "Exterior",
+      value:
+        resolveColorText(
+          vehicleSpecs?.exteriorColorDetails,
+          vehicleSpecs?.exteriorColor,
+        ) || demoBuildSheet.exterior,
+    },
+    {
+      label: "VIN",
+      value:
+        safeString(vehicleSpecs?.vin, "") || vinData?.vin || demoBuildSheet.vin,
+    },
+    {
+      label: "Interior",
+      value:
+        resolveColorText(
+          vehicleSpecs?.interiorColorDetails,
+          vehicleSpecs?.interiorColor,
+        ) || demoBuildSheet.interior,
+    },
+  ];
+
+  const resolvedSections: VehicleSpecsSections = {
+    mechanical: derivedSections?.mechanical?.length
+      ? derivedSections.mechanical
+      : demoBuildSheet.mechanical,
+    interior: derivedSections?.interior?.length
+      ? derivedSections.interior
+      : demoBuildSheet.interiorFeatures,
+    exterior: derivedSections?.exterior?.length
+      ? derivedSections.exterior
+      : demoBuildSheet.exteriorFeatures,
+    safety: derivedSections?.safety?.length
+      ? derivedSections.safety
+      : demoBuildSheet.safety,
+    entertainment: derivedSections?.entertainment?.length
+      ? derivedSections.entertainment
+      : demoBuildSheet.entertainment,
+  };
+
+  const normalizeRawInstalledOptions = (raw: unknown): VehicleOption[] => {
+    if (!Array.isArray(raw)) return [];
+    return raw.map((item) => ({
+      code:
+        typeof (item as any)?.code === "string"
+          ? ((item as any)?.code as string)
+          : undefined,
+      name:
+        typeof (item as any)?.name === "string"
+          ? ((item as any)?.name as string)
+          : typeof (item as any)?.description === "string"
+            ? ((item as any)?.description as string)
+            : "",
+      description:
+        typeof (item as any)?.description === "string"
+          ? ((item as any)?.description as string)
+          : undefined,
+      price:
+        typeof (item as any)?.msrp === "number"
+          ? ((item as any)?.msrp as number)
+          : typeof (item as any)?.msrp === "string"
+            ? Number((item as any)?.msrp) || null
+            : null,
+    }));
+  };
+
+  const resolvedInstalledOptionsSource = React.useMemo(() => {
+    if (!vehicleSpecs) return [];
+    if (vehicleSpecs.installedOptionsDetails?.length) {
+      return vehicleSpecs.installedOptionsDetails;
+    }
+    if (vehicleSpecs.installedOptions?.length) {
+      return vehicleSpecs.installedOptions;
+    }
+    const raw = (
+      vehicleSpecs as unknown as {
+        installed_options_details?: unknown;
+      }
+    )?.installed_options_details;
+    return normalizeRawInstalledOptions(raw);
+  }, [vehicleSpecs]);
+
+  const parsedInstalledOptions = resolvedInstalledOptionsSource.length
+    ? resolvedInstalledOptionsSource.map((option) => ({
+        code: option.code,
+        label: option.name || option.description || "",
+        price: typeof option.price === "number" ? option.price : null,
+      }))
+    : [];
+
+  const baseMsrp = vehicleSpecs?.msrp ?? null;
+  const destinationCharge = vehicleSpecs?.destinationCharge ?? 1350;
+  const optionsTotal = parsedInstalledOptions.reduce(
+    (sum, opt) => sum + (opt.price ?? 0),
+    0,
+  );
+  const computedTotal =
+    parsedInstalledOptions.length > 0
+      ? optionsTotal
+      : baseMsrp !== null
+        ? baseMsrp + (destinationCharge ?? 0)
+        : null;
+  const totalPriceValue = computedTotal;
+  const mpgCity = vehicleSpecs?.mpg?.city ?? demoBuildSheet.mpg.city;
+  const mpgHighway = vehicleSpecs?.mpg?.highway ?? demoBuildSheet.mpg.highway;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -144,56 +474,14 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
             {/* Left Panel */}
             <div className="flex flex-col space-y-8 overflow-hidden">
               <div className="grid grid-cols-2 gap-y-1 text-xs leading-snug">
-                <div>
-                  <span className="font-semibold text-gray-900">Year:</span>
-                  <span className="text-gray-700 ml-2">
-                    {demoBuildSheet.year}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">Engine:</span>
-                  <span className="text-gray-700 ml-2">
-                    {demoBuildSheet.engine}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">Make:</span>
-                  <span className="text-gray-700 ml-2">
-                    {demoBuildSheet.make}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">
-                    Transmission:
-                  </span>
-                  <span className="text-gray-700 ml-2">
-                    {demoBuildSheet.transmission}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">Model:</span>
-                  <span className="text-gray-700 ml-2">
-                    {demoBuildSheet.model}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">Exterior:</span>
-                  <span className="text-gray-700 ml-2">
-                    {demoBuildSheet.exterior}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">VIN:</span>
-                  <span className="text-gray-700 ml-2">
-                    {demoBuildSheet.vin}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">Interior:</span>
-                  <span className="text-gray-700 ml-2">
-                    {demoBuildSheet.interior}
-                  </span>
-                </div>
+                {summaryRows.map((row) => (
+                  <div key={row.label}>
+                    <span className="font-semibold text-gray-900">
+                      {row.label}:
+                    </span>
+                    <span className="text-gray-700 ml-2">{row.value}</span>
+                  </div>
+                ))}
               </div>
 
               <div className="grid grid-cols-2 gap-8 text-[13px] text-gray-800">
@@ -205,8 +493,8 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
                       </h3>
                     </div>
                     <ul className="mt-2 space-y-1">
-                      {demoBuildSheet.mechanical.map((item, idx) => (
-                        <li key={idx}>• {item}</li>
+                      {resolvedSections.mechanical.map((item, idx) => (
+                        <li key={idx}>• {formatOptionText(item)}</li>
                       ))}
                     </ul>
                   </section>
@@ -217,8 +505,8 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
                       </h3>
                     </div>
                     <ul className="mt-2 space-y-1">
-                      {demoBuildSheet.exteriorFeatures.map((item, idx) => (
-                        <li key={idx}>• {item}</li>
+                      {resolvedSections.exterior.map((item, idx) => (
+                        <li key={idx}>• {formatOptionText(item)}</li>
                       ))}
                     </ul>
                   </section>
@@ -231,8 +519,8 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
                       </h3>
                     </div>
                     <ul className="mt-2 space-y-1">
-                      {demoBuildSheet.interiorFeatures.map((item, idx) => (
-                        <li key={idx}>• {item}</li>
+                      {resolvedSections.interior.map((item, idx) => (
+                        <li key={idx}>• {formatOptionText(item)}</li>
                       ))}
                     </ul>
                   </section>
@@ -243,8 +531,8 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
                       </h3>
                     </div>
                     <ul className="mt-2 space-y-1">
-                      {demoBuildSheet.safety.map((item, idx) => (
-                        <li key={idx}>• {item}</li>
+                      {resolvedSections.safety.map((item, idx) => (
+                        <li key={idx}>• {formatOptionText(item)}</li>
                       ))}
                     </ul>
                   </section>
@@ -255,8 +543,8 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
                       </h3>
                     </div>
                     <ul className="mt-2 space-y-1">
-                      {demoBuildSheet.entertainment.map((item, idx) => (
-                        <li key={idx}>• {item}</li>
+                      {resolvedSections.entertainment.map((item, idx) => (
+                        <li key={idx}>• {formatOptionText(item)}</li>
                       ))}
                     </ul>
                   </section>
@@ -273,7 +561,7 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
                       City MPG
                     </p>
                     <p className="text-3xl font-bold text-gray-900">
-                      {demoBuildSheet.mpg.city}
+                      {mpgCity ?? "—"}
                     </p>
                   </div>
                   <div>
@@ -281,7 +569,7 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
                       Highway MPG
                     </p>
                     <p className="text-3xl font-bold text-gray-900">
-                      {demoBuildSheet.mpg.highway}
+                      {mpgHighway ?? "—"}
                     </p>
                   </div>
                 </div>
@@ -296,29 +584,31 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
                   INSTALLED OPTIONS
                 </h3>
                 <div className="text-[13px] space-y-1 flex-1">
-                  {demoBuildSheet.installedOptions.map((opt, idx) => (
-                    <div key={idx} className="flex justify-between">
+                  {parsedInstalledOptions.map((opt, idx) => (
+                    <div
+                      key={`${opt.code}-${idx}`}
+                      className="flex justify-between"
+                    >
                       <span className="text-gray-700">
-                        {opt.code} {opt.description}
+                        {opt.code ? `${formatOptionText(opt.code)} ` : ""}
+                        {formatOptionText(opt.label)}
                       </span>
                       <span className="font-semibold">
-                        ${opt.price.toLocaleString()}
+                        {typeof opt.price === "number"
+                          ? formatCurrency(opt.price)
+                          : "—"}
                       </span>
                     </div>
                   ))}
-                  <div className="flex justify-between border-t border-gray-300 pt-2 mt-3">
-                    <span className="font-semibold text-gray-900">
-                      Destination Charge
-                    </span>
-                    <span className="font-semibold">$1,350</span>
-                  </div>
                 </div>
                 <div className="flex justify-between items-center border-t border-gray-900 pt-4 mt-4">
                   <span className="text-lg font-semibold text-gray-900">
                     TOTAL PRICE
                   </span>
                   <span className="text-2xl font-bold text-gray-900">
-                    {demoBuildSheet.totalPrice}
+                    {totalPriceValue
+                      ? formatCurrency(totalPriceValue)
+                      : demoBuildSheet.totalPrice}
                   </span>
                 </div>
               </div>

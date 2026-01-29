@@ -26,6 +26,63 @@ export default function VINIntelPage() {
   const { user, signOut } = useAuth();
   const router = useRouter();
 
+  const fetchVehicleSpecs = async (vin: string) => {
+    try {
+      const response = await fetch("/api/cars/vehicle-specs/neovin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ vin }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          (errorData && (errorData.error || errorData.details)) ||
+            `Failed to fetch vehicle specs: ${response.status}`,
+        );
+      }
+
+      const result = await response.json();
+      if (result?.success && result.data) {
+        return result.data;
+      }
+
+      throw new Error("Vehicle specs response missing data");
+    } catch (error) {
+      console.error("Error fetching vehicle specs:", error);
+      toast.warning(
+        error instanceof Error
+          ? error.message
+          : "Unable to fetch build sheet data for this VIN.",
+      );
+      return null;
+    }
+  };
+
+  const persistDataAndNavigate = async (
+    vin: string,
+    vinData: any,
+    extras?: { reportId?: string },
+  ) => {
+    sessionStorage.setItem("vinData", JSON.stringify(vinData));
+    sessionStorage.setItem("vin", vin);
+
+    if (extras?.reportId) {
+      sessionStorage.setItem("reportId", extras.reportId);
+    }
+
+    const vehicleSpecs = await fetchVehicleSpecs(vin);
+    if (vehicleSpecs) {
+      sessionStorage.setItem("vehicleSpecs", JSON.stringify(vehicleSpecs));
+    } else {
+      sessionStorage.removeItem("vehicleSpecs");
+    }
+
+    router.push("/vin-intel/acquisition-intelligence-deep-dive");
+  };
+
   const fetchVINData = async (vin: string) => {
     setIsLoading(true);
 
@@ -57,13 +114,7 @@ export default function VINIntelPage() {
       if (generateResult.hasDirectData && generateResult.data) {
         // We got the data directly, no need for separate access call
         const vinData = generateResult.data;
-
-        // Store VIN data in sessionStorage to pass to the next page
-        sessionStorage.setItem("vinData", JSON.stringify(vinData));
-        sessionStorage.setItem("vin", vin);
-
-        // Navigate to deep-dive page
-        router.push("/vin-intel/acquisition-intelligence-deep-dive");
+        await persistDataAndNavigate(vin, vinData);
         return;
       }
 
@@ -96,13 +147,7 @@ export default function VINIntelPage() {
 
         const vinData = accessResult.data;
 
-        // Store VIN data in sessionStorage to pass to the next page
-        sessionStorage.setItem("vinData", JSON.stringify(vinData));
-        sessionStorage.setItem("vin", vin);
-        sessionStorage.setItem("reportId", reportId);
-
-        // Navigate to deep-dive page
-        router.push("/vin-intel/acquisition-intelligence-deep-dive");
+        await persistDataAndNavigate(vin, vinData, { reportId });
       } else {
         throw new Error("No report ID received from generate endpoint");
       }

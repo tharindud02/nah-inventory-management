@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { LinearGauge } from "@/components/ui/LinearGauge";
 import { BuildSheetModal } from "@/components/ui/BuildSheetModal";
+import type { VehicleSpecs } from "@/types/vehicle-specs";
 import {
   Search,
   ArrowLeft,
@@ -72,12 +73,49 @@ export default function VINDeepDivePage() {
   const [vin, setVin] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [buildSheetModalOpen, setBuildSheetModalOpen] = useState(false);
+  const [vehicleSpecs, setVehicleSpecs] = useState<VehicleSpecs | null>(null);
   const marketDataFetchedRef = useRef(false);
+
+  const fetchAndStoreVehicleSpecs = useCallback(async (vinParam: string) => {
+    try {
+      const response = await fetch("/api/cars/vehicle-specs/neovin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vin: vinParam }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          (errorData && (errorData.error || errorData.details)) ||
+            `Failed to fetch vehicle specs: ${response.status}`,
+        );
+      }
+
+      const result = await response.json();
+      if (result?.success && result.data) {
+        setVehicleSpecs(result.data);
+        sessionStorage.setItem("vehicleSpecs", JSON.stringify(result.data));
+        return result.data as VehicleSpecs;
+      }
+
+      throw new Error("Vehicle specs response missing data");
+    } catch (error) {
+      console.error("Error refreshing vehicle specs:", error);
+      toast.warning(
+        error instanceof Error
+          ? error.message
+          : "Unable to refresh build sheet data for this VIN.",
+      );
+      return null;
+    }
+  }, []);
 
   useEffect(() => {
     // Retrieve VIN data from sessionStorage
     const storedVinData = sessionStorage.getItem("vinData");
     const storedVin = sessionStorage.getItem("vin");
+    const storedVehicleSpecs = sessionStorage.getItem("vehicleSpecs");
 
     if (storedVinData && storedVin) {
       try {
@@ -86,6 +124,20 @@ export default function VINDeepDivePage() {
         const transformedData = transformVinData(rawData, storedVin);
         setVinData(transformedData);
         setVin(storedVin);
+
+        if (storedVehicleSpecs) {
+          try {
+            setVehicleSpecs(JSON.parse(storedVehicleSpecs));
+          } catch (specError) {
+            console.warn("Error parsing stored vehicle specs", specError);
+            setVehicleSpecs(null);
+            if (storedVin) {
+              fetchAndStoreVehicleSpecs(storedVin);
+            }
+          }
+        } else if (storedVin) {
+          fetchAndStoreVehicleSpecs(storedVin);
+        }
 
         // Fetch additional market data only if not already fetched
         if (!marketDataFetchedRef.current) {
@@ -98,9 +150,23 @@ export default function VINDeepDivePage() {
       }
     } else {
       toast.info("No vehicle data found. Please analyze a VIN first.");
+      if (storedVin) {
+        fetchAndStoreVehicleSpecs(storedVin);
+      }
     }
+
     setIsLoading(false);
-  }, []);
+  }, [fetchAndStoreVehicleSpecs]);
+
+  useEffect(() => {
+    if (
+      buildSheetModalOpen &&
+      vin &&
+      (!vehicleSpecs || !vehicleSpecs.installedOptionsDetails?.length)
+    ) {
+      fetchAndStoreVehicleSpecs(vin);
+    }
+  }, [buildSheetModalOpen, vin, vehicleSpecs, fetchAndStoreVehicleSpecs]);
 
   // Fetch market data from various MarketCheck APIs
   const fetchMarketData = async (vin: string, currentData: VINData) => {
@@ -1184,6 +1250,7 @@ export default function VINDeepDivePage() {
               open={buildSheetModalOpen}
               onOpenChange={setBuildSheetModalOpen}
               vinData={vinData || undefined}
+              vehicleSpecs={vehicleSpecs}
             />
           </main>
         </div>
