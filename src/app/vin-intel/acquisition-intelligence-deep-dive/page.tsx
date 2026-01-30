@@ -714,56 +714,58 @@ export default function VINDeepDivePage() {
       marketCheckAvg:
         valuation?.estimated_market_value ??
         vinData?.market_data?.estimated_market_value ??
-        141200,
+        null,
       demandLabel: demandScore?.demand_label
         ? typeof demandScore.demand_label === "string"
           ? demandScore.demand_label
-          : "Ultra High Demand"
-        : "Ultra High Demand",
+          : "No Demand Data"
+        : "No Demand Data",
       demandTone: demandScore?.demand_tone
         ? typeof demandScore.demand_tone === "string"
           ? demandScore.demand_tone
-          : "bg-green-100 text-green-800"
-        : "bg-green-100 text-green-800",
+          : "bg-gray-100 text-gray-800"
+        : "bg-gray-100 text-gray-800",
       priceRange: {
         min:
-          (valuation?.estimated_market_value ??
-            vinData?.market_data?.estimated_market_value ??
-            141200) * 0.95,
+          valuation?.estimated_market_value ||
+          vinData?.market_data?.estimated_market_value
+            ? (valuation?.estimated_market_value ??
+                vinData?.market_data?.estimated_market_value) * 0.95
+            : null,
         max:
-          (valuation?.estimated_market_value ??
-            vinData?.market_data?.estimated_market_value ??
-            141200) * 1.05,
+          valuation?.estimated_market_value ||
+          vinData?.market_data?.estimated_market_value
+            ? (valuation?.estimated_market_value ??
+                vinData?.market_data?.estimated_market_value) * 1.05
+            : null,
       },
-      estGrossMargin: 8500,
+      estGrossMargin:
+        valuation?.estimated_market_value ||
+        vinData?.market_data?.estimated_market_value
+          ? Math.round(
+              (valuation?.estimated_market_value ??
+                vinData?.market_data?.estimated_market_value) * 0.06,
+            )
+          : null,
     },
     wholesale: {
       baseMMR: mmr?.base_mmr
         ? typeof mmr.base_mmr === "number"
           ? mmr.base_mmr
           : parseFloat(mmr.base_mmr)
-        : (valuation?.estimated_market_value ??
-            vinData?.market_data?.estimated_market_value ??
-            141200) * 0.9,
+        : null,
       adjustedMMR: mmr?.adjusted_mmr
         ? typeof mmr.adjusted_mmr === "number"
           ? mmr.adjusted_mmr
           : parseFloat(mmr.adjusted_mmr)
-        : (valuation?.estimated_market_value ??
-            vinData?.market_data?.estimated_market_value ??
-            141200) * 0.93,
-      avgOdo: mmr?.avg_odo ?? 28400,
-      avgCondition: mmr?.avg_condition ?? "Good",
-      adjustments: mmr?.adjustments?.length
-        ? mmr.adjustments
-        : [
-            { label: "Mileage Adjustment", value: -2800 },
-            { label: "Region Adjustment", value: 1500 },
-          ],
+        : null,
+      avgOdo: mmr?.avg_odo ?? null,
+      avgCondition: mmr?.avg_condition ?? null,
+      adjustments: mmr?.adjustments?.length ? mmr.adjustments : [],
     },
   };
 
-  const activeListings = marketComps.length
+  const activeListings = marketComps?.length
     ? marketComps.map((listing: any) => ({
         year: listing.year || vinData?.year || 2020,
         make: listing.make || vinData?.make || "FORD",
@@ -775,7 +777,7 @@ export default function VINDeepDivePage() {
         dom: listing.days_on_market || 0,
         seller: listing.seller_name || "Dealer",
         certified: listing.certified || false,
-        gradient: "from-gray-400 to-gray-600",
+        gradient: "from-blue-400 to-blue-600",
       }))
     : aamvaReport?.titleInformation?.length
       ? aamvaReport.titleInformation.map((t: any) => ({
@@ -798,27 +800,29 @@ export default function VINDeepDivePage() {
 
   const scatterData = {
     target: {
-      miles: vinData?.odometer || 8420,
-      price: vinData?.market_data?.estimated_market_value || 141200,
+      miles: vinData?.odometer ?? 0,
+      price: vinData?.market_data?.estimated_market_value ?? 0,
     },
-    market: soldComps.length
+    market: soldComps?.length
       ? soldComps.slice(0, 20).map((c: any) => ({
-          miles: c.miles || 0,
-          price: c.price || 0,
+          miles: c.miles ?? 0,
+          price: c.price ?? 0,
         }))
-      : activeListings.slice(0, 20).map((l: any) => ({
-          miles: l.miles,
-          price: l.price,
-        })),
+      : activeListings?.length
+        ? activeListings.slice(0, 20).map((l: any) => ({
+            miles: l.miles ?? 0,
+            price: l.price ?? 0,
+          }))
+        : [],
   };
 
   const priceValues = [
     scatterData.target.price,
-    ...scatterData.market.map((point: any) => point.price),
+    ...(scatterData.market?.map((point: any) => point.price) ?? []),
   ];
   const mileageValues = [
     scatterData.target.miles,
-    ...scatterData.market.map((point: any) => point.miles),
+    ...(scatterData.market?.map((point: any) => point.miles) ?? []),
   ];
   const minPrice = Math.min(...priceValues);
   const maxPrice = Math.max(...priceValues);
@@ -871,7 +875,7 @@ export default function VINDeepDivePage() {
   const calculateRangePercent = () => {
     const { min, max } = valuationSummary.retail.priceRange;
     const value = valuationSummary.retail.marketCheckAvg;
-    if (max === min) return 50;
+    if (!min || !max || max === min) return 50;
     return ((value - min) / (max - min)) * 100;
   };
 
@@ -881,7 +885,7 @@ export default function VINDeepDivePage() {
     1,
     Math.max(
       0,
-      (valuationSummary.wholesale.adjustedMMR - gaugeMin) /
+      ((valuationSummary.wholesale.adjustedMMR ?? 0) - gaugeMin) /
         (gaugeMax - gaugeMin),
     ),
   );
@@ -891,10 +895,13 @@ export default function VINDeepDivePage() {
 
   // Gauge data for PieChart
   const gaugeData = [
-    { name: "value", value: valuationSummary.wholesale.adjustedMMR - gaugeMin },
+    {
+      name: "value",
+      value: (valuationSummary.wholesale.adjustedMMR ?? 0) - gaugeMin,
+    },
     {
       name: "remaining",
-      value: gaugeMax - valuationSummary.wholesale.adjustedMMR,
+      value: gaugeMax - (valuationSummary.wholesale.adjustedMMR ?? 0),
     },
   ];
   const RADIAN = Math.PI / 180;
@@ -994,6 +1001,38 @@ export default function VINDeepDivePage() {
               </div>
             )}
 
+            {/* Empty State */}
+            {!isLoading && !vinData && (
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <svg
+                    className="w-8 h-8 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Vehicle Data
+                </h3>
+                <p className="text-gray-600 text-center max-w-md mb-6">
+                  No vehicle information found. Please analyze a VIN first to
+                  view acquisition intelligence data.
+                </p>
+                <Button onClick={() => router.push("/vin-intel")}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to VIN Intel
+                </Button>
+              </div>
+            )}
+
             {/* Vehicle Information */}
             {!isLoading && vinData && (
               <>
@@ -1068,39 +1107,42 @@ export default function VINDeepDivePage() {
                       <div className="text-2xl font-bold text-green-600">
                         {formatPercentage(
                           vinData.market_data?.retail_turn_rate,
-                        )}
+                        ) || "—"}
                       </div>
                     </Card>
                     <Card className="text-center p-3">
                       <div className="text-xs text-gray-600 whitespace-nowrap">
                         Avg. Days to Sell
                       </div>
-                      <div className="text-2xl font-bold text-gray-900">
-                        {formatNumber(vinData.market_data?.avg_days_to_sell)}
+                      <div className="text-2xl font-bold text-blue-600">
+                        {formatNumber(vinData.market_data?.avg_days_to_sell) ||
+                          "—"}
+                      </div>
+                    </Card>
+                    <Card className="text-center p-3">
+                      <div className="text-xs text-gray-600 whitespace-nowrap">
+                        Market Days Supply
+                      </div>
+                      <div className="text-2xl font-bold text-amber-600">
+                        {formatNumber(
+                          vinData.market_data?.market_days_supply,
+                        ) || "—"}
                       </div>
                     </Card>
                     <Card className="text-center p-3">
                       <div className="text-xs text-gray-600 whitespace-nowrap">
                         Active Local
                       </div>
-                      <div className="text-2xl font-bold text-gray-900">
-                        {formatNumber(vinData.market_data?.active_local)}
+                      <div className="text-2xl font-bold text-purple-600">
+                        {formatNumber(vinData.market_data?.active_local) || "—"}
                       </div>
                     </Card>
                     <Card className="text-center p-3">
                       <div className="text-xs text-gray-600 whitespace-nowrap">
-                        Mkt Days Supply
+                        Sold 90d
                       </div>
-                      <div className="text-2xl font-bold text-orange-600">
-                        {formatNumber(vinData.market_data?.market_days_supply)}
-                      </div>
-                    </Card>
-                    <Card className="text-center p-3">
-                      <div className="text-xs text-gray-600 whitespace-nowrap">
-                        Sold (90D)
-                      </div>
-                      <div className="text-2xl font-bold text-blue-600">
-                        {formatNumber(vinData.market_data?.sold_90d)}
+                      <div className="text-2xl font-bold text-indigo-600">
+                        {formatNumber(vinData.market_data?.sold_90d) || "—"}
                       </div>
                     </Card>
                     <Card className="text-center p-3">
@@ -1108,173 +1150,220 @@ export default function VINDeepDivePage() {
                         Consumer Interest
                       </div>
                       <div className="text-2xl font-bold text-green-600">
-                        {formatNumber(vinData.market_data?.consumer_interest)}
+                        {formatNumber(vinData.market_data?.consumer_interest) ||
+                          "—"}
                       </div>
                     </Card>
                   </div>
                 </div>
 
-                <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-                  <Card>
-                    <CardHeader className="flex flex-row justify-between items-start space-y-0">
-                      <div>
-                        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                          <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                          Retail Valuation
-                        </div>
-                        <CardTitle className="text-4xl font-bold mt-2">
-                          {formatCurrency(
-                            valuationSummary.retail.marketCheckAvg,
-                          )}
-                        </CardTitle>
-                      </div>
-                      <span
-                        className={`text-xs font-semibold px-3 py-1 rounded-full ${valuationSummary.retail.demandTone}`}
-                      >
-                        {valuationSummary.retail.demandLabel}
-                      </span>
-                    </CardHeader>
-                    <CardContent className="space-y-5">
-                      <div>
-                        <p className="text-xs uppercase text-gray-500 font-semibold">
-                          Market Check Avg
-                        </p>
-                        <p className="text-lg font-semibold text-gray-900">
-                          {formatCurrency(
-                            valuationSummary.retail.marketCheckAvg,
-                          )}
-                        </p>
-                      </div>
-                      <div>
-                        <LinearGauge
-                          min={valuationSummary.retail.priceRange.min}
-                          max={valuationSummary.retail.priceRange.max}
-                          value={valuationSummary.retail.marketCheckAvg}
-                          formatCompactCurrency={formatCompactCurrency}
-                        />
-                      </div>
-                      <div className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
+                <section className="flex gap-6 mb-6">
+                  <div className="w-[40%]">
+                    <Card className="h-full flex flex-col">
+                      <CardHeader className="flex flex-row justify-between items-start space-y-0 flex-shrink-0">
                         <div>
-                          <p className="text-xs uppercase text-blue-700 font-semibold">
-                            Est. Gross Margin
-                          </p>
-                          <p className="text-2xl font-bold text-blue-900">
-                            +
+                          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                            Retail Valuation
+                          </div>
+                          <CardTitle className="text-4xl font-bold mt-2">
                             {formatCurrency(
-                              valuationSummary.retail.estGrossMargin,
+                              valuationSummary.retail.marketCheckAvg ?? 0,
                             )}
-                          </p>
+                          </CardTitle>
                         </div>
-                        <span className="text-xs font-semibold text-blue-700">
-                          Projected
+                        <span
+                          className={`text-xs font-semibold px-3 py-1 rounded-full ${valuationSummary.retail.demandTone}`}
+                        >
+                          {valuationSummary.retail.demandLabel}
                         </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="flex flex-row justify-between items-start space-y-0">
-                      <div>
-                        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                          <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                          Wholesale Valuation (Full MMR)
-                        </div>
-                        <div className="text-sm text-gray-600 mt-1">
-                          Avg ODO:{" "}
-                          {valuationSummary.wholesale.avgOdo.toLocaleString()}{" "}
-                          mi • Avg Cond:{" "}
-                          {valuationSummary.wholesale.avgCondition}
-                        </div>
-                        <CardTitle className="text-3xl font-bold mt-1 text-amber-600">
-                          {formatCurrency(valuationSummary.wholesale.baseMMR)}
-                        </CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <h4 className="text-xs uppercase text-gray-500 font-semibold">
-                            Valuation Adjustments
-                          </h4>
-                          <div className="space-y-3">
-                            {valuationSummary.wholesale.adjustments.map(
-                              (adjustment: any) => (
-                                <div
-                                  key={adjustment.label}
-                                  className="flex items-center justify-between px-3 py-2 rounded-lg border border-gray-100"
-                                >
-                                  <div>
-                                    <p className="text-sm font-semibold text-gray-900">
-                                      {adjustment.label}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                      {adjustment.value}
-                                    </p>
-                                  </div>
-                                  <span className="text-sm font-bold text-emerald-600">
-                                    +{formatCurrency(adjustment.delta)}
-                                  </span>
-                                </div>
-                              ),
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-center justify-center space-y-3">
-                          <div className="text-xs uppercase text-gray-500 font-semibold">
-                            Adjusted MMR
-                          </div>
-                          <div className="text-4xl font-bold text-gray-900">
+                      </CardHeader>
+                      <CardContent className="space-y-5 flex-1 flex flex-col justify-between">
+                        <div>
+                          <p className="text-xs uppercase text-gray-500 font-semibold">
+                            Market Check Avg
+                          </p>
+                          <p className="text-lg font-semibold text-gray-900">
                             {formatCurrency(
-                              valuationSummary.wholesale.adjustedMMR,
+                              valuationSummary.retail.marketCheckAvg ?? 0,
                             )}
-                          </div>
-                          <div className="relative w-48 h-24">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <PieChart>
-                                <Pie
-                                  data={gaugeData}
-                                  cx="50%"
-                                  cy="100%"
-                                  startAngle={180}
-                                  endAngle={0}
-                                  innerRadius={70}
-                                  outerRadius={85}
-                                  dataKey="value"
-                                >
-                                  <Cell fill="#2563eb" />
-                                  <Cell fill="#dbeafe" />
-                                </Pie>
-                              </PieChart>
-                            </ResponsiveContainer>
-                            <svg
-                              viewBox="0 0 200 110"
-                              className="absolute inset-0 w-full h-full pointer-events-none"
-                              style={{ transform: "rotate(0deg)" }}
-                            >
-                              {renderNeedle(
-                                valuationSummary.wholesale.adjustedMMR -
-                                  gaugeMin,
-                                0,
-                                gaugeMax - gaugeMin,
+                          </p>
+                        </div>
+                        <div>
+                          <LinearGauge
+                            min={valuationSummary.retail.priceRange.min ?? 0}
+                            max={valuationSummary.retail.priceRange.max ?? 0}
+                            value={valuationSummary.retail.marketCheckAvg ?? 0}
+                            formatCompactCurrency={formatCompactCurrency}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
+                          <div>
+                            <p className="text-xs uppercase text-blue-700 font-semibold">
+                              Est. Gross Margin
+                            </p>
+                            <p className="text-2xl font-bold text-blue-900">
+                              +
+                              {formatCurrency(
+                                valuationSummary.retail.estGrossMargin ?? 0,
                               )}
-                            </svg>
-                            <div
-                              className="absolute bottom-0 left-0 text-xs text-gray-500"
-                              style={{ transform: "translateX(-4px)" }}
-                            >
-                              {formatCurrency(gaugeMin)}
+                            </p>
+                          </div>
+                          <span className="text-xs font-semibold text-blue-700">
+                            Projected
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <div className="w-[60%]">
+                    <Card className="h-full flex flex-col">
+                      <CardHeader className="flex flex-row justify-between items-start space-y-0 flex-shrink-0">
+                        <div>
+                          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            Wholesale Valuation (Full MMR)
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Insights based on current Manheim market data
+                          </p>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="flex-1 flex flex-col">
+                        <div className="flex flex-col lg:flex-row gap-6 flex-1">
+                          <div className="lg:w-1/4 border border-gray-100 rounded-2xl p-4 bg-gray-50">
+                            <p className="text-xs uppercase text-gray-500 font-semibold">
+                              Base MMR
+                            </p>
+                            <p className="text-4xl font-bold text-amber-600 mt-1">
+                              {formatCurrency(
+                                valuationSummary.wholesale.baseMMR ?? 0,
+                              )}
+                            </p>
+                            <div className="mt-4 space-y-3">
+                              <div>
+                                <p className="text-xs uppercase text-gray-500 font-semibold">
+                                  Avg ODO (mi)
+                                </p>
+                                <p className="text-lg font-semibold text-gray-900">
+                                  {valuationSummary.wholesale.avgOdo
+                                    ? valuationSummary.wholesale.avgOdo.toLocaleString()
+                                    : "—"}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-xs uppercase text-gray-500 font-semibold">
+                                  Avg Condition
+                                </p>
+                                <p className="text-lg font-semibold text-gray-900">
+                                  {valuationSummary.wholesale.avgCondition ||
+                                    "—"}
+                                </p>
+                              </div>
                             </div>
-                            <div
-                              className="absolute bottom-0 right-0 text-xs text-gray-500"
-                              style={{ transform: "translateX(4px)" }}
-                            >
-                              {formatCurrency(gaugeMax)}
+                          </div>
+                          <div className="lg:w-2/5 space-y-4">
+                            <h4 className="text-xs uppercase text-gray-500 font-semibold">
+                              Valuation Adjustments
+                            </h4>
+                            <div className="space-y-3">
+                              {valuationSummary.wholesale.adjustments.length >
+                              0 ? (
+                                valuationSummary.wholesale.adjustments.map(
+                                  (adjustment: any) => (
+                                    <div
+                                      key={adjustment.label}
+                                      className="flex items-center justify-between px-4 py-3 rounded-2xl border border-gray-100 bg-white shadow-sm"
+                                    >
+                                      <div>
+                                        <p className="text-sm font-semibold text-gray-900">
+                                          {adjustment.label}
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                          {adjustment.value}
+                                        </p>
+                                      </div>
+                                      <span
+                                        className={`text-sm font-semibold ${adjustment.value >= 0 ? "text-emerald-600" : "text-rose-600"}`}
+                                      >
+                                        {adjustment.value >= 0 ? "+" : ""}
+                                        {formatCurrency(
+                                          Math.abs(adjustment.value),
+                                        )}
+                                      </span>
+                                    </div>
+                                  ),
+                                )
+                              ) : (
+                                <div className="text-center py-4 text-gray-500">
+                                  No adjustments available
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="lg:flex-1 flex flex-col gap-0">
+                            <div className="text-center">
+                              <p className="text-xs uppercase text-gray-500 font-semibold">
+                                Adjusted MMR
+                              </p>
+                              <p className="text-3xl font-bold text-gray-900">
+                                {formatCurrency(
+                                  valuationSummary.wholesale.adjustedMMR ?? 0,
+                                )}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                vs. Market
+                              </p>
+                            </div>
+                            <div className="relative w-full max-w-xl h-44 mx-auto -mt-2">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                  <Pie
+                                    data={gaugeData}
+                                    startAngle={180}
+                                    endAngle={0}
+                                    innerRadius="70%"
+                                    outerRadius="90%"
+                                    cx="50%"
+                                    cy="95%"
+                                    paddingAngle={2}
+                                    dataKey="value"
+                                  >
+                                    <Cell fill="#2563eb" />
+                                    <Cell fill="#dbeafe" />
+                                  </Pie>
+                                </PieChart>
+                              </ResponsiveContainer>
+                              <svg
+                                viewBox="0 0 200 110"
+                                className="absolute inset-0 w-full h-full pointer-events-none"
+                                style={{ transform: "rotate(0deg)" }}
+                              >
+                                {renderNeedle(
+                                  (valuationSummary.wholesale.adjustedMMR ??
+                                    0) - gaugeMin,
+                                  0,
+                                  gaugeMax - gaugeMin,
+                                )}
+                              </svg>
+                              <div
+                                className="absolute bottom-0 left-0 text-xs text-gray-500"
+                                style={{ transform: "translateX(-4px)" }}
+                              >
+                                {formatCurrency(gaugeMin)}
+                              </div>
+                              <div
+                                className="absolute bottom-0 right-0 text-xs text-gray-500"
+                                style={{ transform: "translateX(4px)" }}
+                              >
+                                {formatCurrency(gaugeMax)}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </section>
 
                 <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-10">
