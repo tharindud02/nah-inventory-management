@@ -75,6 +75,213 @@ export default function VINDeepDivePage() {
   const [buildSheetModalOpen, setBuildSheetModalOpen] = useState(false);
   const [vehicleSpecs, setVehicleSpecs] = useState<VehicleSpecs | null>(null);
   const marketDataFetchedRef = useRef(false);
+  const [aamvaReport, setAamvaReport] = useState<any>(null);
+  const [marketComps, setMarketComps] = useState<any[]>([]);
+  const [soldComps, setSoldComps] = useState<any[]>([]);
+  const [valuation, setValuation] = useState<any>(null);
+  const [mmr, setMmr] = useState<any>(null);
+  const [demandScore, setDemandScore] = useState<any>(null);
+
+  const fetchAamvaReport = useCallback(async (vinParam: string) => {
+    try {
+      const response = await fetch("/api/vindata/aamva-access-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vin: vinParam }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          (errorData && (errorData.error || errorData.details)) ||
+            `Failed to fetch AAMVA report: ${response.status}`,
+        );
+      }
+
+      const result = await response.json();
+      if (result?.success && result.data) {
+        setAamvaReport(result.data);
+        sessionStorage.setItem("aamvaReport", JSON.stringify(result.data));
+        return result.data;
+      }
+
+      throw new Error("AAMVA report response missing data");
+    } catch (error) {
+      console.error("Error fetching AAMVA report:", error);
+      return null;
+    }
+  }, []);
+
+  const fetchMmr = useCallback(
+    async (vinParam: string, miles?: number, zip?: string) => {
+      try {
+        const response = await fetch("/api/vindata/mmr", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vin: vinParam, miles, zip }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(
+            (errorData && (errorData.error || errorData.details)) ||
+              `Failed to fetch MMR: ${response.status}`,
+          );
+        }
+
+        const result = await response.json();
+        if (result?.success && result.data) {
+          setMmr(result.data);
+          sessionStorage.setItem("mmr", JSON.stringify(result.data));
+          return result.data;
+        }
+
+        throw new Error("MMR response missing data");
+      } catch (error) {
+        console.error("Error fetching MMR:", error);
+        return null;
+      }
+    },
+    [],
+  );
+
+  const fetchDemandScore = useCallback(
+    async (vinParam: string, year?: number, make?: string, model?: string) => {
+      try {
+        const response = await fetch("/api/vindata/demand-score", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vin: vinParam, year, make, model }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(
+            (errorData && (errorData.error || errorData.details)) ||
+              `Failed to fetch demand score: ${response.status}`,
+          );
+        }
+
+        const result = await response.json();
+        if (result?.success && result.data) {
+          setDemandScore(result.data);
+          sessionStorage.setItem("demandScore", JSON.stringify(result.data));
+          return result.data;
+        }
+
+        throw new Error("Demand score response missing data");
+      } catch (error) {
+        console.error("Error fetching demand score:", error);
+        return null;
+      }
+    },
+    [],
+  );
+
+  const fetchValuation = useCallback(
+    async (vinParam: string, miles?: number, zip?: string) => {
+      try {
+        const response = await fetch("/api/vindata/valuation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vin: vinParam, miles, zip }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(
+            (errorData && (errorData.error || errorData.details)) ||
+              `Failed to fetch valuation: ${response.status}`,
+          );
+        }
+
+        const result = await response.json();
+        if (result?.success && result.data) {
+          setValuation(result.data);
+          sessionStorage.setItem("valuation", JSON.stringify(result.data));
+          return result.data;
+        }
+
+        throw new Error("Valuation response missing data");
+      } catch (error) {
+        console.error("Error fetching valuation:", error);
+        return null;
+      }
+    },
+    [],
+  );
+
+  const fetchMarketComps = useCallback(
+    async (vinParam: string, year?: number, make?: string, model?: string) => {
+      try {
+        const response = await fetch("/api/vindata/market-comps", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vin: vinParam, year, make, model }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(
+            (errorData && (errorData.error || errorData.details)) ||
+              `Failed to fetch market comps: ${response.status}`,
+          );
+        }
+
+        const result = await response.json();
+        if (result?.success && result.data?.listings) {
+          setMarketComps(result.data.listings);
+          sessionStorage.setItem(
+            "marketComps",
+            JSON.stringify(result.data.listings),
+          );
+          return result.data.listings;
+        }
+
+        throw new Error("Market comps response missing data");
+      } catch (error) {
+        console.error("Error fetching market comps:", error);
+        return [];
+      }
+    },
+    [],
+  );
+
+  const fetchSoldComps = useCallback(
+    async (vinParam: string, year?: number, make?: string, model?: string) => {
+      try {
+        const response = await fetch("/api/vindata/sold-comps", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vin: vinParam, year, make, model }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(
+            (errorData && (errorData.error || errorData.details)) ||
+              `Failed to fetch sold comps: ${response.status}`,
+          );
+        }
+
+        const result = await response.json();
+        if (result?.success && result.data?.listings) {
+          setSoldComps(result.data.listings);
+          sessionStorage.setItem(
+            "soldComps",
+            JSON.stringify(result.data.listings),
+          );
+          return result.data.listings;
+        }
+
+        throw new Error("Sold comps response missing data");
+      } catch (error) {
+        console.error("Error fetching sold comps:", error);
+        return [];
+      }
+    },
+    [],
+  );
 
   const fetchAndStoreVehicleSpecs = useCallback(async (vinParam: string) => {
     try {
@@ -167,6 +374,67 @@ export default function VINDeepDivePage() {
       fetchAndStoreVehicleSpecs(vin);
     }
   }, [buildSheetModalOpen, vin, vehicleSpecs, fetchAndStoreVehicleSpecs]);
+
+  useEffect(() => {
+    const storedAamvaReport = sessionStorage.getItem("aamvaReport");
+    const storedMarketComps = sessionStorage.getItem("marketComps");
+    const storedSoldComps = sessionStorage.getItem("soldComps");
+    const storedMmr = sessionStorage.getItem("mmr");
+    const storedDemandScore = sessionStorage.getItem("demandScore");
+    const storedValuation = sessionStorage.getItem("valuation");
+    if (storedMmr) {
+      try {
+        setMmr(JSON.parse(storedMmr));
+      } catch (e) {
+        console.warn("Failed to parse stored MMR", e);
+      }
+    }
+    if (storedDemandScore) {
+      try {
+        setDemandScore(JSON.parse(storedDemandScore));
+      } catch (e) {
+        console.warn("Failed to parse stored demand score", e);
+      }
+    }
+    if (storedMarketComps) {
+      try {
+        setMarketComps(JSON.parse(storedMarketComps));
+      } catch (e) {
+        console.warn("Failed to parse stored market comps", e);
+      }
+    }
+    if (storedSoldComps) {
+      try {
+        setSoldComps(JSON.parse(storedSoldComps));
+      } catch (e) {
+        console.warn("Failed to parse stored sold comps", e);
+      }
+    }
+    if (storedValuation) {
+      try {
+        setValuation(JSON.parse(storedValuation));
+      } catch (e) {
+        console.warn("Failed to parse stored valuation", e);
+      }
+    }
+    if (vin) {
+      fetchAamvaReport(vin);
+      fetchValuation(vin, vinData?.odometer);
+      fetchMmr(vin, vinData?.odometer);
+      fetchDemandScore(vin, vinData?.year, vinData?.make, vinData?.model);
+      fetchMarketComps(vin, vinData?.year, vinData?.make, vinData?.model);
+      fetchSoldComps(vin, vinData?.year, vinData?.make, vinData?.model);
+    }
+  }, [
+    vin,
+    vinData,
+    fetchAamvaReport,
+    fetchValuation,
+    fetchMmr,
+    fetchDemandScore,
+    fetchMarketComps,
+    fetchSoldComps,
+  ]);
 
   // Fetch market data from various MarketCheck APIs
   const fetchMarketData = async (vin: string, currentData: VINData) => {
@@ -426,7 +694,6 @@ export default function VINDeepDivePage() {
           market_days_supply: undefined,
           active_local: undefined,
           consumer_interest: undefined,
-          sold_90d: undefined,
         },
       };
     } catch (error) {
@@ -442,114 +709,116 @@ export default function VINDeepDivePage() {
     }
   };
 
-  const soldComparables = [
-    {
-      year: 2022,
-      make: "Porsche",
-      model: "911 Carrera S",
-      miles: 8420,
-      price: "$139,900",
-      soldDate: "2 days ago",
-      gradient: "from-amber-200 to-orange-400",
-    },
-    {
-      year: 2022,
-      make: "Porsche",
-      model: "911 Carrera S",
-      miles: 12150,
-      price: "$137,500",
-      soldDate: "5 days ago",
-      gradient: "from-teal-100 to-emerald-300",
-    },
-    {
-      year: 2021,
-      make: "Porsche",
-      model: "911 Carrera S",
-      miles: 15420,
-      price: "$135,800",
-      soldDate: "1 week ago",
-      gradient: "from-slate-100 to-slate-300",
-    },
-  ];
-
-  const activeListings = [
-    {
-      year: 2022,
-      make: "Porsche",
-      model: "911 Carrera S",
-      miles: 7850,
-      price: "$141,200",
-      distance: "12 mi",
-      dom: "15 days",
-      gradient: "from-teal-100 to-emerald-200",
-    },
-    {
-      year: 2022,
-      make: "Porsche",
-      model: "911 Carrera S",
-      miles: 9200,
-      price: "$138,900",
-      distance: "8 mi",
-      dom: "22 days",
-      gradient: "from-emerald-100 to-green-300",
-    },
-    {
-      year: 2022,
-      make: "Porsche",
-      model: "911 Carrera S",
-      miles: 11200,
-      price: "$136,500",
-      distance: "25 mi",
-      dom: "38 days",
-      gradient: "from-slate-100 to-emerald-200",
-    },
-  ];
-
   const valuationSummary = {
     retail: {
-      marketCheckAvg: 141200,
-      demandLabel: "Ultra High Demand",
-      demandTone: "bg-emerald-100 text-emerald-700",
+      marketCheckAvg:
+        valuation?.estimated_market_value ??
+        vinData?.market_data?.estimated_market_value ??
+        141200,
+      demandLabel: demandScore?.demand_label
+        ? typeof demandScore.demand_label === "string"
+          ? demandScore.demand_label
+          : "Ultra High Demand"
+        : "Ultra High Demand",
+      demandTone: demandScore?.demand_tone
+        ? typeof demandScore.demand_tone === "string"
+          ? demandScore.demand_tone
+          : "bg-green-100 text-green-800"
+        : "bg-green-100 text-green-800",
       priceRange: {
-        min: 134500,
-        max: 148900,
+        min:
+          (valuation?.estimated_market_value ??
+            vinData?.market_data?.estimated_market_value ??
+            141200) * 0.95,
+        max:
+          (valuation?.estimated_market_value ??
+            vinData?.market_data?.estimated_market_value ??
+            141200) * 1.05,
       },
-      estGrossMargin: 12450,
+      estGrossMargin: 8500,
     },
     wholesale: {
-      baseMMR: 128750,
-      adjustedMMR: 131750,
-      avgOdo: 9840,
-      avgCondition: 4.8,
-      adjustments: [
-        { label: "Odometer", value: "8,420", delta: 1850 },
-        { label: "Northeast Region", value: "Market", delta: 400 },
-        { label: "CR", value: "4.9", delta: 750 },
-      ],
+      baseMMR: mmr?.base_mmr
+        ? typeof mmr.base_mmr === "number"
+          ? mmr.base_mmr
+          : parseFloat(mmr.base_mmr)
+        : (valuation?.estimated_market_value ??
+            vinData?.market_data?.estimated_market_value ??
+            141200) * 0.9,
+      adjustedMMR: mmr?.adjusted_mmr
+        ? typeof mmr.adjusted_mmr === "number"
+          ? mmr.adjusted_mmr
+          : parseFloat(mmr.adjusted_mmr)
+        : (valuation?.estimated_market_value ??
+            vinData?.market_data?.estimated_market_value ??
+            141200) * 0.93,
+      avgOdo: mmr?.avg_odo ?? 28400,
+      avgCondition: mmr?.avg_condition ?? "Good",
+      adjustments: mmr?.adjustments?.length
+        ? mmr.adjustments
+        : [
+            { label: "Mileage Adjustment", value: -2800 },
+            { label: "Region Adjustment", value: 1500 },
+          ],
     },
   };
 
+  const activeListings = marketComps.length
+    ? marketComps.map((listing: any) => ({
+        year: listing.year || vinData?.year || 2020,
+        make: listing.make || vinData?.make || "FORD",
+        model: listing.model || vinData?.model || "F-150",
+        trim: listing.trim || "Limited",
+        miles: listing.miles || 0,
+        price: listing.price || 0,
+        vdpUrl: listing.vdp_url || "#",
+        dom: listing.days_on_market || 0,
+        seller: listing.seller_name || "Dealer",
+        certified: listing.certified || false,
+        gradient: "from-gray-400 to-gray-600",
+      }))
+    : aamvaReport?.titleInformation?.length
+      ? aamvaReport.titleInformation.map((t: any) => ({
+          year: aamvaReport.summary?.year ?? 2020,
+          make: aamvaReport.summary?.make ?? "FORD",
+          model: aamvaReport.summary?.model ?? "F-150",
+          trim: "Limited",
+          miles:
+            typeof t.reportedOdometer === "number"
+              ? t.reportedOdometer
+              : parseInt(t.reportedOdometer) || 0,
+          price: vinData?.market_data?.estimated_market_value ?? 141200,
+          vdpUrl: "#",
+          dom: 12,
+          seller: "Local Dealer",
+          certified: false,
+          gradient: "from-gray-400 to-gray-600",
+        }))
+      : [];
+
   const scatterData = {
     target: {
-      miles: 8420,
-      price: 141200,
+      miles: vinData?.odometer || 8420,
+      price: vinData?.market_data?.estimated_market_value || 141200,
     },
-    market: [
-      { miles: 5200, price: 145200 },
-      { miles: 8900, price: 139900 },
-      { miles: 12150, price: 132400 },
-      { miles: 9800, price: 136500 },
-      { miles: 15420, price: 135800 },
-    ],
+    market: soldComps.length
+      ? soldComps.slice(0, 20).map((c: any) => ({
+          miles: c.miles || 0,
+          price: c.price || 0,
+        }))
+      : activeListings.slice(0, 20).map((l: any) => ({
+          miles: l.miles,
+          price: l.price,
+        })),
   };
 
   const priceValues = [
     scatterData.target.price,
-    ...scatterData.market.map((point) => point.price),
+    ...scatterData.market.map((point: any) => point.price),
   ];
   const mileageValues = [
     scatterData.target.miles,
-    ...scatterData.market.map((point) => point.miles),
+    ...scatterData.market.map((point: any) => point.miles),
   ];
   const minPrice = Math.min(...priceValues);
   const maxPrice = Math.max(...priceValues);
@@ -584,16 +853,20 @@ export default function VINDeepDivePage() {
   ];
 
   const formatCurrency = (
-    value: number,
+    value: number | undefined | null,
     options: Intl.NumberFormatOptions = {},
-  ) =>
-    `$${value.toLocaleString(undefined, {
+  ) => {
+    if (typeof value !== "number" || isNaN(value)) return "$0";
+    return `$${value.toLocaleString(undefined, {
       maximumFractionDigits: 0,
       ...options,
     })}`;
+  };
 
-  const formatCompactCurrency = (value: number) =>
-    `$${(value / 1000).toFixed(1)}K`;
+  const formatCompactCurrency = (value: number | undefined | null) => {
+    if (typeof value !== "number" || isNaN(value)) return "$0K";
+    return `$${(value / 1000).toFixed(1)}K`;
+  };
 
   const calculateRangePercent = () => {
     const { min, max } = valuationSummary.retail.priceRange;
@@ -925,7 +1198,7 @@ export default function VINDeepDivePage() {
                           </h4>
                           <div className="space-y-3">
                             {valuationSummary.wholesale.adjustments.map(
-                              (adjustment) => (
+                              (adjustment: any) => (
                                 <div
                                   key={adjustment.label}
                                   className="flex items-center justify-between px-3 py-2 rounded-lg border border-gray-100"
@@ -1033,32 +1306,34 @@ export default function VINDeepDivePage() {
                           <span className="col-span-2 text-right">Price</span>
                           <span className="col-span-2 text-right">Sold</span>
                         </div>
-                        {soldComparables.map((comp, idx) => (
-                          <div
-                            key={`${comp.make}-${comp.miles}-${idx}`}
-                            className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
-                          >
-                            <div className="col-span-1 flex items-center">
-                              <span
-                                className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
-                              ></span>
+                        {(activeListings || []).map(
+                          (comp: any, idx: number) => (
+                            <div
+                              key={`${comp.make}-${comp.miles}-${idx}`}
+                              className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
+                            >
+                              <div className="col-span-1 flex items-center">
+                                <span
+                                  className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
+                                ></span>
+                              </div>
+                              <div className="col-span-5">
+                                <p className="font-semibold text-gray-900">
+                                  {comp.year} {comp.make} {comp.model}
+                                </p>
+                              </div>
+                              <div className="col-span-2 text-right text-gray-600">
+                                {comp.miles.toLocaleString()} mi
+                              </div>
+                              <div className="col-span-2 text-right font-semibold text-gray-900">
+                                {comp.price}
+                              </div>
+                              <div className="col-span-2 text-right text-gray-500">
+                                {comp.soldDate}
+                              </div>
                             </div>
-                            <div className="col-span-5">
-                              <p className="font-semibold text-gray-900">
-                                {comp.year} {comp.make} {comp.model}
-                              </p>
-                            </div>
-                            <div className="col-span-2 text-right text-gray-600">
-                              {comp.miles.toLocaleString()} mi
-                            </div>
-                            <div className="col-span-2 text-right font-semibold text-gray-900">
-                              {comp.price}
-                            </div>
-                            <div className="col-span-2 text-right text-gray-500">
-                              {comp.soldDate}
-                            </div>
-                          </div>
-                        ))}
+                          ),
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -1193,35 +1468,102 @@ export default function VINDeepDivePage() {
                           </span>
                           <span className="col-span-1 text-right">DOM</span>
                         </div>
-                        {activeListings.map((listing, idx) => (
-                          <div
-                            key={`${listing.make}-${listing.miles}-${idx}`}
-                            className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
-                          >
-                            <div className="col-span-1 flex items-center">
-                              <span
-                                className={`h-8 w-8 rounded-full bg-linear-to-b ${listing.gradient} shadow-inner`}
-                              ></span>
+                        {(soldComps.length ? soldComps : activeListings).map(
+                          (comp: any, idx: number) => (
+                            <div
+                              key={`${comp.make}-${comp.miles}-${idx}`}
+                              className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
+                            >
+                              <div className="col-span-1 flex items-center">
+                                <span
+                                  className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
+                                ></span>
+                              </div>
+                              <div className="col-span-4">
+                                <p className="font-semibold text-gray-900">
+                                  {comp.year} {comp.make} {comp.model}
+                                </p>
+                              </div>
+                              <div className="col-span-2 text-right text-gray-600">
+                                {comp.miles.toLocaleString()} mi
+                              </div>
+                              <div className="col-span-2 text-right font-semibold text-gray-900">
+                                {formatCurrency(comp.price)}
+                              </div>
+                              <div className="col-span-2 text-right text-gray-500">
+                                {comp.distance || "N/A"}
+                              </div>
+                              <div className="col-span-1 text-right text-gray-500">
+                                {comp.dom || comp.days_on_market || "N/A"}
+                              </div>
                             </div>
-                            <div className="col-span-4">
-                              <p className="font-semibold text-gray-900">
-                                {listing.year} {listing.make} {listing.model}
-                              </p>
+                          ),
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </section>
+
+                <section className="mb-12">
+                  <Card>
+                    <CardHeader className="flex items-center justify-between space-y-0">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          Your Competition: Active Listings
+                        </p>
+                        <CardTitle className="text-xl font-bold text-gray-900">
+                          Nearby units currently on market
+                        </CardTitle>
+                      </div>
+                      <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
+                        {activeListings.length} active units
+                      </span>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-hidden rounded-2xl border border-gray-100">
+                        <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                          <span className="col-span-1">Img</span>
+                          <span className="col-span-4">
+                            Year / Make / Model
+                          </span>
+                          <span className="col-span-2 text-right">Miles</span>
+                          <span className="col-span-2 text-right">Price</span>
+                          <span className="col-span-2 text-right">
+                            Distance
+                          </span>
+                          <span className="col-span-1 text-right">DOM</span>
+                        </div>
+                        {(soldComps.length ? soldComps : activeListings).map(
+                          (comp: any, idx: number) => (
+                            <div
+                              key={`${comp.make}-${comp.miles}-${idx}`}
+                              className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
+                            >
+                              <div className="col-span-1 flex items-center">
+                                <span
+                                  className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
+                                ></span>
+                              </div>
+                              <div className="col-span-4">
+                                <p className="font-semibold text-gray-900">
+                                  {comp.year} {comp.make} {comp.model}
+                                </p>
+                              </div>
+                              <div className="col-span-2 text-right text-gray-600">
+                                {comp.miles.toLocaleString()} mi
+                              </div>
+                              <div className="col-span-2 text-right font-semibold text-gray-900">
+                                {formatCurrency(comp.price)}
+                              </div>
+                              <div className="col-span-2 text-right text-gray-500">
+                                {comp.distance || "N/A"}
+                              </div>
+                              <div className="col-span-1 text-right text-gray-500">
+                                {comp.dom || comp.days_on_market || "N/A"}
+                              </div>
                             </div>
-                            <div className="col-span-2 text-right text-gray-600">
-                              {listing.miles.toLocaleString()} mi
-                            </div>
-                            <div className="col-span-2 text-right font-semibold text-gray-900">
-                              {listing.price}
-                            </div>
-                            <div className="col-span-2 text-right text-gray-600">
-                              {listing.distance}
-                            </div>
-                            <div className="col-span-1 text-right text-gray-500">
-                              {listing.dom}
-                            </div>
-                          </div>
-                        ))}
+                          ),
+                        )}
                       </div>
                     </CardContent>
                   </Card>

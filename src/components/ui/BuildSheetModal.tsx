@@ -436,12 +436,7 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
     (sum, opt) => sum + (opt.price ?? 0),
     0,
   );
-  const computedTotal =
-    parsedInstalledOptions.length > 0
-      ? optionsTotal
-      : baseMsrp !== null
-        ? baseMsrp + (destinationCharge ?? 0)
-        : null;
+  const computedTotal = parsedInstalledOptions.length > 0 ? optionsTotal : 0;
   const totalPriceValue = computedTotal;
   const mpgCity = vehicleSpecs?.mpg?.city ?? demoBuildSheet.mpg.city;
   const mpgHighway = vehicleSpecs?.mpg?.highway ?? demoBuildSheet.mpg.highway;
@@ -579,36 +574,43 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
                 </p>
               </div>
 
-              <div className="border border-gray-900 rounded-lg p-4 flex-1 flex flex-col">
+              <div
+                className="border border-gray-900 rounded-lg p-4 flex flex-col"
+                style={{ minHeight: "fit-content" }}
+              >
                 <h3 className="font-semibold tracking-wide text-gray-900 mb-3">
                   INSTALLED OPTIONS
                 </h3>
-                <div className="text-[13px] space-y-1 flex-1">
-                  {parsedInstalledOptions.map((opt, idx) => (
-                    <div
-                      key={`${opt.code}-${idx}`}
-                      className="flex justify-between"
-                    >
-                      <span className="text-gray-700">
-                        {opt.code ? `${formatOptionText(opt.code)} ` : ""}
-                        {formatOptionText(opt.label)}
-                      </span>
-                      <span className="font-semibold">
-                        {typeof opt.price === "number"
-                          ? formatCurrency(opt.price)
-                          : "—"}
-                      </span>
+                <div className="text-[13px] space-y-1 max-h-48 overflow-y-auto">
+                  {parsedInstalledOptions.length > 0 ? (
+                    parsedInstalledOptions.map((opt, idx) => (
+                      <div
+                        key={`${opt.code}-${idx}`}
+                        className="flex justify-between"
+                      >
+                        <span className="text-gray-700">
+                          {opt.code ? `${formatOptionText(opt.code)} ` : ""}
+                          {formatOptionText(opt.label)}
+                        </span>
+                        <span className="font-semibold">
+                          {typeof opt.price === "number"
+                            ? formatCurrency(opt.price)
+                            : "—"}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-gray-500 text-center py-4">
+                      No installed options data available
                     </div>
-                  ))}
+                  )}
                 </div>
                 <div className="flex justify-between items-center border-t border-gray-900 pt-4 mt-4">
                   <span className="text-lg font-semibold text-gray-900">
                     TOTAL PRICE
                   </span>
                   <span className="text-2xl font-bold text-gray-900">
-                    {totalPriceValue
-                      ? formatCurrency(totalPriceValue)
-                      : demoBuildSheet.totalPrice}
+                    {formatCurrency(totalPriceValue || 0)}
                   </span>
                 </div>
               </div>
