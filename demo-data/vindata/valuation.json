@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "data": {
+    "marketcheck_price": 32069,
+    "msrp": 50595
+  },
+  "_metadata": {
+    "captured_at": "2026-01-30T04:18:06.028Z",
+    "vin": "WA1BBAFY7P2183119",
+    "source": "real_api_response"
+  }
+}

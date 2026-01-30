@@ -1,0 +1,82 @@
+{
+  "success": true,
+  "data": {
+    "vin": "1HGCM82633A123456",
+    "consumer_interest": {
+      "overall_score": 72,
+      "views_last_30_days": 1250,
+      "views_last_7_days": 340,
+      "saves_last_30_days": 85,
+      "inquiries_last_30_days": 23,
+      "test_drives_scheduled": 8
+    },
+    "engagement_metrics": {
+      "average_view_duration": 145,
+      "photo_views": 890,
+      "video_views": 210,
+      "feature_clicks": {
+        "photos": 450,
+        "features": 320,
+        "history": 180,
+        "contact": 120
+      }
+    },
+    "audience_demographics": {
+      "age_groups": [
+        {
+          "range": "25-34",
+          "percentage": 35
+        },
+        {
+          "range": "35-44",
+          "percentage": 28
+        },
+        {
+          "range": "45-54",
+          "percentage": 22
+        },
+        {
+          "range": "18-24",
+          "percentage": 10
+        },
+        {
+          "range": "55+",
+          "percentage": 5
+        }
+      ],
+      "geographic_distribution": [
+        {
+          "region": "Local (50mi)",
+          "percentage": 65
+        },
+        {
+          "region": "Regional (200mi)",
+          "percentage": 25
+        },
+        {
+          "region": "National",
+          "percentage": 10
+        }
+      ]
+    },
+    "comparison_data": {
+      "vs_similar_vehicles": {
+        "views_percentile": 78,
+        "saves_percentile": 82,
+        "inquiries_percentile": 71
+      },
+      "market_average": {
+        "average_views": 980,
+        "average_saves": 65,
+        "average_inquiries": 18
+      }
+    },
+    "trend_analysis": {
+      "trend_direction": "increasing",
+      "weekly_change": 12.5,
+      "monthly_change": 28.3,
+      "seasonal_factor": 1.15
+    },
+    "last_updated": "2024-01-15T13:30:00Z"
+  }
+}

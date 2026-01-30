@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handleDemoMode } from "@/lib/demo-mode";
 
 const MARKETCHECK_API_KEY =
   process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
@@ -6,9 +7,17 @@ const MARKETCHECK_BASE_URL =
   process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function GET(request: NextRequest) {
+  // Check if demo mode is enabled
+  const demoResponse = handleDemoMode(
+    request,
+    "/api/vindata/access-report/aamva",
+  );
+  if (demoResponse) {
+    return demoResponse;
+  }
   try {
     const { searchParams } = new URL(request.url);
-    const vin = searchParams.get('vin');
+    const vin = searchParams.get("vin");
 
     if (!vin) {
       return NextResponse.json({ error: "VIN is required" }, { status: 400 });
@@ -35,12 +44,14 @@ export async function GET(request: NextRequest) {
     );
 
     let isFallback = false;
-    
+
     // If access-report fails, try generate-report as fallback
     if (!response.ok) {
-      console.log(`Access-report failed, trying generate-report fallback for VIN: ${vin}`);
+      console.log(
+        `Access-report failed, trying generate-report fallback for VIN: ${vin}`,
+      );
       isFallback = true;
-      
+
       response = await fetch(
         `${MARKETCHECK_BASE_URL}/v2/vindata/generate-report/aamva/${vin}?api_key=${MARKETCHECK_API_KEY}`,
         {

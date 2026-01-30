@@ -1,0 +1,6315 @@
+{
+  "success": true,
+  "data": {
+    "vin": "WA1BBAFY7P2183119",
+    "year": 2023,
+    "make": "Audi",
+    "model": "Q5",
+    "trim": "Premium Plus",
+    "version": "40 Premium Plus",
+    "subTrim": "",
+    "engine": "2.0L I4",
+    "transmission": "Automatic",
+    "transmissionDescription": "Dual Clutch Sequential Trans (DCT)",
+    "drivetrain": "4WD",
+    "powertrainType": "MHEV",
+    "fuelType": "Premium Unleaded",
+    "bodyType": "SUV",
+    "bodySubtype": "",
+    "vehicleType": "Truck",
+    "exteriorColor": "Manhattan Gray Metallic",
+    "interiorColor": "Okapi Brown Leather",
+    "exteriorColorDetails": {
+      "code": "H1H1",
+      "name": "Manhattan Gray Metallic",
+      "base": "Gray",
+      "msrp": "595"
+    },
+    "interiorColorDetails": {
+      "code": "BG",
+      "name": "Okapi Brown Leather",
+      "base": "Brown",
+      "msrp": ""
+    },
+    "mpg": {
+      "city": 23,
+      "highway": 30,
+      "combined": 26
+    },
+    "msrp": 49400,
+    "installedOptionsMsrp": 0,
+    "installedOptionsDetails": [],
+    "installedOptions": [],
+    "installedEquipment": {
+      "STANDARD": [
+        {
+          "category": "Exterior",
+          "item": "Chrome/bright trim",
+          "attribute": "around side windows",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Audio system",
+          "attribute": "digital radio",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "overall width (in)",
+          "location": "",
+          "value": "74.5"
+        },
+        {
+          "category": "Interior",
+          "item": "Vanity mirror",
+          "attribute": "location",
+          "location": "passenger",
+          "value": "passenger"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "type",
+          "location": "front",
+          "value": "multi-link"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty whole vehicle - OEM",
+          "attribute": "distance (km)",
+          "location": "",
+          "value": "80467"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "Suspension",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front seat belts",
+          "attribute": "Front seat belts",
+          "location": "driver",
+          "value": "standard"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Electric motor",
+          "attribute": "electric motor type",
+          "location": "1",
+          "value": "bisg belt integrated starter gen"
+        },
+        {
+          "category": "Interior",
+          "item": "Seating",
+          "attribute": "seating configuration",
+          "location": "",
+          "value": "2+3"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Weights",
+          "attribute": "gross trailer weight braked (kg)",
+          "location": "",
+          "value": "1996"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "side impact",
+          "location": "NHTSA",
+          "value": "5"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Side curtain airbag",
+          "attribute": "Side curtain airbag",
+          "location": "front and rear",
+          "value": "standard"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty roadside assistance",
+          "attribute": "Warranty roadside assistance",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "General",
+          "item": "Body style",
+          "attribute": "roof type",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Connection to ext.entertainment devices",
+          "attribute": "total number of USB connections front",
+          "location": "",
+          "value": "2"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "Internal dimensions",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Display screen",
+          "attribute": "location",
+          "location": "instrument cluster 1",
+          "value": "instrument cluster 1"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "Doors",
+          "location": "passenger",
+          "value": "standard"
+        },
+        {
+          "category": "Pricing",
+          "item": "Secondary MSRP including delivery charge",
+          "attribute": "Secondary MSRP including delivery charge",
+          "location": "",
+          "value": "46353.64"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "diameter",
+          "location": "front",
+          "value": "19"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "urban (l/100km)",
+          "location": "EPA 08",
+          "value": "10.2"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "Liters",
+          "location": "",
+          "value": "2.0"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "tire profile",
+          "location": "front",
+          "value": "55"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear view mirror/camera",
+          "attribute": "Rear view mirror/camera",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "12v power outlet",
+          "attribute": "location",
+          "location": "boot/cargo",
+          "value": "boot/cargo"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty whole vehicle - OEM",
+          "attribute": "duration (months)",
+          "location": "",
+          "value": "48"
+        },
+        {
+          "category": "Exterior",
+          "item": "Exterior door handles",
+          "attribute": "color",
+          "location": "",
+          "value": "body color"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front airbag",
+          "attribute": "location",
+          "location": "driver",
+          "value": "driver"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty whole vehicle - Total",
+          "attribute": "distance (miles)",
+          "location": "",
+          "value": "50000"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "side impact",
+          "location": "IIHS",
+          "value": "Acceptable"
+        },
+        {
+          "category": "Exterior",
+          "item": "Chrome/bright trim",
+          "attribute": "Chrome/bright trim",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Cargo capacity",
+          "attribute": "rear seat down (cu ft)",
+          "location": "",
+          "value": "53.5"
+        },
+        {
+          "category": "Exterior",
+          "item": "Underbody protection",
+          "attribute": "location",
+          "location": "engine",
+          "value": "engine"
+        },
+        {
+          "category": "Pricing",
+          "item": "Dealer Invoice",
+          "attribute": "Dealer Invoice",
+          "location": "",
+          "value": "46436.00"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Connection to ext.entertainment devices",
+          "attribute": "Connection to ext.entertainment devices",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "front track (mm)",
+          "location": "",
+          "value": "1615"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "manufacturer's name",
+          "location": "",
+          "value": "Audi pre sense city"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "Crash test results",
+          "location": "IIHS",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "automatic emergency braking",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "Transmission",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "rim type",
+          "location": "front",
+          "value": "alloy"
+        },
+        {
+          "category": "Interior",
+          "item": "Reading lights",
+          "attribute": "Reading lights",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "location",
+          "location": "rear lights",
+          "value": "rear lights"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear seats",
+          "attribute": "folding",
+          "location": "front",
+          "value": "40/20/40"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Smart card / smart key",
+          "attribute": "includes memory seat adjustments",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Speakers",
+          "attribute": "surround sound",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti-theft protection",
+          "attribute": "Anti-theft protection",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Steering wheel",
+          "attribute": "type",
+          "location": "",
+          "value": "alloy & leather"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Head restraints",
+          "attribute": "height adjustable",
+          "location": "rear seats",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Head restraints",
+          "attribute": "number",
+          "location": "rear seats",
+          "value": "3"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Secondary ventilation controls",
+          "attribute": "Secondary ventilation controls",
+          "location": "rear seats",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Paint",
+          "attribute": "type",
+          "location": "",
+          "value": "gloss"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "country/highway (miles per UK gallon)",
+          "location": "EPA 08",
+          "value": "35"
+        },
+        {
+          "category": "Interior",
+          "item": "USB charging port",
+          "attribute": "number",
+          "location": "rear",
+          "value": "2"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Multi-collision braking",
+          "attribute": "Multi-collision braking",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "number of valves per cylinder",
+          "location": "",
+          "value": "4"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "type",
+          "location": "rear passenger",
+          "value": "front hinged"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Air conditioning",
+          "attribute": "Air conditioning",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Bumpers",
+          "attribute": "color",
+          "location": "rear",
+          "value": "painted"
+        },
+        {
+          "category": "Engine",
+          "item": "Secondary power",
+          "attribute": "maximum power hp/PS",
+          "location": "",
+          "value": "201"
+        },
+        {
+          "category": "Interior",
+          "item": "Seating",
+          "attribute": "Seating capacity",
+          "location": "",
+          "value": "5"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Remote audio controls",
+          "attribute": "Remote audio controls",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Pricing",
+          "item": "Secondary Price currency",
+          "attribute": "Secondary Price currency",
+          "location": "",
+          "value": "euro"
+        },
+        {
+          "category": "Interior",
+          "item": "Seat upholstery",
+          "attribute": "main seat material",
+          "location": "",
+          "value": "leather"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Power windows",
+          "attribute": "Power windows",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Transmission",
+          "item": "Drive",
+          "attribute": "descent control system",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "color",
+          "location": "driver",
+          "value": "painted"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Autonomous drive",
+          "attribute": "active lane control",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Remote services",
+          "attribute": "Remote services",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Display screen",
+          "attribute": "touch screen",
+          "location": "Dashboard center 1",
+          "value": "yes"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "compression ratio",
+          "location": "",
+          "value": "9.6"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "3rd gear ratio :1",
+          "location": "",
+          "value": "1.517"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door entry light",
+          "attribute": "Door entry light",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Secondary power",
+          "attribute": "rpm for maximum power (low)",
+          "location": "",
+          "value": "6000"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front seat belts",
+          "attribute": "Front seat belts",
+          "location": "passenger",
+          "value": "standard"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "shoulder room rear (in)",
+          "location": "",
+          "value": "56.5"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Side airbag",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "location",
+          "location": "driver",
+          "value": "driver"
+        },
+        {
+          "category": "General",
+          "item": "Body style",
+          "attribute": "Number of doors",
+          "location": "",
+          "value": "5"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Heated washer",
+          "attribute": "Heated washer",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "small overlap front - passenger",
+          "location": "IIHS",
+          "value": "good"
+        },
+        {
+          "category": "Interior",
+          "item": "Cup holders",
+          "attribute": "Cup holders",
+          "location": "rear seats",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear cross traffic collision avoidance",
+          "attribute": "Rear cross traffic collision avoidance",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Compass",
+          "attribute": "Compass",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Remote trunk/hatch release",
+          "attribute": "Remote trunk/hatch release",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Emission control level",
+          "attribute": "standard met",
+          "location": "",
+          "value": "LEV III"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "frontal crash rating",
+          "location": "NHTSA",
+          "value": "5"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear side windows",
+          "attribute": "type",
+          "location": "passenger",
+          "value": "wind-up"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Remote trunk/hatch release",
+          "attribute": "operation",
+          "location": "",
+          "value": "remote control"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front airbag",
+          "attribute": "Front airbag",
+          "location": "driver",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Compressor",
+          "attribute": "type",
+          "location": "",
+          "value": "turbo"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty anti-corrosion",
+          "attribute": "Warranty anti-corrosion",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear cross traffic collision avoidance",
+          "attribute": "type",
+          "location": "",
+          "value": "radar"
+        },
+        {
+          "category": "Interior",
+          "item": "Steering wheel",
+          "attribute": "electric adjustment",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Engine",
+          "item": "Power",
+          "attribute": "maximum torque lb ft",
+          "location": "",
+          "value": "236"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Secondary ventilation controls",
+          "attribute": "Secondary ventilation controls",
+          "location": "passenger seat",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Connection to ext.entertainment devices",
+          "attribute": "AUX jack front",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Transmission",
+          "item": "Drive",
+          "attribute": "Driven wheels",
+          "location": "",
+          "value": "AWD"
+        },
+        {
+          "category": null,
+          "item": "Ventilation system",
+          "attribute": "engine heater",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "front track (in)",
+          "location": "",
+          "value": "63.6"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "type",
+          "location": "passenger",
+          "value": "front hinged"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "location",
+          "location": "high beam",
+          "value": "high beam"
+        },
+        {
+          "category": "Interior",
+          "item": "Floor mats",
+          "attribute": "Floor mats",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Secondary power",
+          "attribute": "Secondary power",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Isofix preparation",
+          "attribute": "Isofix preparation",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear window",
+          "attribute": "rear window defogger",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Telematics",
+          "attribute": "connection type",
+          "location": "",
+          "value": "Via SIM in vehicle"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "location",
+          "location": "passenger",
+          "value": "passenger"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Head restraints",
+          "attribute": "number",
+          "location": "front seats",
+          "value": "2"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Sunroof",
+          "attribute": "operation",
+          "location": "front",
+          "value": "remote"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty anti-corrosion",
+          "attribute": "distance (km)",
+          "location": "",
+          "value": "9999999"
+        },
+        {
+          "category": "General",
+          "item": "Plant of assembly",
+          "attribute": "Plant of assembly",
+          "location": "",
+          "value": "San Jos Chiapa"
+        },
+        {
+          "category": "Interior",
+          "item": "Vanity mirror",
+          "attribute": "Vanity mirror",
+          "location": "driver",
+          "value": "standard"
+        },
+        {
+          "category": "General",
+          "item": "Body style",
+          "attribute": "local number of doors",
+          "location": "",
+          "value": "4"
+        },
+        {
+          "category": "Transmission",
+          "item": "Drive",
+          "attribute": "Drive",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Front fog lights",
+          "attribute": "Front fog lights",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear seats",
+          "attribute": "remote folding",
+          "location": "front",
+          "value": "yes"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Connection to ext.entertainment devices",
+          "attribute": "USB connection front",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "ABS",
+          "attribute": "ABS",
+          "location": "unknown",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Mobile Integration",
+          "attribute": "Apple number of months subscription inc",
+          "location": "",
+          "value": "999"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "location",
+          "location": "brake lights",
+          "value": "brake lights"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty powertrain - OEM",
+          "attribute": "Warranty powertrain - OEM",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Steering wheel",
+          "attribute": "telescopic adjustment",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "12v power outlet",
+          "attribute": "12v power outlet",
+          "location": "boot/cargo",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Headlight control",
+          "attribute": "auto highbeam",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear axle",
+          "attribute": "Rear axle",
+          "location": "1",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Computer",
+          "attribute": "Computer",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Spoiler",
+          "attribute": "location",
+          "location": "roof",
+          "value": "roof"
+        },
+        {
+          "category": "Engine",
+          "item": "Fuel tanks",
+          "attribute": "Fuel tanks",
+          "location": "main",
+          "value": "standard"
+        },
+        {
+          "category": "General",
+          "item": "Body style",
+          "attribute": "platform code",
+          "location": "",
+          "value": "MLB"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Head restraints",
+          "attribute": "Head restraints",
+          "location": "rear seats",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "diameter",
+          "location": "rear",
+          "value": "19"
+        },
+        {
+          "category": null,
+          "item": "Engine/motor identifier",
+          "attribute": "Engine/motor identifier",
+          "location": "",
+          "value": "40 TFSI"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "type",
+          "location": "rear",
+          "value": "all seasons"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front seat belts",
+          "attribute": "height adjustable",
+          "location": "passenger",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear side windows",
+          "attribute": "location",
+          "location": "driver",
+          "value": "driver"
+        },
+        {
+          "category": "Interior",
+          "item": "Console",
+          "attribute": "storage",
+          "location": "floor",
+          "value": "covered"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear window",
+          "attribute": "wipers",
+          "location": "",
+          "value": "intermittent"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "urban (miles per UK gallon)",
+          "location": "EPA 08",
+          "value": "28"
+        },
+        {
+          "category": "Interior",
+          "item": "Vanity mirror",
+          "attribute": "illuminated",
+          "location": "passenger",
+          "value": "yes"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "manufacturer's name",
+          "location": "",
+          "value": "S tronic"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "valve gear type",
+          "location": "",
+          "value": "double overhead cam"
+        },
+        {
+          "category": "Interior",
+          "item": "Sunroof",
+          "attribute": "tilting",
+          "location": "front",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Load restraint",
+          "attribute": "Load restraint",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "compression ratio (high)",
+          "location": "",
+          "value": "9.6"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "top Safety Pick status",
+          "location": "IIHS",
+          "value": "TSP"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Side curtain airbag",
+          "attribute": "location",
+          "location": "front and rear",
+          "value": "front and rear"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door sill protector",
+          "attribute": "type",
+          "location": "",
+          "value": "alloy"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Intelligent speed assist",
+          "attribute": "Intelligent speed assist",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Vehicle start button",
+          "attribute": "Vehicle start button",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Secondary power",
+          "attribute": "maximum power kw",
+          "location": "",
+          "value": "150"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Display screen",
+          "attribute": "Display screen",
+          "location": "instrument cluster 1",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Low tire pressure indicator",
+          "attribute": "Low tire pressure indicator",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "12v power outlet",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Exterior",
+          "item": "Windshield wipers",
+          "attribute": "rain sensor",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Secondary ventilation controls",
+          "attribute": "location",
+          "location": "passenger seat",
+          "value": "passenger seat"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Speakers",
+          "attribute": "Speakers",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "pedestrian & cyclist avoidance system",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "LED lights",
+          "location": "rear lights",
+          "value": "standard"
+        },
+        {
+          "category": null,
+          "item": "Crash test results",
+          "attribute": "test revision",
+          "location": "IIHS",
+          "value": "test revision"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "Suspension",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front seat belts",
+          "attribute": "pre-tensioners",
+          "location": "passenger",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Steering wheel",
+          "attribute": "multi-function",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "LED lights",
+          "location": "high beam",
+          "value": "standard"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Electrical system",
+          "attribute": "voltage (V)",
+          "location": "",
+          "value": "12"
+        },
+        {
+          "category": "Engine",
+          "item": "Fuel",
+          "attribute": "fuel type octane no.",
+          "location": "",
+          "value": "91"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Weights",
+          "attribute": "published curb weight (lbs)",
+          "location": "",
+          "value": "4079"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "type",
+          "location": "rear",
+          "value": "sensor & camera"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear seat belts",
+          "attribute": "seat position",
+          "location": "driver",
+          "value": "driver"
+        },
+        {
+          "category": "Exterior",
+          "item": "Roof rails",
+          "attribute": "color",
+          "location": "",
+          "value": "chrome/silver"
+        },
+        {
+          "category": "Interior",
+          "item": "Seat upholstery",
+          "attribute": "additional seat material",
+          "location": "",
+          "value": "leather"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "reach type",
+          "location": "passenger",
+          "value": "electric"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "Front seat",
+          "location": "passenger",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Speakers",
+          "attribute": "number of",
+          "location": "",
+          "value": "19"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Display screen",
+          "attribute": "orientation",
+          "location": "Dashboard center 1",
+          "value": "fixed"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "wheel dependence",
+          "location": "rear",
+          "value": "independent"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Weights",
+          "attribute": "measurement standard",
+          "location": "",
+          "value": "Manufacturers own"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Ventilation system",
+          "attribute": "Ventilation system",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "tilting for reversing",
+          "location": "passenger",
+          "value": "automatic"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "type",
+          "location": "front",
+          "value": "all seasons"
+        },
+        {
+          "category": "Interior",
+          "item": "Console",
+          "attribute": "Console",
+          "location": "overhead",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear door",
+          "attribute": "Rear door",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty powertrain - OEM",
+          "attribute": "distance (miles)",
+          "location": "",
+          "value": "50000"
+        },
+        {
+          "category": "Engine",
+          "item": "Performance",
+          "attribute": "acceleration 0-60 mph",
+          "location": "",
+          "value": "6.8"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel tanks",
+          "attribute": "capacity (gal)",
+          "location": "main",
+          "value": "18.5"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Weights",
+          "attribute": "gross trailer weight unbraked (kg)",
+          "location": "",
+          "value": "907"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "LED lights",
+          "location": "side indicator lights",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Bumpers",
+          "attribute": "Bumpers",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear seat belts",
+          "attribute": "Rear seat belts",
+          "location": "driver",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Smart card / smart key",
+          "attribute": "Smart card / smart key",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Electric Power source",
+          "attribute": "maximum battery kilowatt hour (kWh)",
+          "location": "",
+          "value": "0.50"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty roadside assistance",
+          "attribute": "distance (km)",
+          "location": "",
+          "value": "9999999"
+        },
+        {
+          "category": "Interior",
+          "item": "Sunroof",
+          "attribute": "Sunroof",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Power steering",
+          "attribute": "vehicle speed proportional",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Weights",
+          "attribute": "published curb weight (kg)",
+          "location": "",
+          "value": "1850"
+        },
+        {
+          "category": "Interior",
+          "item": "Reading lights",
+          "attribute": "Reading lights",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "location",
+          "location": "day time running lights",
+          "value": "day time running lights"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear side windows",
+          "attribute": "type",
+          "location": "driver",
+          "value": "wind-up"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Hybrid type",
+          "attribute": "Hybrid type",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear seats",
+          "attribute": "Rear seats",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "visual/acoustic warning",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Engine",
+          "item": "Fuel",
+          "attribute": "generic primary fuel type",
+          "location": "",
+          "value": "petrol"
+        },
+        {
+          "category": "Exterior",
+          "item": "Exterior door handles",
+          "attribute": "Exterior door handles",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "Fuel consumption",
+          "location": "EPA 08",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "type",
+          "location": "front",
+          "value": "sensor & camera"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear seat belts",
+          "attribute": "Rear seat belts",
+          "location": "passenger",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear side windows",
+          "attribute": "location",
+          "location": "passenger",
+          "value": "passenger"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "headroom front (mm)",
+          "location": "",
+          "value": "968"
+        },
+        {
+          "category": "Interior",
+          "item": "Load restraint",
+          "attribute": "type",
+          "location": "",
+          "value": "hooks"
+        },
+        {
+          "category": "Exterior",
+          "item": "3rd row windows",
+          "attribute": "location",
+          "location": "passenger",
+          "value": "passenger"
+        },
+        {
+          "category": "Interior",
+          "item": "12v power outlet",
+          "attribute": "12v power outlet",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "Door mirrors/cameras",
+          "location": "driver",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear seats",
+          "attribute": "seating capacity",
+          "location": "front",
+          "value": "3"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "heated",
+          "location": "driver",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Weights",
+          "attribute": "Weights",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Cruise control",
+          "attribute": "manufacturer's name",
+          "location": "",
+          "value": "Adaptive Cruise Control with Traffic Jam assist"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Cargo capacity",
+          "attribute": "all seats in place (cu ft)",
+          "location": "",
+          "value": "25.6"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Power steering",
+          "attribute": "type",
+          "location": "",
+          "value": "electric"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "stabilizer bar",
+          "location": "rear",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "headroom front (in)",
+          "location": "",
+          "value": "38.1"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Garage door opener",
+          "attribute": "Garage door opener",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "overall height (in)",
+          "location": "",
+          "value": "65.5"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Automatic door closing",
+          "attribute": "rear boot/hatch",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "calculated vehicle range (miles)",
+          "location": "EPA 08",
+          "value": "462"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "leg room front (in)",
+          "location": "",
+          "value": "40.9"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Cruise control",
+          "attribute": "stop/go function",
+          "location": "",
+          "value": "stop & go"
+        },
+        {
+          "category": "Interior",
+          "item": "USB charging port",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "leg room rear (in)",
+          "location": "",
+          "value": "38.0"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "brakes at low speed",
+          "location": "",
+          "value": "front"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Remote services",
+          "attribute": "remote lock/unlock",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Cargo capacity",
+          "attribute": "measurement standard",
+          "location": "",
+          "value": "Manufacturers own"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Power windows",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Engine",
+          "item": "Start/Stop",
+          "attribute": "Start/Stop",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "number of speeds",
+          "location": "",
+          "value": "7"
+        },
+        {
+          "category": "Engine",
+          "item": "Power",
+          "attribute": "primary or secondary fuel power figure",
+          "location": "",
+          "value": "primary"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Power windows",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Spare wheel",
+          "attribute": "type",
+          "location": "unknown",
+          "value": "spacesaver"
+        },
+        {
+          "category": "Engine",
+          "item": "Power",
+          "attribute": "Maximum power hp/PS",
+          "location": "",
+          "value": "201"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "auto-dimming",
+          "location": "driver",
+          "value": "yes"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Smart card / smart key",
+          "attribute": "manufacturer's name",
+          "location": "",
+          "value": "Audi Advanced Key"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "Transmission type",
+          "location": "",
+          "value": "automatic"
+        },
+        {
+          "category": "Engine",
+          "item": "Performance",
+          "attribute": "Performance",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Power locks",
+          "attribute": "Power locks",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "3rd row windows",
+          "attribute": "type",
+          "location": "driver",
+          "value": "fixed"
+        },
+        {
+          "category": "Exterior",
+          "item": "Headlights",
+          "attribute": "bulb type (low beam)",
+          "location": "",
+          "value": "LED"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "spring type",
+          "location": "front",
+          "value": "coil"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear view mirror/camera",
+          "attribute": "auto-dimming",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Cargo area light",
+          "attribute": "Cargo area light",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Headlights",
+          "attribute": "bulb type (high beam)",
+          "location": "",
+          "value": "LED"
+        },
+        {
+          "category": "Interior",
+          "item": "12v power outlet",
+          "attribute": "number of outlets",
+          "location": "front",
+          "value": "2"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front seat belts",
+          "attribute": "pre-tensioners",
+          "location": "driver",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "Anti collision system",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Transmission",
+          "item": "Drive",
+          "attribute": "North America 4WD type",
+          "location": "",
+          "value": "AWD"
+        },
+        {
+          "category": "Engine",
+          "item": "Fuel",
+          "attribute": "Fuel",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Cargo area cover/rear parcel shelf",
+          "attribute": "Cargo area cover/rear parcel shelf",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Stability control",
+          "attribute": "Stability control",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear seat belts",
+          "attribute": "Rear seat belts",
+          "location": "center",
+          "value": "standard"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "leg room rear (mm)",
+          "location": "",
+          "value": "965"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "headroom rear (mm)",
+          "location": "",
+          "value": "958"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "combined (miles per UK gallon)",
+          "location": "EPA 08",
+          "value": "30"
+        },
+        {
+          "category": "Transmission",
+          "item": "Drive",
+          "attribute": "selection",
+          "location": "",
+          "value": "automatic"
+        },
+        {
+          "category": "Exterior",
+          "item": "3rd row windows",
+          "attribute": "location",
+          "location": "driver",
+          "value": "driver"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "Wheels",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Bumpers",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "height type",
+          "location": "passenger",
+          "value": "electric"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Remote audio controls",
+          "attribute": "type",
+          "location": "",
+          "value": "steering wheel mounted"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Audio system",
+          "attribute": "satellite radio",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "type",
+          "location": "driver",
+          "value": "front hinged"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "number of cylinders",
+          "location": "",
+          "value": "4"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Power windows",
+          "attribute": "number of express",
+          "location": "rear",
+          "value": "2"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "4th gear ratio :1",
+          "location": "",
+          "value": "1.057"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Emergency call",
+          "attribute": "Emergency call",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "curb to curb turning circle (ft)",
+          "location": "",
+          "value": "38.7"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "Tires",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "LED lights",
+          "location": "brake lights",
+          "value": "standard"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty powertrain - OEM",
+          "attribute": "distance (km)",
+          "location": "",
+          "value": "80467"
+        },
+        {
+          "category": "Transmission",
+          "item": "Drive",
+          "attribute": "manufacturer's name",
+          "location": "",
+          "value": "quattro with ultra"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "lumbar type",
+          "location": "driver",
+          "value": "2-way electric"
+        },
+        {
+          "category": null,
+          "item": "Crash test results",
+          "attribute": "headlights",
+          "location": "IIHS",
+          "value": "acceptable"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "tilt type",
+          "location": "passenger",
+          "value": "electric"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Apps control",
+          "attribute": "Apps control",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "cc",
+          "location": "",
+          "value": "1984"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "activates seat belts",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty whole vehicle - OEM",
+          "attribute": "Warranty whole vehicle - OEM",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Secondary power",
+          "attribute": "maximum torque nm",
+          "location": "",
+          "value": "320"
+        },
+        {
+          "category": "Engine",
+          "item": "Performance",
+          "attribute": "maximum speed (mph)",
+          "location": "",
+          "value": "130"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat center armrest",
+          "attribute": "Front seat center armrest",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Lane departure warning",
+          "attribute": "manufacturer's name",
+          "location": "",
+          "value": "Active Lane Assist"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "360 view camera",
+          "attribute": "manufacturer's name",
+          "location": "",
+          "value": "Top view camera system"
+        },
+        {
+          "category": "Engine",
+          "item": "Fuel tanks",
+          "attribute": "type",
+          "location": "main",
+          "value": "main"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Remote services",
+          "attribute": "send destination to car",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Sunroof",
+          "attribute": "sliding",
+          "location": "front",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "heated",
+          "location": "driver",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "wheelbase (in)",
+          "location": "",
+          "value": "111.0"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Ventilation system",
+          "attribute": "active carbon filter",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "type",
+          "location": "driver",
+          "value": "bucket"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "number of electrical adjustments",
+          "location": "passenger",
+          "value": "4"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Ventilation system",
+          "attribute": "micro filter",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Disc brakes",
+          "attribute": "painted callipers",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Spare wheel",
+          "attribute": "rim type",
+          "location": "unknown",
+          "value": "steel"
+        },
+        {
+          "category": "Interior",
+          "item": "Sunroof",
+          "attribute": "one-touch opening",
+          "location": "front",
+          "value": "yes"
+        },
+        {
+          "category": "General",
+          "item": "Pricing descriptor",
+          "attribute": "Pricing descriptor",
+          "location": "",
+          "value": "BUILT 7810651-WPS"
+        },
+        {
+          "category": "Engine",
+          "item": "Emission control level",
+          "attribute": "CO2 level - g/mile combined",
+          "location": "",
+          "value": "350"
+        },
+        {
+          "category": "Interior",
+          "item": "12v power outlet",
+          "attribute": "number of outlets",
+          "location": "rear",
+          "value": "1"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Automatic door closing",
+          "attribute": "Automatic door closing",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "reclining type",
+          "location": "passenger",
+          "value": "electric"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Driver modes",
+          "attribute": "Driver modes",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Disc brakes",
+          "attribute": "number of ventilated discs",
+          "location": "",
+          "value": "4"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Mobile Integration",
+          "attribute": "Apple CarPlay",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "General",
+          "item": "Model generation id",
+          "attribute": "Model generation id",
+          "location": "",
+          "value": "1"
+        },
+        {
+          "category": "Interior",
+          "item": "Reading lights",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front seat belts",
+          "attribute": "seat position",
+          "location": "driver",
+          "value": "driver"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Text to speech / speech to text",
+          "attribute": "Text to speech / speech to text",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "moderate overlap front test",
+          "location": "IIHS",
+          "value": "Marginal"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "standard",
+          "location": "NHTSA",
+          "value": "NHTSA"
+        },
+        {
+          "category": "General",
+          "item": "Body style",
+          "attribute": "local body type",
+          "location": "",
+          "value": "crossover"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Exterior",
+          "item": "Headlights",
+          "attribute": "Headlights",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty powertrain - Total",
+          "attribute": "Warranty powertrain - Total",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "overall",
+          "location": "NHTSA",
+          "value": "5.0"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "indicator lights",
+          "location": "passenger",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear seat belts",
+          "attribute": "seat position",
+          "location": "center",
+          "value": "center"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "Parking distance system",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "country/highway (mpg)",
+          "location": "EPA 08",
+          "value": "29"
+        },
+        {
+          "category": "Interior",
+          "item": "Floor covering",
+          "attribute": "load area",
+          "location": "",
+          "value": "carpet"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "auto-dimming",
+          "location": "passenger",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear seats",
+          "attribute": "facing direction",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "shoulder room front (mm)",
+          "location": "",
+          "value": "1466"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "location",
+          "location": "driver",
+          "value": "driver"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty whole vehicle - Total",
+          "attribute": "distance (km)",
+          "location": "",
+          "value": "80467"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Power windows",
+          "attribute": "number of express",
+          "location": "front",
+          "value": "2"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "stroke",
+          "location": "",
+          "value": "92.8"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "manual sequential",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "location",
+          "location": "driver",
+          "value": "driver"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Electric Power source",
+          "attribute": "battery type",
+          "location": "",
+          "value": "lithium ion"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear seat belts",
+          "attribute": "pre-tensioners",
+          "location": "passenger",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front seat belts",
+          "attribute": "height adjustable",
+          "location": "driver",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Sunroof",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Interior",
+          "item": "Reading lights",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "location",
+          "location": "passenger",
+          "value": "passenger"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "location",
+          "location": "low beam",
+          "value": "low beam"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty paint",
+          "attribute": "distance (km)",
+          "location": "",
+          "value": "80467"
+        },
+        {
+          "category": "Transmission",
+          "item": "Drive",
+          "attribute": "four wheel drive type",
+          "location": "",
+          "value": "full and part-time/disconnect"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Power steering",
+          "attribute": "Power steering",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": null,
+          "item": "Crash test results",
+          "attribute": "front crash prevention - v to v (std)",
+          "location": "IIHS",
+          "value": "superior"
+        },
+        {
+          "category": "Interior",
+          "item": "USB charging port",
+          "attribute": "USB charging port",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Electric Power source",
+          "attribute": "battery module count",
+          "location": "",
+          "value": "1"
+        },
+        {
+          "category": "General",
+          "item": "JATO regional segment",
+          "attribute": "JATO regional segment",
+          "location": "",
+          "value": "NA Compact SUV"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "location",
+          "location": "passenger",
+          "value": "passenger"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Electric motor",
+          "attribute": "Electric motor",
+          "location": "1",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "type",
+          "location": "rear driver",
+          "value": "front hinged"
+        },
+        {
+          "category": "Interior",
+          "item": "12v power outlet",
+          "attribute": "12v power outlet",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "General",
+          "item": "Body style",
+          "attribute": "body length",
+          "location": "",
+          "value": "regular"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "transmission description",
+          "location": "",
+          "value": "dual clutch sequential trans (DCT)"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "reach type",
+          "location": "driver",
+          "value": "memory"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "country/highway (l/100km)",
+          "location": "EPA 08",
+          "value": "8.1"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Cargo capacity",
+          "attribute": "Cargo capacity",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Remote services",
+          "attribute": "theft alert",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Windshield wipers",
+          "attribute": "Windshield wipers",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Voice activating system",
+          "attribute": "Voice activating system",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Compressor",
+          "attribute": "Compressor",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "color",
+          "location": "passenger",
+          "value": "painted"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Audio system",
+          "attribute": "Audio system",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "manual mode",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Audio system",
+          "attribute": "touch screen",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "two-tone",
+          "location": "front",
+          "value": "yes"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "configuration",
+          "location": "",
+          "value": "in-line"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front airbag",
+          "attribute": "location",
+          "location": "passenger",
+          "value": "passenger"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "Doors",
+          "location": "rear driver",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Head restraints",
+          "attribute": "Head restraints",
+          "location": "front seats",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Console",
+          "attribute": "location",
+          "location": "floor",
+          "value": "floor"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty anti-corrosion",
+          "attribute": "duration (months)",
+          "location": "",
+          "value": "144"
+        },
+        {
+          "category": "Exterior",
+          "item": "Trailer towing preparation",
+          "attribute": "Trailer towing preparation",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "height type",
+          "location": "driver",
+          "value": "memory"
+        },
+        {
+          "category": "Interior",
+          "item": "Console",
+          "attribute": "location",
+          "location": "overhead",
+          "value": "overhead"
+        },
+        {
+          "category": "Exterior",
+          "item": "Roof rails",
+          "attribute": "cross bars",
+          "location": "",
+          "value": "removable"
+        },
+        {
+          "category": "Interior",
+          "item": "USB charging port",
+          "attribute": "USB charging port",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Cup holders",
+          "attribute": "location",
+          "location": "front seats",
+          "value": "front seats"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "wheelbase (mm)",
+          "location": "",
+          "value": "2819"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Autonomous drive",
+          "attribute": "level",
+          "location": "",
+          "value": "2 - partial automation"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Interior",
+          "item": "Seat upholstery",
+          "attribute": "Seat upholstery",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty powertrain - Total",
+          "attribute": "distance (km)",
+          "location": "",
+          "value": "80467"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "rear track (in)",
+          "location": "",
+          "value": "63.3"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "overall length (in)",
+          "location": "",
+          "value": "184.3"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "rear crash protect/head restraint rating",
+          "location": "IIHS",
+          "value": "Good"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty roadside assistance",
+          "attribute": "duration (months)",
+          "location": "",
+          "value": "48"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear seats",
+          "attribute": "type",
+          "location": "front",
+          "value": "split bench"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear axle",
+          "attribute": "axle location",
+          "location": "1",
+          "value": "1"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Seat belt warning",
+          "attribute": "Seat belt warning",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Headlight control",
+          "attribute": "Headlight control",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Disc brakes",
+          "attribute": "Disc brakes",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Audio system",
+          "attribute": "radio",
+          "location": "",
+          "value": "AM/FM"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "Parking distance system",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Head restraints",
+          "attribute": "height adjustable",
+          "location": "front seats",
+          "value": "yes"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty powertrain - OEM",
+          "attribute": "duration (months)",
+          "location": "",
+          "value": "48"
+        },
+        {
+          "category": "Exterior",
+          "item": "Privacy glass",
+          "attribute": "location",
+          "location": "rear side",
+          "value": "rear side"
+        },
+        {
+          "category": "Interior",
+          "item": "Steering wheel",
+          "attribute": "Steering wheel",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking assistance",
+          "attribute": "type",
+          "location": "rear",
+          "value": "guidance display"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "rim width (in)",
+          "location": "rear",
+          "value": "8.0"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "shoulder room front (in)",
+          "location": "",
+          "value": "57.7"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty powertrain - Total",
+          "attribute": "distance (miles)",
+          "location": "",
+          "value": "50000"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "rim diameter (in)",
+          "location": "rear",
+          "value": "19"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Cruise control",
+          "attribute": "Cruise control",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "LED lights",
+          "location": "low beam",
+          "value": "standard"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "rear track (mm)",
+          "location": "",
+          "value": "1608"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "tire width",
+          "location": "rear",
+          "value": "235"
+        },
+        {
+          "category": "Interior",
+          "item": "12v power outlet",
+          "attribute": "number of outlets",
+          "location": "boot/cargo",
+          "value": "1"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear side windows",
+          "attribute": "Rear side windows",
+          "location": "driver",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Headlights",
+          "attribute": "lens type",
+          "location": "",
+          "value": "projector beam"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear seats",
+          "attribute": "reclining type",
+          "location": "front",
+          "value": "manual"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "7th gear ratio :1",
+          "location": "",
+          "value": "0.386"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "standard",
+          "location": "IIHS",
+          "value": "IIHS"
+        },
+        {
+          "category": "Exterior",
+          "item": "Disc brakes",
+          "attribute": "number of",
+          "location": "",
+          "value": "4"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Driver modes",
+          "attribute": "includes steering",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "shoulder room rear (mm)",
+          "location": "",
+          "value": "1435"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "LED lights",
+          "location": "day time running lights",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Power locks",
+          "attribute": "operation",
+          "location": "",
+          "value": "card key"
+        },
+        {
+          "category": "Exterior",
+          "item": "Underbody protection",
+          "attribute": "Underbody protection",
+          "location": "engine",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Sunroof",
+          "attribute": "sunshade",
+          "location": "front",
+          "value": "yes"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty roadside assistance",
+          "attribute": "distance (miles)",
+          "location": "",
+          "value": "999999"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "rim diameter (in)",
+          "location": "front",
+          "value": "19"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Mobile Integration",
+          "attribute": "Mobile Integration",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear door",
+          "attribute": "type",
+          "location": "",
+          "value": "lifting gate"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "transmission code",
+          "location": "",
+          "value": "transmission code"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Electronic hand brake",
+          "attribute": "Electronic hand brake",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Display screen",
+          "attribute": "Display screen",
+          "location": "Dashboard center 1",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Panoramic roof",
+          "attribute": "Panoramic roof",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "two-tone",
+          "location": "rear",
+          "value": "yes"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "bore",
+          "location": "",
+          "value": "82.5"
+        },
+        {
+          "category": "General",
+          "item": "JATO global segment",
+          "attribute": "JATO global segment",
+          "location": "",
+          "value": "JG Upper Medium SUV"
+        },
+        {
+          "category": "Exterior",
+          "item": "3rd row windows",
+          "attribute": "3rd row windows",
+          "location": "driver",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Ambient lighting",
+          "attribute": "Ambient lighting",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Telematics",
+          "attribute": "manufacturer's name",
+          "location": "",
+          "value": "Audi connect CARE"
+        },
+        {
+          "category": "Exterior",
+          "item": "3rd row windows",
+          "attribute": "3rd row windows",
+          "location": "passenger",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear side windows",
+          "attribute": "Rear side windows",
+          "location": "passenger",
+          "value": "standard"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Hybrid type",
+          "attribute": "hybrid type",
+          "location": "",
+          "value": "mild hybrid"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear seat center armrest",
+          "attribute": "Rear seat center armrest",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Spoiler",
+          "attribute": "Spoiler",
+          "location": "roof",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Bluetooth",
+          "attribute": "Bluetooth",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Roof rails",
+          "attribute": "Roof rails",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "rollover rating",
+          "location": "NHTSA",
+          "value": "4"
+        },
+        {
+          "category": "Transmission",
+          "item": "Powertrain",
+          "attribute": "Powertrain",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear seat belts",
+          "attribute": "type",
+          "location": "center",
+          "value": "3-point"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Spare wheel",
+          "attribute": "Spare wheel",
+          "location": "unknown",
+          "value": "standard"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Electrical system",
+          "attribute": "Electrical system",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Air conditioning",
+          "attribute": "climate control number of zones",
+          "location": "",
+          "value": "3"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Computer",
+          "attribute": "average fuel economy",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "reclining type",
+          "location": "driver",
+          "value": "memory"
+        },
+        {
+          "category": "Exterior",
+          "item": "Bumpers",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Weights",
+          "attribute": "gross trailer weight braked (lbs)",
+          "location": "",
+          "value": "4400"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "360 view camera",
+          "attribute": "360 view camera",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Paint",
+          "attribute": "Paint",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "tire width",
+          "location": "front",
+          "value": "235"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "valve gear type manufacturer's name",
+          "location": "",
+          "value": "Audi Valvelift System"
+        },
+        {
+          "category": "General",
+          "item": "Body style",
+          "attribute": "Body style",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Electric Power source",
+          "attribute": "Electric Power source",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Memorized adjustment",
+          "attribute": "Memorized adjustment",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Bumpers",
+          "attribute": "Bumpers",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Chrome/bright trim",
+          "attribute": "on bumpers",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "Doors",
+          "location": "rear passenger",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Head restraints",
+          "attribute": "location",
+          "location": "rear seats",
+          "value": "rear seats"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "overall width inc mirror (in)",
+          "location": "",
+          "value": "84.2"
+        },
+        {
+          "category": "Interior",
+          "item": "Vanity mirror",
+          "attribute": "illuminated",
+          "location": "driver",
+          "value": "yes"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "stabilizer bar",
+          "location": "front",
+          "value": "yes"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "urban (mpg)",
+          "location": "EPA 08",
+          "value": "23"
+        },
+        {
+          "category": "Engine",
+          "item": "Power",
+          "attribute": "rpm for maximum power (low)",
+          "location": "",
+          "value": "6000"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "Parking distance system",
+          "location": "side",
+          "value": "standard"
+        },
+        {
+          "category": "General",
+          "item": "Model year (including fractional)",
+          "attribute": "Model year (including fractional)",
+          "location": "",
+          "value": "2023"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "operates above 50 kph/30 mph",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Autonomous drive",
+          "attribute": "highway assist",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Brake assist system",
+          "attribute": "Brake assist system",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "headroom rear (in)",
+          "location": "",
+          "value": "37.7"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "2nd gear ratio :1",
+          "location": "",
+          "value": "2.190"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Blind spot monitor",
+          "attribute": "active without turn signal",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Driver modes",
+          "attribute": "includes engine mapping",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Display screen",
+          "attribute": "screen size (in)",
+          "location": "Dashboard center 1",
+          "value": "10.10"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty paint",
+          "attribute": "distance (miles)",
+          "location": "",
+          "value": "50000"
+        },
+        {
+          "category": "Engine",
+          "item": "Power",
+          "attribute": "measurement standard",
+          "location": "",
+          "value": "SAE"
+        },
+        {
+          "category": "Transmission",
+          "item": "Dual clutch sequential",
+          "attribute": "Dual clutch sequential",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Transmission",
+          "item": "Powertrain",
+          "attribute": "type",
+          "location": "",
+          "value": "MHEV"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "curb to curb turning circle (mm)",
+          "location": "",
+          "value": "11799"
+        },
+        {
+          "category": null,
+          "item": "Crash test results",
+          "attribute": "front crash prevent - v to ped day std",
+          "location": "IIHS",
+          "value": "advanced"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty whole vehicle - Total",
+          "attribute": "duration (months)",
+          "location": "",
+          "value": "48"
+        },
+        {
+          "category": "Exterior",
+          "item": "Electrically foldable mirrors",
+          "attribute": "Electrically foldable mirrors",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "activates brake lights",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear seat belts",
+          "attribute": "pre-tensioners",
+          "location": "center",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "minimum speed to activate (mph)",
+          "location": "",
+          "value": "6"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "tire speed rating",
+          "location": "rear",
+          "value": "H"
+        },
+        {
+          "category": "Interior",
+          "item": "Instrument cluster",
+          "attribute": "type",
+          "location": "",
+          "value": "TFT Screen"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Airbags",
+          "attribute": "number of",
+          "location": "",
+          "value": "6"
+        },
+        {
+          "category": "Interior",
+          "item": "Cup holders",
+          "attribute": "location",
+          "location": "rear seats",
+          "value": "rear seats"
+        },
+        {
+          "category": "General",
+          "item": "Body style",
+          "attribute": "Body type",
+          "location": "",
+          "value": "sport utility vehicle"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Accident data recorder",
+          "attribute": "Accident data recorder",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Display screen",
+          "attribute": "screen size (in)",
+          "location": "instrument cluster 1",
+          "value": "12.30"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "type",
+          "location": "rear",
+          "value": "multi-link"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Autonomous drive",
+          "attribute": "Autonomous drive",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "heated",
+          "location": "passenger",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Instrument cluster",
+          "attribute": "reconfigurable",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Internal dimensions",
+          "attribute": "leg room front (mm)",
+          "location": "",
+          "value": "1039"
+        },
+        {
+          "category": "Interior",
+          "item": "Console",
+          "attribute": "type",
+          "location": "overhead",
+          "value": "partial"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Display screen",
+          "attribute": "location",
+          "location": "Dashboard center 1",
+          "value": "Dashboard center 1"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Audio system",
+          "attribute": "satellite radio months of subscription",
+          "location": "",
+          "value": "3"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear seat belts",
+          "attribute": "pre-tensioners",
+          "location": "driver",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Seating",
+          "attribute": "Seating",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Bumpers",
+          "attribute": "color",
+          "location": "front",
+          "value": "painted"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "spring type",
+          "location": "rear",
+          "value": "coil"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Side airbag",
+          "attribute": "Side airbag",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking assistance",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Air conditioning",
+          "attribute": "air conditioning type",
+          "location": "",
+          "value": "auto"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "standard",
+          "location": "EPA 08",
+          "value": "EPA 08"
+        },
+        {
+          "category": "Engine",
+          "item": "Compressor",
+          "attribute": "number of",
+          "location": "",
+          "value": "1"
+        },
+        {
+          "category": "Exterior",
+          "item": "Privacy glass",
+          "attribute": "Privacy glass",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "shift lever location",
+          "location": "",
+          "value": "steering wheel"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "indicator lights",
+          "location": "driver",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "Doors",
+          "location": "driver",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Power windows",
+          "attribute": "Power windows",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "External dimensions",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "engine code",
+          "location": "",
+          "value": "engine code"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "gearchange paddles",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "combined (mpg)",
+          "location": "EPA 08",
+          "value": "25"
+        },
+        {
+          "category": null,
+          "item": "Crash test results",
+          "attribute": "LATCH",
+          "location": "IIHS",
+          "value": "good"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Mobile Integration",
+          "attribute": "Android Auto",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Telematics",
+          "attribute": "Telematics",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "type",
+          "location": "side",
+          "value": "camera"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door sill protector",
+          "attribute": "Door sill protector",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Electric trunk/hatch pull down",
+          "attribute": "Electric trunk/hatch pull down",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "manufacturer's name",
+          "location": "front",
+          "value": "Parking system plus"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "calculated vehicle range (km)",
+          "location": "EPA 08",
+          "value": "744"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "location",
+          "location": "rear driver",
+          "value": "rear driver"
+        },
+        {
+          "category": "Engine",
+          "item": "Emission control level",
+          "attribute": "Emission control level",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "rim type",
+          "location": "rear",
+          "value": "alloy"
+        },
+        {
+          "category": "Engine",
+          "item": "Performance",
+          "attribute": "maximum speed (km/h)",
+          "location": "",
+          "value": "210"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Airbags",
+          "attribute": "Airbags",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Illuminated entry system",
+          "attribute": "Illuminated entry system",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "overall height (mm)",
+          "location": "",
+          "value": "1664"
+        },
+        {
+          "category": "Engine",
+          "item": "Fuel",
+          "attribute": "Fuel type",
+          "location": "",
+          "value": "premium unleaded"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty powertrain - Total",
+          "attribute": "duration (months)",
+          "location": "",
+          "value": "48"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "overall length (mm)",
+          "location": "",
+          "value": "4681"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Cruise control",
+          "attribute": "adaptive cruise control (ACC)",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty anti-corrosion",
+          "attribute": "distance (miles)",
+          "location": "",
+          "value": "999999"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Speakers",
+          "attribute": "subwoofer",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Engine",
+          "item": "Secondary power",
+          "attribute": "maximum torque lb ft",
+          "location": "",
+          "value": "236"
+        },
+        {
+          "category": "Exterior",
+          "item": "Day time running lights",
+          "attribute": "Day time running lights",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "Front seat",
+          "location": "driver",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Mobile Integration",
+          "attribute": "Android number of months subscription",
+          "location": "",
+          "value": "999"
+        },
+        {
+          "category": null,
+          "item": "Autonomous drive",
+          "attribute": "traffic jam assist",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "tire profile",
+          "location": "rear",
+          "value": "55"
+        },
+        {
+          "category": "Exterior",
+          "item": "LED lights",
+          "attribute": "location",
+          "location": "side indicator lights",
+          "value": "side indicator lights"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty battery - OEM",
+          "attribute": "Warranty battery - OEM",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "5th gear ratio :1",
+          "location": "",
+          "value": "0.738"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "overall width inc mirror (mm)",
+          "location": "",
+          "value": "2139"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Cargo capacity",
+          "attribute": "all seats in place (l)",
+          "location": "",
+          "value": "725"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "Crash test results",
+          "location": "NHTSA",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Doors",
+          "attribute": "location",
+          "location": "rear passenger",
+          "value": "rear passenger"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "type",
+          "location": "passenger",
+          "value": "electrically adjustable"
+        },
+        {
+          "category": "Interior",
+          "item": "Vanity mirror",
+          "attribute": "Vanity mirror",
+          "location": "passenger",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Electronic traction control",
+          "attribute": "Electronic traction control",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Rear seats",
+          "attribute": "reach type",
+          "location": "front",
+          "value": "manual"
+        },
+        {
+          "category": "Interior",
+          "item": "Steering wheel",
+          "attribute": "heated",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "overall width (mm)",
+          "location": "",
+          "value": "1892"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "Door mirrors/cameras",
+          "location": "passenger",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "3rd row windows",
+          "attribute": "type",
+          "location": "passenger",
+          "value": "fixed"
+        },
+        {
+          "category": "Exterior",
+          "item": "Windshield wipers",
+          "attribute": "intermittent wipe",
+          "location": "",
+          "value": "automatic"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Smart card / smart key",
+          "attribute": "includes keyless entry",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Cup holders",
+          "attribute": "Cup holders",
+          "location": "front seats",
+          "value": "standard"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty paint",
+          "attribute": "Warranty paint",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front seat belts",
+          "attribute": "seat position",
+          "location": "passenger",
+          "value": "passenger"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Secondary ventilation controls",
+          "attribute": "location",
+          "location": "rear seats",
+          "value": "rear seats"
+        },
+        {
+          "category": "Interior",
+          "item": "USB charging port",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "General",
+          "item": "Country of assembly",
+          "attribute": "Country of assembly",
+          "location": "",
+          "value": "Mexico"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Mobile Integration",
+          "attribute": "Apple wireless connection",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "type",
+          "location": "driver",
+          "value": "electrically adjustable"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Remote services",
+          "attribute": "find my car",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Glass roof",
+          "attribute": "Glass roof",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Engine",
+          "item": "Power",
+          "attribute": "maximum torque Nm",
+          "location": "",
+          "value": "320"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Anti collision system",
+          "attribute": "operates below 50 kph/30 mph",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "General",
+          "item": "Body style",
+          "attribute": "wheelbase type",
+          "location": "",
+          "value": "short"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty paint",
+          "attribute": "duration (months)",
+          "location": "",
+          "value": "48"
+        },
+        {
+          "category": "Engine",
+          "item": "Fuel tanks",
+          "attribute": "capacity (UK gallons)",
+          "location": "main",
+          "value": "15.4"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "location",
+          "location": "side",
+          "value": "side"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Audio system",
+          "attribute": "internet radio",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": null,
+          "item": "Crash test results",
+          "attribute": "seat belt reminder",
+          "location": "IIHS",
+          "value": "poor"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Rear seat belts",
+          "attribute": "seat position",
+          "location": "passenger",
+          "value": "passenger"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Memorized adjustment",
+          "attribute": "door mirror position",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "1st gear ratio :1",
+          "location": "",
+          "value": "3.188"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Lane departure warning",
+          "attribute": "activates steering",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Sunroof",
+          "attribute": "type",
+          "location": "front",
+          "value": "glass"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "ground clearance unladen (mm)",
+          "location": "",
+          "value": "208"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking distance system",
+          "attribute": "manufacturer's name",
+          "location": "rear",
+          "value": "Parking system plus"
+        },
+        {
+          "category": "Pricing",
+          "item": "Secondary MSRP",
+          "attribute": "Secondary MSRP",
+          "location": "",
+          "value": "45258.82"
+        },
+        {
+          "category": "Pricing",
+          "item": "Price currency",
+          "attribute": "Price currency",
+          "location": "",
+          "value": "US Dollar"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Energy recuperation",
+          "attribute": "Energy recuperation",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Vanity mirror",
+          "attribute": "location",
+          "location": "driver",
+          "value": "driver"
+        },
+        {
+          "category": "Engine",
+          "item": "Power",
+          "attribute": "Maximum power kW",
+          "location": "",
+          "value": "150"
+        },
+        {
+          "category": "General",
+          "item": "Vehicle type",
+          "attribute": "Vehicle type",
+          "location": "",
+          "value": "North American trucks"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "electrically adjustable",
+          "location": "passenger",
+          "value": "yes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Blind spot monitor",
+          "attribute": "Blind spot monitor",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Lane departure warning",
+          "attribute": "Lane departure warning",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Instrument cluster",
+          "attribute": "Instrument cluster",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear window",
+          "attribute": "type",
+          "location": "",
+          "value": "fixed"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "rim width (in)",
+          "location": "front",
+          "value": "8.0"
+        },
+        {
+          "category": "Interior",
+          "item": "Console",
+          "attribute": "type",
+          "location": "floor",
+          "value": "full"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty whole vehicle - Total",
+          "attribute": "Warranty whole vehicle - Total",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Audio system",
+          "attribute": "digital media card",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty electric systems - OEM",
+          "attribute": "Warranty electric systems - OEM",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Exterior",
+          "item": "Wheels",
+          "attribute": "Wheels",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "12v power outlet",
+          "attribute": "location",
+          "location": "front",
+          "value": "front"
+        },
+        {
+          "category": "Interior",
+          "item": "Cargo area cover/rear parcel shelf",
+          "attribute": "type",
+          "location": "",
+          "value": "rigid"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Hill holder",
+          "attribute": "Hill holder",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Blind spot monitor",
+          "attribute": "manufacturer's name",
+          "location": "",
+          "value": "Audi Side Assist"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Front airbag",
+          "attribute": "Front airbag",
+          "location": "passenger",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Console",
+          "attribute": "Console",
+          "location": "floor",
+          "value": "standard"
+        },
+        {
+          "category": "Infotainment",
+          "item": "Speakers",
+          "attribute": "brand name",
+          "location": "",
+          "value": "Bang & Olufsen"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "Tires",
+          "location": "front",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Floor covering",
+          "attribute": "Floor covering",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Air conditioning",
+          "attribute": "rear control for climate control",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "6th gear ratio :1",
+          "location": "",
+          "value": "0.508"
+        },
+        {
+          "category": "Exterior",
+          "item": "Door mirrors/cameras",
+          "attribute": "heated",
+          "location": "passenger",
+          "value": "yes"
+        },
+        {
+          "category": "Warranty",
+          "item": "Warranty whole vehicle - OEM",
+          "attribute": "distance (miles)",
+          "location": "",
+          "value": "50000"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Head restraints",
+          "attribute": "location",
+          "location": "front seats",
+          "value": "front seats"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "mode select (auto only)",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Steering wheel",
+          "attribute": "height adjustment",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Cargo capacity",
+          "attribute": "rear seat down (l)",
+          "location": "",
+          "value": "1515"
+        },
+        {
+          "category": "Dimensions",
+          "item": "Weights",
+          "attribute": "gross trailer weight unbraked (lbs)",
+          "location": "",
+          "value": "2000"
+        },
+        {
+          "category": "Exterior",
+          "item": "Rear window",
+          "attribute": "Rear window",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "General",
+          "item": "Country",
+          "attribute": "Country",
+          "location": "",
+          "value": "USA"
+        },
+        {
+          "category": "Suspension",
+          "item": "Suspension",
+          "attribute": "wheel dependence",
+          "location": "front",
+          "value": "independent"
+        },
+        {
+          "category": null,
+          "item": "Display screen",
+          "attribute": "roller control",
+          "location": "instrument cluster 1",
+          "value": "yes"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel tanks",
+          "attribute": "capacity (l)",
+          "location": "main",
+          "value": "70"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "small overlap front - driver",
+          "location": "IIHS",
+          "value": "Good"
+        },
+        {
+          "category": "Exterior",
+          "item": "Privacy glass",
+          "attribute": "location",
+          "location": "rear",
+          "value": "rear"
+        },
+        {
+          "category": "Fuel Economy",
+          "item": "Fuel consumption",
+          "attribute": "combined (l/100km)",
+          "location": "EPA 08",
+          "value": "9.4"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Headlight control",
+          "attribute": "dusk sensor",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Chrome/bright trim",
+          "attribute": "on side of body",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Transmission",
+          "item": "Transmission",
+          "attribute": "reverse gear ratio :1",
+          "location": "",
+          "value": "2.750"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Crash test results",
+          "attribute": "roof strength test",
+          "location": "IIHS",
+          "value": "Good"
+        },
+        {
+          "category": "Engine",
+          "item": "Engine",
+          "attribute": "Engine",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "item": "Electric motor",
+          "attribute": "motor number",
+          "location": "1",
+          "value": "1"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "item": "Parking assistance",
+          "attribute": "Parking assistance",
+          "location": "rear",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "electrically adjustable",
+          "location": "driver",
+          "value": "yes"
+        },
+        {
+          "category": "Exterior",
+          "item": "Tires",
+          "attribute": "tire speed rating",
+          "location": "front",
+          "value": "H"
+        },
+        {
+          "category": "Engine",
+          "item": "Power",
+          "attribute": "Power",
+          "location": "",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "tilt type",
+          "location": "driver",
+          "value": "memory"
+        },
+        {
+          "category": "Engine",
+          "item": "Emission control level",
+          "attribute": "USA - annual tons of CO2",
+          "location": "",
+          "value": "5.8"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "item": "Smart card / smart key",
+          "attribute": "includes keyless start",
+          "location": "",
+          "value": "yes"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "number of electrical adjustments",
+          "location": "driver",
+          "value": "6"
+        },
+        {
+          "category": "Exterior",
+          "item": "Privacy glass",
+          "attribute": "Privacy glass",
+          "location": "rear side",
+          "value": "standard"
+        },
+        {
+          "category": "Interior",
+          "item": "Front seat",
+          "attribute": "type",
+          "location": "passenger",
+          "value": "bucket"
+        },
+        {
+          "category": "Dimensions",
+          "item": "External dimensions",
+          "attribute": "ground clearance unladen (in)",
+          "location": "",
+          "value": "8.2"
+        }
+      ]
+    },
+    "destinationCharge": 1195,
+    "totalMsrp": 50595,
+    "features": {
+      "STANDARD": [
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Power Outlet",
+          "description": "12 Volt Rear Power Outlet"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Power Outlet",
+          "description": "12 Volt Power Outlet"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Parking Distance System",
+          "description": "360 View Camera"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Parking Distance System",
+          "description": "Rear Automated Parking Assistance"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Parking Distance System",
+          "description": "Front Parking Distance System"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Parking Distance System",
+          "description": "Rear Parking Distance System"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Parking Distance System",
+          "description": "Side Parking Distance System"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Parking Distance System",
+          "description": "Front Parking Sensor & Camera"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Parking Distance System",
+          "description": "Rear Parking Sensor & Camera"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Parking Distance System",
+          "description": "Side Parking Camera"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Brakes",
+          "description": "ABS Brakes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Brakes",
+          "description": "Disc Brakes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Brakes",
+          "description": "Disc Brakes-4"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Brakes",
+          "description": "Ventilated Disc Brakes-4"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Brakes",
+          "description": "Painted Callipers"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Brakes",
+          "description": "Electronic Hand Brake"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Accident data recorder",
+          "description": "Accident data recorder"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Air Conditioning",
+          "description": "Automatic Air Conditioning"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Air Conditioning",
+          "description": "Rear Air Conditioning Controls"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Air Conditioning-Number of Zones",
+          "description": "Multi Zone Air Conditioning"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Airbags-Number Of",
+          "description": "6 Airbags"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Ambient Lighting",
+          "description": "Ambient Lighting"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Anti Collision System",
+          "description": "Activates Brake Lights"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Anti Collision System",
+          "description": "Activates Seat Belts"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Anti Collision System",
+          "description": "Automatic Braking"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Anti Collision System",
+          "description": "Brakes At Low Speed"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Anti Collision System",
+          "description": "Operates Above 50 Kph/30 Mph Anti Collision System"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Anti Collision System",
+          "description": "Operates Below 50 Kph/30 Mph Anti Collision System"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Anti Collision System",
+          "description": "Pedestrian & Cyclist Avoidance System"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Anti Collision System",
+          "description": "Visual/Acoustic Warning"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Anti Collision System",
+          "description": "Multi-Collision Braking"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Anti-Theft Protection",
+          "description": "Anti-Theft Protection"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Mobile Integration",
+          "description": "Apps Control"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Mobile Integration",
+          "description": "Android Auto"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Mobile Integration",
+          "description": "Apple Carplay"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Mobile Integration",
+          "description": "Apple Wireless Connection"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Mobile Integration",
+          "description": "Mobile Integration"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Accessories",
+          "description": "Digital Media Card"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Accessories",
+          "description": "Digital Radio"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Accessories",
+          "description": "Internet Radio"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Accessories",
+          "description": "Satellite Radio"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Accessories",
+          "description": "Bluetooth Connection"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Type",
+          "description": "Touch Screen Audio"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Door Closing",
+          "description": "Automatic Door Closing"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Door Closing",
+          "description": "Rear Trunk/Hatch Automatic Door Closing"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Autonomous Drive",
+          "description": "Active Lane Control"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Autonomous Drive",
+          "description": "Autonomous Drive"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Autonomous Drive",
+          "description": "Highway Assist"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Autonomous Drive",
+          "description": "Level 2-Partial Automation"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Autonomous Drive",
+          "description": "Traffic Jam Assist"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Blind Spot Monitor",
+          "description": "Blind Junction View"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Blind Spot Monitor",
+          "description": "Active Without Turn Signal"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Body Style",
+          "description": "Short Wheelbase"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Brake Assist",
+          "description": "Brake Assist"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Cargo",
+          "description": "Cargo Area Cover/Rear Parcel Shelf"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Cargo",
+          "description": "Cargo Area Light"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Compass",
+          "description": "Compass"
+        },
+        {
+          "category": "Engine",
+          "feature_type": "Engine",
+          "description": "Engine Compressor"
+        },
+        {
+          "category": "Engine",
+          "feature_type": "Compressor",
+          "description": "Turbo"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Connection To Entertainment Devices",
+          "description": "AUX Jack Front"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Connection To Entertainment Devices",
+          "description": "Front USB Connection"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "USB Charging Port",
+          "description": "Number Of USB Connections Front-2"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "USB Charging Port",
+          "description": "Front USB Charging Port"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "USB Charging Port",
+          "description": "Rear USB Charging Port"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Front Crash Prevent - V To Ped Day Std-Advanced"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Front Crash Prevention - V To V (Std)-Superior"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Headlights-Acceptable"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Latch-Good"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Moderate Overlap Front Test-Marginal"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Rear Crash Protect/Head Restraint Rating-Good"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Roof Strength Test-Good"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Seat Belt Reminder-Poor"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Side Impact-Acceptable"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Small Overlap Front - Driver-Good"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Small Overlap Front - Passenger-Good"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Standard-IIHS"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Test Revision-Test Revision"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-IIHS",
+          "description": "Top Safety Pick Status-TSP"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-NHTSA",
+          "description": "Frontal Crash Rating-5"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-NHTSA",
+          "description": "Overall-5"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-NHTSA",
+          "description": "Rollover Rating-4"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-NHTSA",
+          "description": "Side Impact-5"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Crash Test Results-NHTSA",
+          "description": "Standard-NHTSA"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Cruise Control",
+          "description": "Adaptive Cruise Control"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Cruise Control",
+          "description": "Cruise Control"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Cruise Control",
+          "description": "Stop/Go Function Cruise Control"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Headlight Control",
+          "description": "Daytime Running Lights"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Headlight Control",
+          "description": "Auto Highbeam"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Headlight Control",
+          "description": "Dusk Sensor"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Display Screen",
+          "description": "Display Screen-Dashboard Center 1"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Display Screen",
+          "description": "Display Screen-Instrument Cluster 1"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Display Screen",
+          "description": "Dashboard Center 1-Fixed"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Display Screen",
+          "description": "Instrument Cluster 1-Roller Control"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Display Screen",
+          "description": "Display Screen-Dashboard Center 1 (10.1 in)"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Display Screen",
+          "description": "Display Screen-Instrument Cluster 1 (12.3 in)"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Display Screen",
+          "description": "Touch Screen-Dashboard Center 1"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Illuminated",
+          "description": "Door Entry Light"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Mirrors/Cameras",
+          "description": "Auto-Dimming Door Mirrors"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Mirrors/Cameras",
+          "description": "Heated Door Mirrors"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Mirrors/Cameras",
+          "description": "Turn Signal In Mirror"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Mirrors/Cameras",
+          "description": "Tilt for Reverse"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Mirrors/Cameras",
+          "description": "Driver-Electrically Adjustable"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Mirrors/Cameras",
+          "description": "Passenger-Electrically Adjustable"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Mirrors/Cameras",
+          "description": "Electric Foldable Door Mirrors"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Type",
+          "description": "Passenger Door-Front Hinged"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Type",
+          "description": "Rear Driver Door-Front Hinged"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Type",
+          "description": "Rear Passenger Door-Front Hinged"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Door Type",
+          "description": "Rear Door-Lifting Gate"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Drive",
+          "description": "Descent Control System"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Driven Wheels",
+          "description": "AWD"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Four Wheel Drive",
+          "description": "Four Wheel Drive Type-Full And Part-Time/Disconnect"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Drive Selection",
+          "description": "Drive Selection-Automatic"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Driver Modes",
+          "description": "Selectable Driver Modes"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Driver Modes",
+          "description": "Driver Modes Includes Engine Mapping"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Driver Modes",
+          "description": "Driver Modes Includes Steering"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Dual Clutch Sequential",
+          "description": "Dual Clutch Sequential"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "feature_type": "Electric Motor",
+          "description": "Electric Motors-1"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "feature_type": "Electric Motor Type",
+          "description": "BISG Belt Integrated Starter Generator"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "feature_type": "Battery",
+          "description": "Lithium Ion Battery"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "feature_type": "Electric Power Source",
+          "description": "Electric Power Source"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Tailgate/Trunk",
+          "description": "Power Tailgate/Trunk"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Tailgate/Trunk",
+          "description": "Remote Control Remote Trunk/Hatch Release"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Suspension",
+          "description": "Electronic Traction Control"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "feature_type": "Energy Recuperation",
+          "description": "Energy Recuperation"
+        },
+        {
+          "category": "Engine",
+          "feature_type": "Engine Configuration",
+          "description": "In-Line"
+        },
+        {
+          "category": "Engine",
+          "feature_type": "Engine Displacement (Liters)",
+          "description": "Engine Displacement (2.0 liters)"
+        },
+        {
+          "category": "Engine",
+          "feature_type": "Engine Cylinders",
+          "description": "4-Cyl"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Exterior Door Handles",
+          "description": "Body Color Exterior Door Handles"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Airbag",
+          "description": "Driver Airbag"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Airbag",
+          "description": "Passenger Airbag"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Airbag",
+          "description": "Front Side Airbag"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Airbag",
+          "description": "Side Curtain Airbag-Front And Rear"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Airbag",
+          "description": "Side Curtain Airbag"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Fog Lights",
+          "description": "Front Fog Lights"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Front Seats Adjustment",
+          "description": "Electrically Adjustable"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Front Seats Adjustment",
+          "description": "Driver Seat Memory"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Front Seats Adjustment",
+          "description": "Front Seat Power Lumbar Adjustment"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Front Seats Adjustment",
+          "description": "Passenger Seat Electric Reclining"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Front Seats Function",
+          "description": "Heated Driver Seat"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Front Seats Function",
+          "description": "Heated Passenger Seat"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Front Seats Type",
+          "description": "Driver Bucket Seat"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Front Seats Type",
+          "description": "Passenger Bucket Seat"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Seat Belts",
+          "description": "Front Seat Belts Height Adjustable"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Seat Belts",
+          "description": "Front Seat belts Pre-Tensioners"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Seat Belts",
+          "description": "Rear Seat Belts Pre-Tensioners"
+        },
+        {
+          "category": "Engine",
+          "feature_type": "Fuel Type",
+          "description": "Premium Unleaded"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Garage Door Opener",
+          "description": "Garage Door Opener"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Sunroof",
+          "description": "Glass Sunroof"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Sunroof",
+          "description": "Front Sunroof"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Sunroof",
+          "description": "One-Touch Opening Sunroof-Front"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Sunroof",
+          "description": "Remote Sunroof-Front"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Sunroof",
+          "description": "Sliding Sunroof-Front"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Sunroof",
+          "description": "Sunshade Sunroof"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Sunroof",
+          "description": "Tilting Sunroof-Front"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Head Restraints",
+          "description": "Front Seats Head Restraints"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Head Restraints",
+          "description": "Rear Seats Head Restraints"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Head Restraints",
+          "description": "Front Seats Height Adjustable Head Restraints"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Head Restraints",
+          "description": "Rear Seats Height Adjustable Head Restraints"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Head Restraints",
+          "description": "Front Seats Head Restraints-2"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Head Restraints",
+          "description": "Rear Seats Head Restraints-3"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Headlights",
+          "description": "Led Headlights-High Beam"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Headlights",
+          "description": "Led Headlights-Low Beam"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Headlight Lens Type",
+          "description": "Projector Beam Headlights"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Windshield Wipers",
+          "description": "Heated Washer"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Windshield Wipers",
+          "description": "Rear Windshield Wipers"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Windshield Wipers",
+          "description": "Automatic Intermittent Wipe"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Windshield Wipers",
+          "description": "Rain Sensing Windsheild Wipers"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Assist",
+          "description": "Hill Holder Assist"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Assist",
+          "description": "Intelligent Speed Assist"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "feature_type": "Hybrid Type",
+          "description": "Mild Hybrid"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "feature_type": "Hybrid Type",
+          "description": "Hybrid"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Illuminated Entry System",
+          "description": "Interior Illuminated Entry System"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Instrument Cluster",
+          "description": "Instrument Cluster"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Instrument Cluster",
+          "description": "Reconfigurable Instrument Cluster"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Instrument Cluster",
+          "description": "Instrument Cluster TFT Screen"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Isofix",
+          "description": "Isofix Preparation"
+        },
+        {
+          "category": "General",
+          "feature_type": "Global Segment",
+          "description": "Upper Medium SUV"
+        },
+        {
+          "category": "General",
+          "feature_type": "Vehicle Segment",
+          "description": "Compact SUV"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Lane Departure Warning",
+          "description": "Lane Keeping Assist"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Lane Departure Warning",
+          "description": "Lane Departure Warning"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "LED Brake Lights"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "LED Daytime Running Lights"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "High Beam LED Lights"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "Low Beam LED Lights"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "Rear LED Lights"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "Side Indicator Lights"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "LED Day Time Running Lights"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "LED High Beam"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "LED Low Beam"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "LED Rear Lights"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "LED Lights",
+          "description": "LED Side Indicator Lights"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Load Restraint",
+          "description": "Load Restraint-Hooks"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Tire Indicator",
+          "description": "Low Tire Pressure Monitor"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Memorized Adjustment",
+          "description": "Door Mirror Position Memory"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Paint",
+          "description": "Paint-Gloss"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Panoramic Roof",
+          "description": "Front Panoramic Roof"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Parking Assistance",
+          "description": "Parking Assistance-Rear"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Parking Assistance",
+          "description": "Guidance Display Parking Assistance-Rear"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Power Locks",
+          "description": "Card Key Power Locks"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Power Steering",
+          "description": "Power Steering"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Power Steering",
+          "description": "Vehicle Speed Proportional Power Steering"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Power Windows",
+          "description": "Front Express Power Windows"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Power Windows",
+          "description": "Rear Express Power Windows"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Power Windows",
+          "description": "Front Power Windows"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Power Windows",
+          "description": "Rear Power Windows"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Cross Traffic Collision Avoidance",
+          "description": "Rear Cross Traffic Collision Avoidance"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "feature_type": "Cross Traffic Collision Avoidance",
+          "description": "Rear Cross Traffic Collision Avoidance-Radar"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Rear Seats Adjustment",
+          "description": "Folding Rear Seats"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Rear Seats Adjustment",
+          "description": "Reclining Rear Seats"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Rear Seats Type",
+          "description": "Rear Seats Bench"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Rear View Mirror",
+          "description": "Auto-Dimming Rear View Mirror/Camera"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Rear View Mirror",
+          "description": "Rear View Mirror/Camera"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Rear Window",
+          "description": "Rear Window Defogger"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Controls",
+          "description": "Remote Audio Controls"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Controls",
+          "description": "Steering Wheel Mounted Audio Controls"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Remote Services",
+          "description": "Remote-Find My Car"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Remote Services",
+          "description": "Remote Lock/Unlock"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Remote Services",
+          "description": "Send Destination To Car"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Remote Services",
+          "description": "Theft Alert"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Roof Rails",
+          "description": "Roof Rails Cross Bars"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Seat Upholstery",
+          "description": "Leather Seats"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Seating Capacity",
+          "description": "4 Person Seating Capacity"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Smart Key",
+          "description": "Remote Keyless Entry"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Smart Key",
+          "description": "Keyless Start"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Smart Key",
+          "description": "Smart Key With Memory Settings"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Smart Key",
+          "description": "Smart Card / Smart Key"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Spare Wheel",
+          "description": "Steel Spare Wheel"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Spare Wheel",
+          "description": "Spare Wheel"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Spare Wheel",
+          "description": "Spacesaver Unknown Spare Wheel"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Speakers",
+          "description": "Premium Brand Speakers"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Speakers",
+          "description": "19 Speakers"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Speakers",
+          "description": "Subwoofer"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Audio Speakers",
+          "description": "Surround Sound Speakers"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Spoiler",
+          "description": "Roof Spoiler"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Engine Start",
+          "description": "Engine Start/Stop"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Engine Start",
+          "description": "Vehicle Start Button"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Steering Wheel Function",
+          "description": "Electric Adjustment Steering wheel"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Steering Wheel Function",
+          "description": "Heated Steering Wheel"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Steering Wheel Function",
+          "description": "Height Adjustment Steering Wheel"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Steering Wheel Function",
+          "description": "Multi Function Steering Wheel"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Steering Wheel Function",
+          "description": "Steering Wheel Telescopic Adjustment"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Steering Wheel Function",
+          "description": "Alloy & Leather Steering Wheel"
+        },
+        {
+          "category": "Suspension",
+          "feature_type": "Suspension Type",
+          "description": "Coil Suspension-Front"
+        },
+        {
+          "category": "Suspension",
+          "feature_type": "Suspension Type",
+          "description": "Coil Suspension-Rear"
+        },
+        {
+          "category": "Suspension",
+          "feature_type": "Suspension Type",
+          "description": "Multi-Link Suspension-Front"
+        },
+        {
+          "category": "Suspension",
+          "feature_type": "Suspension Type",
+          "description": "Multi-Link Suspension-Rear"
+        },
+        {
+          "category": "Suspension",
+          "feature_type": "Stabilizer Bar",
+          "description": "Front Stabilizer Bar"
+        },
+        {
+          "category": "Suspension",
+          "feature_type": "Stabilizer Bar",
+          "description": "Rear Stabilizer Bar"
+        },
+        {
+          "category": "Suspension",
+          "feature_type": "Wheel Dependence",
+          "description": "Independent Suspension-Front"
+        },
+        {
+          "category": "Suspension",
+          "feature_type": "Wheel Dependence",
+          "description": "Independent Suspension-Rear"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Telematics",
+          "description": "Telematics System"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Telematics",
+          "description": "Text To Speech / Speech To Text"
+        },
+        {
+          "category": "Infotainment",
+          "feature_type": "Telematics",
+          "description": "Voice Recognition"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Tires",
+          "description": "All Season Tires"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Trailer",
+          "description": "Trailer Towing Preparation"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Transmission",
+          "description": "Gear Change Paddles"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Transmission",
+          "description": "Manual Mode"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Transmission",
+          "description": "Manual Sequential"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Mode Select",
+          "description": "Automatic Only Mode Select"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Transmission Speeds",
+          "description": "7 Speed Transmission"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Transmission Description",
+          "description": "Dual Clutch Sequential Trans (DCT)"
+        },
+        {
+          "category": "Transmission",
+          "feature_type": "Transmission Type",
+          "description": "Automatic Transmission"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Skid Plate",
+          "description": "Engine Skid Plate"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Vanity mirror",
+          "description": "Illuminated Driver Vanity Mirror"
+        },
+        {
+          "category": "Interior",
+          "feature_type": "Vanity mirror",
+          "description": "Illuminated Passenger Vanity Mirror"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Ventilation System",
+          "description": "Active Carbon Filter"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Ventilation System",
+          "description": "Engine Heater"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "feature_type": "Ventilation System",
+          "description": "Micro Filter"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Wheels",
+          "description": "Front Wheel Diameter (19 in)"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Wheels",
+          "description": "Rear Wheel Diameter (19 in)"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Wheels",
+          "description": "Front Aluminum/Alloy Wheels"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Wheels",
+          "description": "Rear Aluminum/Alloy Wheels"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Wheels",
+          "description": "Front Wheel Width (8 in)"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Wheels",
+          "description": "Rear Wheel Width (8 in)"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Wheels",
+          "description": "Front Two-Tone Wheels"
+        },
+        {
+          "category": "Exterior",
+          "feature_type": "Wheels",
+          "description": "Rear Two-Tone Wheels"
+        }
+      ]
+    },
+    "highValueFeatures": {
+      "STANDARD": [
+        {
+          "category": "Safety & Driver Assist",
+          "description": "360 View Parking Device"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "description": "Parking Assistance System"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "description": "Parking Distance System"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "description": "Rear/Multi-Zone Air Conditioning"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "description": "Anti Collision System"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Satellite Radio"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Bluetooth"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Touch Screen Audio"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "description": "Power Closing Doors"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "description": "Lane Keep Assist"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "description": "Autonomous Drive Functions"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "description": "Autonomous Drive - Level 2"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "description": "Blind Spot System"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "description": "Brake Assist"
+        },
+        {
+          "category": "Engine",
+          "description": "Turbo Boost"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Upgraded Aux Jack Input"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Upgraded USB Connection"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "description": "Adaptive Cruise Control"
+        },
+        {
+          "category": "Exterior",
+          "description": "Heated Door Mirrors"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "description": "Power Closing Liftgate"
+        },
+        {
+          "category": "Exterior",
+          "description": "Fog Lights"
+        },
+        {
+          "category": "Interior",
+          "description": "Heated Seats"
+        },
+        {
+          "category": "Interior",
+          "description": "Memory Seats"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "description": "Coming Home Device"
+        },
+        {
+          "category": "Interior",
+          "description": "Sun/Moonroof"
+        },
+        {
+          "category": "Hybrid & Electric",
+          "description": "Hybrid"
+        },
+        {
+          "category": "Vehicle Segment",
+          "description": "Compact SUV"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "description": "Memory Mirrors"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Android Auto"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Apple CarPlay"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Phone Integration"
+        },
+        {
+          "category": "Exterior",
+          "description": "Upgrade Paint"
+        },
+        {
+          "category": "Interior",
+          "description": "Panoramic Sun/Moonroof"
+        },
+        {
+          "category": "Safety & Driver Assist",
+          "description": "Cross Traffic Collision Avoidance"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Steering Wheel Controls"
+        },
+        {
+          "category": "Interior",
+          "description": "Leather Seats"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "description": "Smart Card / Smart Key"
+        },
+        {
+          "category": "Comfort & Convenience",
+          "description": "Keyless Start/Remote Engine Start"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Premium Speakers"
+        },
+        {
+          "category": "Exterior",
+          "description": "Upgraded Tire Type"
+        },
+        {
+          "category": "Transmission",
+          "description": "Automatic Transmission"
+        },
+        {
+          "category": "Infotainment",
+          "description": "Voice Recognition"
+        },
+        {
+          "category": "Exterior",
+          "description": "Upgraded Wheel Size"
+        },
+        {
+          "category": "Exterior",
+          "description": "Premium Wheels"
+        }
+      ]
+    },
+    "rating": {
+      "front": 5,
+      "side": 5,
+      "overall": 5,
+      "rollover": 4,
+      "roofStrength": "Good"
+    },
+    "warranty": {
+      "total": {
+        "duration": 48,
+        "distance": 50000
+      },
+      "powertrain": {
+        "duration": 48,
+        "distance": 50000
+      },
+      "antiCorrosion": {
+        "duration": 144,
+        "distance": 9999999
+      },
+      "roadsideAssistance": {
+        "duration": 48,
+        "distance": 9999999
+      }
+    },
+    "dimensions": {
+      "width": 74.8,
+      "height": 65.7,
+      "length": 185.7,
+      "doors": 5,
+      "seatingCapacity": 5
+    },
+    "manufacturerCode": "FYGBZY/WPS",
+    "sections": {
+      "mechanical": [
+        "Engine Compressor",
+        "Turbo",
+        "Descent Control System",
+        "AWD",
+        "Four Wheel Drive Type-Full And Part-Time/Disconnect",
+        "Drive Selection-Automatic",
+        "Dual Clutch Sequential",
+        "In-Line",
+        "Engine Displacement (2.0 liters)",
+        "4-Cyl"
+      ],
+      "interior": [
+        "12 Volt Rear Power Outlet",
+        "12 Volt Power Outlet",
+        "Automatic Air Conditioning",
+        "Rear Air Conditioning Controls",
+        "Multi Zone Air Conditioning",
+        "Ambient Lighting",
+        "Automatic Door Closing",
+        "Rear Trunk/Hatch Automatic Door Closing",
+        "Cargo Area Cover/Rear Parcel Shelf",
+        "Cargo Area Light"
+      ],
+      "exterior": [
+        "Short Wheelbase",
+        "Door Entry Light",
+        "Auto-Dimming Door Mirrors",
+        "Heated Door Mirrors",
+        "Turn Signal In Mirror",
+        "Tilt for Reverse",
+        "Driver-Electrically Adjustable",
+        "Passenger-Electrically Adjustable",
+        "Electric Foldable Door Mirrors",
+        "Passenger Door-Front Hinged"
+      ],
+      "safety": [
+        "360 View Camera",
+        "Rear Automated Parking Assistance",
+        "Front Parking Distance System",
+        "Rear Parking Distance System",
+        "Side Parking Distance System",
+        "Front Parking Sensor & Camera",
+        "Rear Parking Sensor & Camera",
+        "Side Parking Camera",
+        "ABS Brakes",
+        "Disc Brakes"
+      ],
+      "entertainment": [
+        "Apps Control",
+        "Android Auto",
+        "Apple Carplay",
+        "Apple Wireless Connection",
+        "Mobile Integration",
+        "Digital Media Card",
+        "Digital Radio",
+        "Internet Radio",
+        "Satellite Radio",
+        "Bluetooth Connection"
+      ]
+    },
+    "source": "marketcheck"
+  },
+  "source": "cache",
+  "_metadata": {
+    "captured_at": "2026-01-30T04:18:08.390Z",
+    "vin": "WA1BBAFY7P2183119",
+    "source": "real_api_response"
+  }
+}

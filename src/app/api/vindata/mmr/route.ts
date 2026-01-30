@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handleDemoMode } from "@/lib/demo-mode";
 
 const MARKETCHECK_API_KEY =
   process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
@@ -6,8 +7,14 @@ const MARKETCHECK_BASE_URL =
   process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
+  // Check if demo mode is enabled
+  const demoResponse = handleDemoMode(request, "/api/vindata/mmr");
+  if (demoResponse) {
+    return demoResponse;
+  }
   try {
-    const apiKey = request.headers.get("x-marketcheck-api-key") || MARKETCHECK_API_KEY;
+    const apiKey =
+      request.headers.get("x-marketcheck-api-key") || MARKETCHECK_API_KEY;
 
     const body = await request.json();
     const { vin, miles, zip } = body;
@@ -19,8 +26,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // MarketCheck MMR (wholesale) API
-    const url = `${MARKETCHECK_BASE_URL}/v1/mmr?api_key=${apiKey}&vin=${encodeURIComponent(vin)}${miles ? `&miles=${miles}` : ""}${zip ? `&zip=${zip}` : ""}`;
+    // MarketCheck MMR (wholesale) API - updated to v2 with correct endpoint
+    const url = `${MARKETCHECK_BASE_URL}/v2/predict/car/us/marketcheck_price?api_key=${apiKey}&vin=${encodeURIComponent(vin)}${miles ? `&miles=${miles}` : "&miles=15000"}${zip ? `&zip=${zip}` : "&zip=90210"}&dealer_type=independent&is_certified=false`;
 
     console.log(`Fetching MMR for VIN: ${vin}`);
 

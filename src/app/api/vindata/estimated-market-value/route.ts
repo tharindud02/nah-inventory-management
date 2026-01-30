@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handleDemoMode } from "@/lib/demo-mode";
 import { apiCache, CACHE_TTL } from "@/lib/api-cache";
 
 const MARKETCHECK_API_KEY =
@@ -7,6 +8,11 @@ const MARKETCHECK_BASE_URL =
   process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
+  // Check if demo mode is enabled
+  const demoResponse = handleDemoMode(request, "/api/vindata/estimated-market-value");
+  if (demoResponse) {
+    return demoResponse;
+  }
   try {
     const { vin, miles, zip } = await request.json();
 

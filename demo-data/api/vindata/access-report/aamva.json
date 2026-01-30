@@ -1,0 +1,84 @@
+{
+  "success": true,
+  "data": {
+    "vin": "1HGCM82633A123456",
+    "aamva_report": {
+      "report_id": "AAMVA-2024-0115-54321",
+      "generated_at": "2024-01-15T15:30:00Z",
+      "status": "completed",
+      "compliance_status": "compliant"
+    },
+    "title_information": {
+      "title_number": "CA123456789",
+      "title_state": "California",
+      "title_status": "Clean",
+      "title_type": "Original",
+      "issue_date": "2023-01-15",
+      "odometer_reading": 5000,
+      "odometer_brand": "Actual"
+    },
+    "registration_history": [
+      {
+        "date": "2023-01-15",
+        "state": "CA",
+        "type": "Original Registration",
+        "owner_type": "Individual"
+      },
+      {
+        "date": "2024-01-01",
+        "state": "CA",
+        "type": "Renewal",
+        "owner_type": "Individual"
+      }
+    ],
+    "brand_history": [],
+    "theft_records": [],
+    "salvage_records": [],
+    "lien_information": {
+      "has_lien": true,
+      "lienholder": {
+        "name": "Demo Bank",
+        "address": "123 Main St, Los Angeles, CA 90001",
+        "phone": "(555) 123-4567"
+      },
+      "lien_amount": 18000,
+      "lien_date": "2023-01-15"
+    },
+    "odometer_history": [
+      {
+        "date": "2023-01-15",
+        "reading": 5000,
+        "source": "Title",
+        "brand": "Actual"
+      },
+      {
+        "date": "2023-07-15",
+        "reading": 10000,
+        "source": "Service Record",
+        "brand": "Actual"
+      },
+      {
+        "date": "2024-01-01",
+        "reading": 15000,
+        "source": "Service Record",
+        "brand": "Actual"
+      }
+    ],
+    "verification_status": {
+      "vin_verified": true,
+      "odometer_verified": true,
+      "title_verified": true,
+      "registration_verified": true
+    },
+    "compliance_checks": {
+      "federal_requirements": "Pass",
+      "state_requirements": "Pass",
+      "emissions_compliance": "Pass",
+      "safety_recalls": {
+        "has_open_recalls": false,
+        "recall_count": 0
+      }
+    },
+    "last_updated": "2024-01-15T15:30:00Z"
+  }
+}

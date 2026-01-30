@@ -1,0 +1,48 @@
+{
+  "success": true,
+  "data": {
+    "vin": "1HGCM82633A123456",
+    "demand_score": {
+      "overall": 78,
+      "national_rank": 15,
+      "category_rank": 8,
+      "regional_rank": 12,
+      "trend": "increasing",
+      "trend_percentage": 5.2
+    },
+    "demand_factors": {
+      "market_demand": "high",
+      "supply_level": "moderate",
+      "seasonal_factor": 1.1,
+      "economic_indicator": 0.95
+    },
+    "price_impact": {
+      "premium_percentage": 8.5,
+      "estimated_premium": 1567,
+      "currency": "USD"
+    },
+    "regional_demand": [
+      {
+        "region": "West Coast",
+        "score": 82,
+        "demand_level": "very_high"
+      },
+      {
+        "region": "Midwest",
+        "score": 71,
+        "demand_level": "moderate"
+      },
+      {
+        "region": "Northeast",
+        "score": 76,
+        "demand_level": "high"
+      },
+      {
+        "region": "South",
+        "score": 73,
+        "demand_level": "moderate"
+      }
+    ],
+    "last_updated": "2024-01-15T11:00:00Z"
+  }
+}

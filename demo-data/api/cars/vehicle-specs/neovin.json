@@ -1,0 +1,109 @@
+{
+  "success": true,
+  "data": {
+    "vin": "1HGCM82633A123456",
+    "specifications": {
+      "basic": {
+        "year": 2023,
+        "make": "Honda",
+        "model": "Accord",
+        "trim": "EX",
+        "body_style": "Sedan",
+        "doors": 4,
+        "drivetrain": "FWD",
+        "vehicle_type": "Passenger Car"
+      },
+      "engine": {
+        "type": "1.5L Turbo I4",
+        "displacement": "1498 cc",
+        "horsepower": 192,
+        "torque": 192,
+        "compression": "10.3:1",
+        "fuel_system": "Direct Injection",
+        "valvetrain": "DOHC 16-valve"
+      },
+      "transmission": {
+        "type": "CVT",
+        "gears": "Variable",
+        "mode": "Automatic"
+      },
+      "dimensions": {
+        "length": 195.7,
+        "width": 73.3,
+        "height": 57.5,
+        "wheelbase": 111.4,
+        "curb_weight": 3274,
+        "cargo_capacity": 16.7,
+        "fuel_tank": 14.8
+      },
+      "performance": {
+        "fuel_economy_city": 32,
+        "fuel_economy_highway": 42,
+        "fuel_economy_combined": 37,
+        "0_60_mph": 7.5,
+        "top_speed": 130
+      },
+      "features": {
+        "exterior": [
+          "LED headlights",
+          "LED taillights",
+          "Power moonroof",
+          "Heated side mirrors",
+          "17-inch alloy wheels"
+        ],
+        "interior": [
+          "Leather-wrapped steering wheel",
+          "Dual-zone automatic climate control",
+          "Heated front seats",
+          "Power driver seat",
+          "Push-button start"
+        ],
+        "technology": [
+          "8-inch touchscreen",
+          "Apple CarPlay",
+          "Android Auto",
+          "Bluetooth",
+          "Honda Sensing safety suite",
+          "Adaptive cruise control",
+          "Lane keeping assist",
+          "Collision mitigation braking"
+        ],
+        "audio": [
+          "8-speaker system",
+          "Satellite radio",
+          "USB ports",
+          "Pandora compatibility"
+        ]
+      },
+      "safety": {
+        "airbags": 10,
+        "nhtsa_rating": 5,
+        "iihs_ratings": {
+          "front": "Good",
+          "side": "Good",
+          "roof": "Good",
+          "headlights": "Acceptable"
+        }
+      },
+      "warranty": {
+        "basic": "3 years/36,000 miles",
+        "powertrain": "5 years/60,000 miles",
+        "corrosion": "5 years/unlimited miles"
+      }
+    },
+    "options": [
+      {
+        "code": "EX",
+        "name": "EX Trim Package",
+        "price": 2500,
+        "features": ["Upgraded audio", "Heated seats", "Moonroof"]
+      }
+    ],
+    "msrp": {
+      "base": 27895,
+      "destination": 1095,
+      "total": 28990
+    },
+    "last_updated": "2024-01-15T15:00:00Z"
+  }
+}

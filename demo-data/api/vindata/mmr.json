@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "data": {
+    "vin": "1HGCM82633A123456",
+    "mmr_values": {
+      "auction": {
+        "average": 17500,
+        "above": 18500,
+        "below": 16500,
+        "currency": "USD"
+      },
+      "retail": {
+        "average": 19500,
+        "above": 20500,
+        "below": 18500,
+        "currency": "USD"
+      },
+      "trade": {
+        "average": 16500,
+        "above": 17500,
+        "below": 15500,
+        "currency": "USD"
+      }
+    },
+    "regional_data": {
+      "region": "West Coast",
+      "adjustment_factor": 1.02,
+      "market_activity": "high"
+    },
+    "last_updated": "2024-01-15T09:45:00Z"
+  }
+}

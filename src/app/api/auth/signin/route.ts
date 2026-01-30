@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handleDemoMode } from "@/lib/demo-mode";
 import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
+  // Check if demo mode is enabled
+  const demoResponse = handleDemoMode(request, "/api/auth/signin");
+  if (demoResponse) {
+    return demoResponse;
+  }
   try {
     const { email, password } = await request.json();
 

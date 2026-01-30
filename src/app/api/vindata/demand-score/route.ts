@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handleDemoMode } from "@/lib/demo-mode";
 
 const MARKETCHECK_API_KEY =
   process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
@@ -6,8 +7,14 @@ const MARKETCHECK_BASE_URL =
   process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
+  // Check if demo mode is enabled
+  const demoResponse = handleDemoMode(request, "/api/vindata/demand-score");
+  if (demoResponse) {
+    return demoResponse;
+  }
   try {
-    const apiKey = request.headers.get("x-marketcheck-api-key") || MARKETCHECK_API_KEY;
+    const apiKey =
+      request.headers.get("x-marketcheck-api-key") || MARKETCHECK_API_KEY;
 
     const body = await request.json();
     const { vin, year, make, model } = body;
@@ -24,9 +31,8 @@ export async function POST(request: NextRequest) {
       ? `vin:${vin}`
       : `year:${year} make:${make} model:${model}`;
 
-    const url = `${MARKETCHECK_BASE_URL}/v1/market_days_supply?api_key=${apiKey}&${new URLSearchParams({
-      q: query,
-    })}`;
+    // MarketCheck Demand Score API - updated to v2 with correct endpoint (MDS = Market Days Supply)
+    const url = `${MARKETCHECK_BASE_URL}/v2/mds/car?api_key=${apiKey}&vin=${encodeURIComponent(vin)}&exact=true`;
 
     console.log(`Fetching market days supply for: ${query}`);
 

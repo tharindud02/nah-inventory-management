@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handleDemoMode } from "@/lib/demo-mode";
 import { headers } from "next/headers";
 
 const MARKETCHECK_API_KEY =
@@ -7,6 +8,11 @@ const MARKETCHECK_BASE_URL =
   process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
+  // Check if demo mode is enabled
+  const demoResponse = handleDemoMode(request, "/api/vindata/market-comps");
+  if (demoResponse) {
+    return demoResponse;
+  }
   try {
     const apiKey =
       request.headers.get("x-marketcheck-api-key") || MARKETCHECK_API_KEY;
@@ -26,7 +32,7 @@ export async function POST(request: NextRequest) {
       ? `vin:${vin}`
       : `year:${year} make:${make} model:${model}`;
 
-    const url = `${MARKETCHECK_BASE_URL}/v1/search?api_key=${apiKey}&car_type=used&sort_by=price&sort_order=desc&rows=20&${new URLSearchParams(
+    const url = `${MARKETCHECK_BASE_URL}/v2/search/car/active?api_key=${apiKey}&car_type=used&sort_by=price&sort_order=desc&rows=20&${new URLSearchParams(
       {
         q: query,
       },

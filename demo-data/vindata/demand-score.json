@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "data": {
+    "mds": 58,
+    "total_active_cars_for_ymmt": 179,
+    "total_cars_sold_in_last_45_days": 140
+  },
+  "_metadata": {
+    "captured_at": "2026-01-30T04:18:07.951Z",
+    "vin": "WA1BBAFY7P2183119",
+    "source": "real_api_response"
+  }
+}

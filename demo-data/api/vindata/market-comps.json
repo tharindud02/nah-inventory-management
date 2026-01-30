@@ -1,0 +1,60 @@
+{
+  "success": true,
+  "data": {
+    "vin": "1HGCM82633A123456",
+    "comparables": [
+      {
+        "vin": "2HGCM82634A234567",
+        "year": 2023,
+        "make": "Honda",
+        "model": "Accord",
+        "trim": "EX",
+        "mileage": 12000,
+        "price": 19800,
+        "days_on_market": 15,
+        "location": "Los Angeles, CA",
+        "color": "Silver",
+        "seller_type": "dealer",
+        "listing_date": "2024-01-01"
+      },
+      {
+        "vin": "3HGCM82635A345678",
+        "year": 2023,
+        "make": "Honda",
+        "model": "Accord",
+        "trim": "EX",
+        "mileage": 18000,
+        "price": 18800,
+        "days_on_market": 25,
+        "location": "San Francisco, CA",
+        "color": "Black",
+        "seller_type": "dealer",
+        "listing_date": "2023-12-20"
+      },
+      {
+        "vin": "4HGCM82636A456789",
+        "year": 2023,
+        "make": "Honda",
+        "model": "Accord",
+        "trim": "EX-L",
+        "mileage": 10000,
+        "price": 21500,
+        "days_on_market": 10,
+        "location": "San Diego, CA",
+        "color": "White",
+        "seller_type": "dealer",
+        "listing_date": "2024-01-05"
+      }
+    ],
+    "market_stats": {
+      "average_price": 20033,
+      "median_price": 19800,
+      "price_range": {
+        "min": 18800,
+        "max": 21500
+      },
+      "average_days_on_market": 17,
+      "total_listings": 45
+    }
+  }
+}

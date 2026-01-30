@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handleDemoMode } from "@/lib/demo-mode";
 import { apiCache, CACHE_TTL } from "@/lib/api-cache";
 import type {
   VehicleSpecs,
@@ -291,6 +292,11 @@ const cacheAndRespond = (
 };
 
 export async function POST(request: NextRequest) {
+  // Check if demo mode is enabled
+  const demoResponse = handleDemoMode(request, "/api/cars/vehicle-specs/neovin");
+  if (demoResponse) {
+    return demoResponse;
+  }
   try {
     const body = await request.json();
     const { vin, year, make, model, trim } = body ?? {};

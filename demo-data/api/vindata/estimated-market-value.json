@@ -1,0 +1,69 @@
+{
+  "success": true,
+  "data": {
+    "vin": "1HGCM82633A123456",
+    "market_value": {
+      "estimated_value": 19200,
+      "confidence_interval": {
+        "low": 17800,
+        "high": 20600,
+        "confidence_level": 0.90
+      },
+      "currency": "USD",
+      "valuation_date": "2024-01-15"
+    },
+    "value_history": [
+      {
+        "date": "2023-10-15",
+        "value": 19800,
+        "trend": "decreasing"
+      },
+      {
+        "date": "2023-11-15",
+        "value": 19500,
+        "trend": "decreasing"
+      },
+      {
+        "date": "2023-12-15",
+        "value": 18900,
+        "trend": "decreasing"
+      },
+      {
+        "date": "2024-01-15",
+        "value": 19200,
+        "trend": "increasing"
+      }
+    ],
+    "adjustments": [
+      {
+        "type": "mileage",
+        "base_value": 20000,
+        "adjusted_value": 19200,
+        "adjustment": -800,
+        "reason": "Above average mileage"
+      },
+      {
+        "type": "condition",
+        "base_value": 19200,
+        "adjusted_value": 19200,
+        "adjustment": 0,
+        "reason": "Average condition"
+      },
+      {
+        "type": "location",
+        "base_value": 19200,
+        "adjusted_value": 19200,
+        "adjustment": 0,
+        "reason": "Market average"
+      }
+    ],
+    "comparable_sales": {
+      "count": 15,
+      "average_price": 19050,
+      "price_range": {
+        "min": 17500,
+        "max": 21000
+      }
+    }
+  }
+}
