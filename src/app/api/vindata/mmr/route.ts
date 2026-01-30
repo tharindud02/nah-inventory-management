@@ -1,65 +1,115 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleDemoMode } from "@/lib/demo-mode";
+import { apiCache, CACHE_TTL } from "@/lib/api-cache";
 
-const MARKETCHECK_API_KEY =
-  process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
-const MARKETCHECK_BASE_URL =
-  process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
+const MANHEIM_API_KEY = process.env.MANHEIM_API_KEY;
+const MANHEIM_BASE_URL =
+  process.env.MANHEIM_BASE_URL ||
+  "https://api.manheim.com/marketplace/valuations/v1/valuations";
 
 export async function POST(request: NextRequest) {
-  // Check if demo mode is enabled
   const demoResponse = handleDemoMode(request, "/api/vindata/mmr");
   if (demoResponse) {
     return demoResponse;
   }
+
   try {
-    const apiKey =
-      request.headers.get("x-marketcheck-api-key") || MARKETCHECK_API_KEY;
-
     const body = await request.json();
-    const { vin, miles, zip } = body;
+    const {
+      vin,
+      year,
+      make,
+      model,
+      trim,
+      odometer,
+      conditionGrade,
+      region,
+      lane,
+      exteriorColor,
+      interiorColor,
+    } = body;
 
-    if (!vin) {
+    if (!vin && !(year && make && model)) {
       return NextResponse.json(
-        { success: false, error: "VIN is required" },
+        {
+          success: false,
+          error: "VIN or Year/Make/Model is required",
+        },
         { status: 400 },
       );
     }
 
-    // MarketCheck MMR (wholesale) API - updated to v2 with correct endpoint
-    const url = `${MARKETCHECK_BASE_URL}/v2/predict/car/us/marketcheck_price?api_key=${apiKey}&vin=${encodeURIComponent(vin)}${miles ? `&miles=${miles}` : "&miles=15000"}${zip ? `&zip=${zip}` : "&zip=90210"}&dealer_type=independent&is_certified=false`;
-
-    console.log(`Fetching MMR for VIN: ${vin}`);
-
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-      },
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error(`MMR API error ${res.status}: ${errorText}`);
+    if (!MANHEIM_API_KEY) {
       return NextResponse.json(
         {
           success: false,
-          error: `MMR request failed: ${res.status}`,
-          details: errorText,
+          error: "Manheim API key is not configured",
         },
-        { status: res.status },
+        { status: 500 },
       );
     }
 
-    const data = await res.json();
-    console.log("MMR fetched successfully");
+    const payload = {
+      subject: vin
+        ? {
+            identifierType: "VIN",
+            identifierValue: vin,
+          }
+        : {
+            identifierType: "YMMT",
+            identifierValue: `${year}|${make}|${model}|${trim || ""}`,
+          },
+      odometer: odometer ? { value: Number(odometer) } : undefined,
+      conditionGrade,
+      exteriorColor,
+      interiorColor,
+      lane,
+      region,
+    };
 
-    return NextResponse.json({
-      success: true,
-      data,
+    const cacheKey = {
+      ...payload,
+      subject: payload.subject.identifierValue,
+    };
+    const cached = apiCache.get("manheim-mmr", cacheKey);
+    if (cached) {
+      return NextResponse.json({ success: true, data: cached });
+    }
+
+    console.log("Calling Manheim MMR API", payload.subject);
+
+    const response = await fetch(MANHEIM_BASE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${MANHEIM_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Manheim API error", response.status, errorText);
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Manheim request failed: ${response.status}`,
+          details: errorText,
+        },
+        { status: response.status },
+      );
+    }
+
+    const raw = await response.json();
+
+    const normalized = normalizeManheimResponse(raw);
+
+    apiCache.set("manheim-mmr", cacheKey, normalized, CACHE_TTL.MARKET_VALUE);
+
+    return NextResponse.json({ success: true, data: normalized });
   } catch (error) {
-    console.error("Error in MMR route:", error);
+    console.error("Error in Manheim MMR route", error);
     return NextResponse.json(
       {
         success: false,
@@ -69,4 +119,32 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
+}
+
+function normalizeManheimResponse(raw: any) {
+  if (!raw) return null;
+
+  const valuation = raw?.valuations?.[0] || raw;
+  const wholesale = valuation?.valuationDetails || {};
+
+  return {
+    base_mmr: wholesale?.baseMMR ?? wholesale?.base?.value ?? null,
+    adjusted_mmr: wholesale?.adjustedMMR ?? wholesale?.adjusted?.value ?? null,
+    avg_odo:
+      wholesale?.comparableStats?.averageOdometer ??
+      wholesale?.adjustments?.odometer?.baseline ??
+      null,
+    avg_condition: wholesale?.comparableStats?.averageCondition ?? null,
+    adjustments:
+      wholesale?.adjustments?.valuationAdjustments?.map((adjustment: any) => ({
+        label: adjustment?.type || adjustment?.name || "Adjustment",
+        value: adjustment?.amount?.value ?? adjustment?.value ?? 0,
+      })) || [],
+    metadata: {
+      currency: wholesale?.currency || "USD",
+      sourceTimestamp: valuation?.valuationDate || raw?.generatedDate,
+      vin: valuation?.subject?.vin || raw?.vin,
+    },
+    raw,
+  };
 }

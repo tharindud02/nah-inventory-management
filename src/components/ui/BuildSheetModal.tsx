@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import type {
   VehicleSpecs,
   VehicleSpecsSections,
@@ -28,6 +29,7 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
   vinData,
   vehicleSpecs,
 }) => {
+  const [isExporting, setIsExporting] = React.useState(false);
   const demoBuildSheet = {
     year: "2022",
     make: "PORSCHE",
@@ -306,61 +308,84 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
     return deriveSectionsFromSpecs(vehicleSpecs);
   }, [vehicleSpecs]);
 
-  const summaryRows = [
-    {
-      label: "Year",
-      value:
-        vehicleSpecs?.year?.toString() ||
-        vinData?.year?.toString() ||
-        demoBuildSheet.year,
-    },
-    {
-      label: "Engine",
-      value: safeString(vehicleSpecs?.engine, demoBuildSheet.engine),
-    },
-    {
-      label: "Make",
-      value:
-        safeString(vehicleSpecs?.make, "")?.toUpperCase() ||
-        vinData?.make?.toUpperCase() ||
-        demoBuildSheet.make,
-    },
-    {
-      label: "Transmission",
-      value: safeString(
-        vehicleSpecs?.transmission,
-        demoBuildSheet.transmission,
-      ),
-    },
-    {
-      label: "Model",
-      value:
-        safeString(vehicleSpecs?.model, "")?.toUpperCase() ||
-        vinData?.model?.toUpperCase() ||
-        demoBuildSheet.model,
-    },
-    {
-      label: "Exterior",
-      value:
-        resolveColorText(
-          vehicleSpecs?.exteriorColorDetails,
-          vehicleSpecs?.exteriorColor,
-        ) || demoBuildSheet.exterior,
-    },
-    {
-      label: "VIN",
-      value:
-        safeString(vehicleSpecs?.vin, "") || vinData?.vin || demoBuildSheet.vin,
-    },
-    {
-      label: "Interior",
-      value:
-        resolveColorText(
-          vehicleSpecs?.interiorColorDetails,
-          vehicleSpecs?.interiorColor,
-        ) || demoBuildSheet.interior,
-    },
-  ];
+  const summaryRows = React.useMemo(
+    () => [
+      {
+        label: "Year",
+        value:
+          vehicleSpecs?.year?.toString() ||
+          vinData?.year?.toString() ||
+          demoBuildSheet.year,
+      },
+      {
+        label: "Engine",
+        value: safeString(vehicleSpecs?.engine, demoBuildSheet.engine),
+      },
+      {
+        label: "Make",
+        value:
+          safeString(vehicleSpecs?.make, "")?.toUpperCase() ||
+          vinData?.make?.toUpperCase() ||
+          demoBuildSheet.make,
+      },
+      {
+        label: "Transmission",
+        value: safeString(
+          vehicleSpecs?.transmission,
+          demoBuildSheet.transmission,
+        ),
+      },
+      {
+        label: "Model",
+        value:
+          safeString(vehicleSpecs?.model, "")?.toUpperCase() ||
+          vinData?.model?.toUpperCase() ||
+          demoBuildSheet.model,
+      },
+      {
+        label: "Exterior",
+        value:
+          resolveColorText(
+            vehicleSpecs?.exteriorColorDetails,
+            vehicleSpecs?.exteriorColor,
+          ) || demoBuildSheet.exterior,
+      },
+      {
+        label: "VIN",
+        value:
+          safeString(vehicleSpecs?.vin, "") ||
+          vinData?.vin ||
+          demoBuildSheet.vin,
+      },
+      {
+        label: "Interior",
+        value:
+          resolveColorText(
+            vehicleSpecs?.interiorColorDetails,
+            vehicleSpecs?.interiorColor,
+          ) || demoBuildSheet.interior,
+      },
+    ],
+    [vehicleSpecs, vinData],
+  );
+
+  const summaryMap = React.useMemo(() => {
+    return summaryRows.reduce<Record<string, string>>((acc, row) => {
+      acc[row.label] = row.value ?? "";
+      return acc;
+    }, {});
+  }, [summaryRows]);
+
+  const resolvedVehicleTitle = React.useMemo(() => {
+    const trim = vehicleSpecs?.trim || vinData?.trim;
+    const parts = [summaryMap.Year, summaryMap.Make, summaryMap.Model]
+      .filter(Boolean)
+      .map((part) => part.trim());
+    if (trim) {
+      parts.push(trim.toUpperCase());
+    }
+    return parts.filter(Boolean).join(" ") || "Vehicle Build Sheet";
+  }, [summaryMap, vehicleSpecs?.trim, vinData?.trim]);
 
   const resolvedSections: VehicleSpecsSections = {
     mechanical: derivedSections?.mechanical?.length
@@ -441,6 +466,266 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
   const mpgCity = vehicleSpecs?.mpg?.city ?? demoBuildSheet.mpg.city;
   const mpgHighway = vehicleSpecs?.mpg?.highway ?? demoBuildSheet.mpg.highway;
 
+  const handleExport = React.useCallback(async () => {
+    if (!vehicleSpecs && !vinData) {
+      toast.warning("No build sheet data available to export yet.");
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
+      const pdfDoc = await PDFDocument.create();
+      const createdAt = new Date().toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+
+      let page = pdfDoc.addPage();
+      let { width: pageWidth, height: pageHeight } = page.getSize();
+      const margin = 40;
+      const contentWidth = pageWidth - margin * 2;
+      let cursorY = pageHeight - margin;
+
+      const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+      const wrapText = (
+        text: string,
+        font: typeof fontRegular,
+        size: number,
+        maxWidth: number,
+      ) => {
+        const words = text.split(/\s+/);
+        const lines: string[] = [];
+        let currentLine = "";
+        words.forEach((word) => {
+          const tentative = currentLine ? `${currentLine} ${word}` : word;
+          if (
+            font.widthOfTextAtSize(tentative, size) > maxWidth &&
+            currentLine
+          ) {
+            lines.push(currentLine);
+            currentLine = word;
+          } else {
+            currentLine = tentative;
+          }
+        });
+        if (currentLine) {
+          lines.push(currentLine);
+        }
+        return lines.length ? lines : [text];
+      };
+
+      const addPage = () => {
+        page = pdfDoc.addPage();
+        const size = page.getSize();
+        pageWidth = size.width;
+        pageHeight = size.height;
+        cursorY = pageHeight - margin;
+      };
+
+      const ensureSpace = (needed: number) => {
+        if (cursorY - needed < margin) {
+          addPage();
+        }
+      };
+
+      const drawLines = (
+        lines: string[],
+        {
+          font = fontRegular,
+          size = 11,
+          color = rgb(0, 0, 0),
+          indent = 0,
+          lineGap = 4,
+        }: {
+          font?: typeof fontRegular;
+          size?: number;
+          color?: ReturnType<typeof rgb>;
+          indent?: number;
+          lineGap?: number;
+        } = {},
+      ) => {
+        lines.forEach((line) => {
+          ensureSpace(size + lineGap);
+          page.drawText(line, {
+            x: margin + indent,
+            y: cursorY,
+            size,
+            font,
+            color,
+          });
+          cursorY -= size + lineGap;
+        });
+      };
+
+      const drawParagraph = (
+        text: string,
+        options?: {
+          font?: typeof fontRegular;
+          size?: number;
+          color?: ReturnType<typeof rgb>;
+          indent?: number;
+          lineGap?: number;
+        },
+      ) => {
+        const { font = fontRegular, size = 11, indent = 0 } = options ?? {};
+        const wrapped = wrapText(text, font, size, contentWidth - indent);
+        drawLines(wrapped, { ...options, font, size, indent });
+      };
+
+      const drawBulletList = (items: string[]) => {
+        if (!items.length) {
+          drawParagraph("• —");
+          return;
+        }
+        items.forEach((item) => {
+          const clean = item?.trim() || "—";
+          const wrapped = wrapText(clean, fontRegular, 11, contentWidth - 16);
+          ensureSpace(15);
+          page.drawText(`• ${wrapped[0]}`, {
+            x: margin,
+            y: cursorY,
+            size: 11,
+            font: fontRegular,
+            color: rgb(0.15, 0.15, 0.15),
+          });
+          cursorY -= 15;
+          wrapped.slice(1).forEach((line) => {
+            ensureSpace(15);
+            page.drawText(line, {
+              x: margin + 14,
+              y: cursorY,
+              size: 11,
+              font: fontRegular,
+              color: rgb(0.15, 0.15, 0.15),
+            });
+            cursorY -= 15;
+          });
+        });
+      };
+
+      const headline = resolvedVehicleTitle;
+      ensureSpace(32);
+      page.drawText(headline, {
+        x: margin,
+        y: cursorY,
+        size: 18,
+        font: fontBold,
+        color: rgb(0.1, 0.1, 0.1),
+      });
+      cursorY -= 24;
+      drawParagraph(`Generated on ${createdAt}`, {
+        font: fontRegular,
+        size: 11,
+        color: rgb(0.4, 0.4, 0.4),
+      });
+      cursorY -= 8;
+
+      drawParagraph("Summary", {
+        font: fontBold,
+        size: 13,
+        color: rgb(0.2, 0.2, 0.2),
+      });
+      summaryRows.forEach((row) => {
+        drawParagraph(`${row.label}: ${row.value ?? "—"}`, {
+          size: 11,
+        });
+      });
+      drawParagraph(
+        `MPG (City/Highway): ${mpgCity ?? "—"} / ${mpgHighway ?? "—"}`,
+        { size: 11 },
+      );
+      cursorY -= 6;
+
+      const sectionOrder: { label: string; items: string[] }[] = [
+        { label: "Mechanical", items: resolvedSections.mechanical },
+        { label: "Exterior", items: resolvedSections.exterior },
+        { label: "Interior", items: resolvedSections.interior },
+        { label: "Safety", items: resolvedSections.safety },
+        { label: "Entertainment", items: resolvedSections.entertainment },
+      ];
+
+      sectionOrder.forEach((section) => {
+        cursorY -= 4;
+        drawParagraph(section.label.toUpperCase(), {
+          font: fontBold,
+          size: 12,
+        });
+        drawBulletList(
+          section.items.map((item) => formatOptionText(item) || "—"),
+        );
+      });
+
+      cursorY -= 4;
+      drawParagraph("Installed Options", {
+        font: fontBold,
+        size: 12,
+      });
+      const optionLines = parsedInstalledOptions.length
+        ? parsedInstalledOptions.map((opt) => {
+            const priceText =
+              typeof opt.price === "number" ? formatCurrency(opt.price) : "—";
+            const codeText = opt.code ? `[${opt.code}] ` : "";
+            return `${codeText}${formatOptionText(opt.label)} — ${priceText}`;
+          })
+        : ["No installed options data available"];
+      drawBulletList(optionLines);
+
+      cursorY -= 4;
+      drawParagraph("Pricing", {
+        font: fontBold,
+        size: 12,
+      });
+      const pricingLines = [
+        `Base MSRP: ${formatCurrency(baseMsrp)}`,
+        `Destination Charge: ${formatCurrency(destinationCharge)}`,
+        `Installed Options: ${formatCurrency(optionsTotal || 0)}`,
+        `Displayed Total: ${formatCurrency(totalPriceValue || 0)}`,
+      ];
+      drawLines(pricingLines, { size: 11 });
+
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const fileNameVin =
+        summaryMap.VIN?.replace(/[^A-Za-z0-9]/g, "") ||
+        vinData?.vin?.replace(/[^A-Za-z0-9]/g, "") ||
+        vehicleSpecs?.vin?.replace(/[^A-Za-z0-9]/g, "");
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileNameVin
+        ? `${fileNameVin}-build-sheet.pdf`
+        : "build-sheet.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success("Build sheet PDF downloaded.");
+    } catch (error) {
+      console.error("Error exporting build sheet PDF", error);
+      toast.error("Failed to generate build sheet PDF. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  }, [
+    vehicleSpecs,
+    vinData,
+    resolvedVehicleTitle,
+    summaryRows,
+    summaryMap,
+    resolvedSections,
+    parsedInstalledOptions,
+    baseMsrp,
+    destinationCharge,
+    optionsTotal,
+    totalPriceValue,
+    mpgCity,
+    mpgHighway,
+  ]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -460,8 +745,12 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
               <X className="h-4 w-4" />
             </Button>
             <div className="flex-1" />
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white px-4">
-              EXPORT
+            <Button
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4"
+              onClick={handleExport}
+              disabled={isExporting}
+            >
+              {isExporting ? "Generating…" : "Export PDF"}
             </Button>
           </div>
 
