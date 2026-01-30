@@ -77,6 +77,12 @@ export default function VINDeepDivePage() {
   const marketDataFetchedRef = useRef(false);
   const [aamvaReport, setAamvaReport] = useState<any>(null);
   const [marketComps, setMarketComps] = useState<any[]>([]);
+  const [soldCompsScrollState, setSoldCompsScrollState] = useState<
+    "top" | "middle" | "bottom"
+  >("top");
+  const [activeListingsScrollState, setActiveListingsScrollState] = useState<
+    "top" | "middle" | "bottom"
+  >("top");
   const [soldComps, setSoldComps] = useState<any[]>([]);
   const [valuation, setValuation] = useState<any>(null);
   const [mmr, setMmr] = useState<any>(null);
@@ -210,6 +216,61 @@ export default function VINDeepDivePage() {
     },
     [],
   );
+
+  // Scroll detection handlers
+  const handleSoldCompsScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const element = e.currentTarget;
+      const scrollTop = element.scrollTop;
+      const scrollHeight = element.scrollHeight;
+      const clientHeight = element.clientHeight;
+
+      const threshold = 50; // 50px from top/bottom to trigger state change
+
+      if (scrollTop <= threshold) {
+        setSoldCompsScrollState("top");
+      } else if (scrollTop + clientHeight >= scrollHeight - threshold) {
+        setSoldCompsScrollState("bottom");
+      } else {
+        setSoldCompsScrollState("middle");
+      }
+    },
+    [],
+  );
+
+  const handleActiveListingsScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const element = e.currentTarget;
+      const scrollTop = element.scrollTop;
+      const scrollHeight = element.scrollHeight;
+      const clientHeight = element.clientHeight;
+
+      const threshold = 50; // 50px from top/bottom to trigger state change
+
+      if (scrollTop <= threshold) {
+        setActiveListingsScrollState("top");
+      } else if (scrollTop + clientHeight >= scrollHeight - threshold) {
+        setActiveListingsScrollState("bottom");
+      } else {
+        setActiveListingsScrollState("middle");
+      }
+    },
+    [],
+  );
+
+  // Helper function to get scroll indicator text
+  const getScrollIndicator = (state: "top" | "middle" | "bottom") => {
+    switch (state) {
+      case "top":
+        return "↓ Scroll for more";
+      case "middle":
+        return "↕ Scroll";
+      case "bottom":
+        return "↑ Scroll to top";
+      default:
+        return "↓ Scroll for more";
+    }
+  };
 
   const fetchMarketComps = useCallback(
     async (vinParam: string, year?: number, make?: string, model?: string) => {
@@ -1385,44 +1446,63 @@ export default function VINDeepDivePage() {
                       </span>
                     </CardHeader>
                     <CardContent>
-                      <div className="overflow-hidden rounded-xl border border-gray-100">
-                        <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                          <span className="col-span-1">Img</span>
-                          <span className="col-span-5">
-                            Year / Make / Model
-                          </span>
-                          <span className="col-span-2 text-right">Miles</span>
-                          <span className="col-span-2 text-right">Price</span>
-                          <span className="col-span-2 text-right">Sold</span>
+                      <div className="relative">
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-b from-gray-100 to-transparent z-10 pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-white to-transparent z-10 pointer-events-none flex items-end justify-center pb-2">
+                          <div className="text-xs text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200">
+                            {getScrollIndicator(soldCompsScrollState)}
+                          </div>
                         </div>
-                        {(activeListings || []).map(
-                          (comp: any, idx: number) => (
-                            <div
-                              key={`${comp.make}-${comp.miles}-${idx}`}
-                              className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
-                            >
-                              <div className="col-span-1 flex items-center">
-                                <span
-                                  className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
-                                ></span>
-                              </div>
-                              <div className="col-span-5">
-                                <p className="font-semibold text-gray-900">
-                                  {comp.year} {comp.make} {comp.model}
-                                </p>
-                              </div>
-                              <div className="col-span-2 text-right text-gray-600">
-                                {comp.miles.toLocaleString()} mi
-                              </div>
-                              <div className="col-span-2 text-right font-semibold text-gray-900">
-                                {comp.price}
-                              </div>
-                              <div className="col-span-2 text-right text-gray-500">
-                                {comp.soldDate}
-                              </div>
+                        <div className="overflow-hidden rounded-xl border border-gray-100">
+                          <div
+                            className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
+                            onScroll={handleSoldCompsScroll}
+                          >
+                            <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                              <span className="col-span-1">Img</span>
+                              <span className="col-span-5">
+                                Year / Make / Model
+                              </span>
+                              <span className="col-span-2 text-right">
+                                Miles
+                              </span>
+                              <span className="col-span-2 text-right">
+                                Price
+                              </span>
+                              <span className="col-span-2 text-right">
+                                Sold
+                              </span>
                             </div>
-                          ),
-                        )}
+                            {(activeListings || []).map(
+                              (comp: any, idx: number) => (
+                                <div
+                                  key={`${comp.make}-${comp.miles}-${idx}`}
+                                  className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
+                                >
+                                  <div className="col-span-1 flex items-center">
+                                    <span
+                                      className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
+                                    ></span>
+                                  </div>
+                                  <div className="col-span-5">
+                                    <p className="font-semibold text-gray-900">
+                                      {comp.year} {comp.make} {comp.model}
+                                    </p>
+                                  </div>
+                                  <div className="col-span-2 text-right text-gray-600">
+                                    {comp.miles.toLocaleString()}
+                                  </div>
+                                  <div className="col-span-2 text-right font-semibold text-gray-900">
+                                    {comp.price}
+                                  </div>
+                                  <div className="col-span-2 text-right text-gray-500">
+                                    {comp.soldDate}
+                                  </div>
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -1544,115 +1624,68 @@ export default function VINDeepDivePage() {
                       </span>
                     </CardHeader>
                     <CardContent>
-                      <div className="overflow-hidden rounded-2xl border border-gray-100">
-                        <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                          <span className="col-span-1">Img</span>
-                          <span className="col-span-4">
-                            Year / Make / Model
-                          </span>
-                          <span className="col-span-2 text-right">Miles</span>
-                          <span className="col-span-2 text-right">Price</span>
-                          <span className="col-span-2 text-right">
-                            Distance
-                          </span>
-                          <span className="col-span-1 text-right">DOM</span>
+                      <div className="relative">
+                        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-b from-gray-100 to-transparent z-10 pointer-events-none"></div>
+                        <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-white to-transparent z-10 pointer-events-none flex items-end justify-center pb-2">
+                          <div className="text-xs text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200">
+                            {getScrollIndicator(activeListingsScrollState)}
+                          </div>
                         </div>
-                        {(soldComps.length ? soldComps : activeListings).map(
-                          (comp: any, idx: number) => (
-                            <div
-                              key={`${comp.make}-${comp.miles}-${idx}`}
-                              className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
-                            >
-                              <div className="col-span-1 flex items-center">
-                                <span
-                                  className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
-                                ></span>
-                              </div>
-                              <div className="col-span-4">
-                                <p className="font-semibold text-gray-900">
-                                  {comp.year} {comp.make} {comp.model}
-                                </p>
-                              </div>
-                              <div className="col-span-2 text-right text-gray-600">
-                                {comp.miles.toLocaleString()} mi
-                              </div>
-                              <div className="col-span-2 text-right font-semibold text-gray-900">
-                                {formatCurrency(comp.price)}
-                              </div>
-                              <div className="col-span-2 text-right text-gray-500">
-                                {comp.distance || "N/A"}
-                              </div>
-                              <div className="col-span-1 text-right text-gray-500">
-                                {comp.dom || comp.days_on_market || "N/A"}
-                              </div>
+                        <div className="overflow-hidden rounded-2xl border border-gray-100">
+                          <div
+                            className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
+                            onScroll={handleActiveListingsScroll}
+                          >
+                            <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                              <span className="col-span-1">Img</span>
+                              <span className="col-span-4">
+                                Year / Make / Model
+                              </span>
+                              <span className="col-span-2 text-right">
+                                Miles
+                              </span>
+                              <span className="col-span-2 text-right">
+                                Price
+                              </span>
+                              <span className="col-span-2 text-right">
+                                Distance
+                              </span>
+                              <span className="col-span-1 text-right">DOM</span>
                             </div>
-                          ),
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </section>
-
-                <section className="mb-12">
-                  <Card>
-                    <CardHeader className="flex items-center justify-between space-y-0">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                          Your Competition: Active Listings
-                        </p>
-                        <CardTitle className="text-xl font-bold text-gray-900">
-                          Nearby units currently on market
-                        </CardTitle>
-                      </div>
-                      <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
-                        {activeListings.length} active units
-                      </span>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="overflow-hidden rounded-2xl border border-gray-100">
-                        <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                          <span className="col-span-1">Img</span>
-                          <span className="col-span-4">
-                            Year / Make / Model
-                          </span>
-                          <span className="col-span-2 text-right">Miles</span>
-                          <span className="col-span-2 text-right">Price</span>
-                          <span className="col-span-2 text-right">
-                            Distance
-                          </span>
-                          <span className="col-span-1 text-right">DOM</span>
+                            {(soldComps.length
+                              ? soldComps
+                              : activeListings
+                            ).map((comp: any, idx: number) => (
+                              <div
+                                key={`${comp.make}-${comp.miles}-${idx}`}
+                                className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
+                              >
+                                <div className="col-span-1 flex items-center">
+                                  <span
+                                    className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
+                                  ></span>
+                                </div>
+                                <div className="col-span-4">
+                                  <p className="font-semibold text-gray-900">
+                                    {comp.year} {comp.make} {comp.model}
+                                  </p>
+                                </div>
+                                <div className="col-span-2 text-right text-gray-600">
+                                  {comp.miles.toLocaleString()}
+                                </div>
+                                <div className="col-span-2 text-right font-semibold text-gray-900">
+                                  {formatCurrency(comp.price)}
+                                </div>
+                                <div className="col-span-2 text-right text-gray-500">
+                                  {comp.distance || "N/A"}
+                                </div>
+                                <div className="col-span-1 text-right text-gray-500">
+                                  {comp.dom || comp.days_on_market || "N/A"}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                        {(soldComps.length ? soldComps : activeListings).map(
-                          (comp: any, idx: number) => (
-                            <div
-                              key={`${comp.make}-${comp.miles}-${idx}`}
-                              className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
-                            >
-                              <div className="col-span-1 flex items-center">
-                                <span
-                                  className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
-                                ></span>
-                              </div>
-                              <div className="col-span-4">
-                                <p className="font-semibold text-gray-900">
-                                  {comp.year} {comp.make} {comp.model}
-                                </p>
-                              </div>
-                              <div className="col-span-2 text-right text-gray-600">
-                                {comp.miles.toLocaleString()} mi
-                              </div>
-                              <div className="col-span-2 text-right font-semibold text-gray-900">
-                                {formatCurrency(comp.price)}
-                              </div>
-                              <div className="col-span-2 text-right text-gray-500">
-                                {comp.distance || "N/A"}
-                              </div>
-                              <div className="col-span-1 text-right text-gray-500">
-                                {comp.dom || comp.days_on_market || "N/A"}
-                              </div>
-                            </div>
-                          ),
-                        )}
                       </div>
                     </CardContent>
                   </Card>
