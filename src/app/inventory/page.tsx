@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -19,9 +19,13 @@ import {
   MoreVertical,
   Filter,
   Loader2,
+  MoreHorizontal,
+  Clock,
+  CheckCircle,
 } from "lucide-react";
 import {
   MarketcheckAPI,
+  getEmptyInventoryData,
   getDemoInventoryData,
   type InventoryCar,
   type KPIData,
@@ -32,45 +36,84 @@ export default function InventoryPage() {
   const [kpiData, setKpiData] = useState<KPIData | null>(null);
   const [inventoryCars, setInventoryCars] = useState<InventoryCar[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalFound, setTotalFound] = useState(0);
+  const [pageSize] = useState(20);
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastElementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadInventoryData();
   }, []);
 
-  const loadInventoryData = async () => {
+  const loadInventoryData = async (isLoadMore = false) => {
     try {
-      setLoading(true);
+      if (isLoadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+        setInventoryCars([]);
+      }
       setError(null);
 
       // Check if we're in demo mode or if API keys are available
       const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
       const apiKey = process.env.NEXT_PUBLIC_MARKETCHECK_API_KEY;
-      const dealerId = process.env.NEXT_PUBLIC_DEALER_ID;
+      const dealerId = process.env.NEXT_PUBLIC_DEALER_ID || "1035095"; // Use example dealership ID as fallback
 
-      if (isDemoMode || !apiKey || !dealerId) {
-        const demoData = getDemoInventoryData();
-        setKpiData(demoData.kpiData);
-        setInventoryCars(demoData.inventoryCars);
+      if (isDemoMode || !apiKey) {
+        const emptyData = getEmptyInventoryData();
+        setKpiData(emptyData.kpiData);
+        setInventoryCars(emptyData.inventoryCars);
+        setTotalFound(0);
+        setHasMore(false);
       } else {
         const api = new MarketcheckAPI(apiKey, dealerId);
-        const data = await api.fetchInventoryData(50);
-        setKpiData(data.kpiData);
-        setInventoryCars(data.inventoryCars);
+        const start = isLoadMore ? inventoryCars.length : 0;
+        const data = await api.fetchInventoryData(start, pageSize);
+
+        if (isLoadMore) {
+          setInventoryCars((prev) => [...prev, ...data.inventoryCars]);
+        } else {
+          setInventoryCars(data.inventoryCars);
+          setKpiData(data.kpiData);
+        }
+
+        setTotalFound(data.totalFound);
+        setHasMore(start + data.inventoryCars.length < data.totalFound);
       }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to load inventory data",
       );
 
-      // Fallback to demo data on error
-      const demoData = getDemoInventoryData();
-      setKpiData(demoData.kpiData);
-      setInventoryCars(demoData.inventoryCars);
+      // Fallback to empty state on error
+      const emptyData = getEmptyInventoryData();
+      setKpiData(emptyData.kpiData);
+      setInventoryCars(emptyData.inventoryCars);
+      setTotalFound(0);
+      setHasMore(false);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
+
+  const lastCarElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (loadingMore) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          loadInventoryData(true);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loadingMore, hasMore],
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -124,7 +167,7 @@ export default function InventoryPage() {
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
               <p className="text-red-600 mb-4">Error loading data: {error}</p>
-              <Button onClick={loadInventoryData}>Retry</Button>
+              <Button onClick={() => loadInventoryData()}>Retry</Button>
             </div>
           </div>
         ) : (
@@ -291,85 +334,155 @@ export default function InventoryPage() {
                 </div>
               </div>
               <div className="text-sm text-gray-600 font-medium">
-                {kpiData?.activeInventory || 0} TOTAL UNITS
+                {totalFound || kpiData?.activeInventory || 0} TOTAL UNITS
               </div>
             </div>
 
             {/* Inventory Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {inventoryCars.map((item) => (
-                <Card
-                  key={item.id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow"
-                >
-                  <div className="aspect-video bg-gray-200 relative">
-                    <img
-                      src={item.image}
-                      alt={`${item.year} ${item.make} ${item.model}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = "none";
-                        target.nextElementSibling?.classList.remove("hidden");
-                      }}
-                    />
-                    <div className="absolute inset-0 items-center justify-center hidden">
-                      <Car className="w-12 h-12 text-gray-400" />
+            {inventoryCars.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Car className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Inventory Items
+                </h3>
+                <p className="text-gray-600 text-center max-w-md">
+                  There are currently no vehicles in your inventory. Add
+                  vehicles to see them displayed here.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {inventoryCars.map((item, index) => (
+                  <Card
+                    key={item.id}
+                    ref={
+                      index === inventoryCars.length - 1
+                        ? lastCarElementRef
+                        : undefined
+                    }
+                    className="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 pt-0 pb-4"
+                  >
+                    {/* Car Image */}
+                    <div className="w-full h-48 overflow-hidden relative">
+                      <img
+                        src={item.image}
+                        alt={`${item.year} ${item.make} ${item.model}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = "none";
+                          target.nextElementSibling?.classList.remove("hidden");
+                        }}
+                      />
+                      <div className="absolute inset-0 items-center justify-center hidden bg-gray-100">
+                        <Car className="w-12 h-12 text-gray-400" />
+                      </div>
+
+                      {/* Status Badge */}
+                      <div
+                        className={`absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold text-white
+                          ${
+                            item.status === "attention"
+                              ? "bg-red-500"
+                              : item.status === "healthy"
+                                ? "bg-green-500"
+                                : item.status === "overpriced"
+                                  ? "bg-yellow-500"
+                                  : "bg-gray-500"
+                          }
+                        `}
+                      >
+                        {getStatusText(item.status)}
+                      </div>
                     </div>
-                    <div
-                      className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}
-                    >
-                      {getStatusText(item.status)}
-                    </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-base mb-1">
-                      {item.year} {item.make} {item.model}
-                    </h3>
-                    <p className="text-xs text-gray-600 mb-3">{item.vin}</p>
-                    <p className="text-xs text-gray-600 mb-3">
-                      {item.mileage.toLocaleString()} mi
-                    </p>
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <p className="text-xl font-bold">
-                          ${item.price.toLocaleString()}
-                        </p>
-                        <p
-                          className={`text-sm font-medium ${
-                            item.marketPercentage > 100
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }`}
+
+                    <CardContent className="px-4 py-0">
+                      {/* Car Title and Menu */}
+                      <div className="flex items-center justify-between mb-0">
+                        <h3 className="text-lg font-bold truncate flex-1 pr-2">
+                          {item.year} {item.make} {item.model}
+                        </h3>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="p-1 h-8 flex-shrink-0"
                         >
-                          {item.marketPercentage > 100 ? "↑" : "↓"}{" "}
-                          {Math.abs(item.marketPercentage)}% Mkt
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-600">Days on Lot</p>
-                        <p className="text-sm font-semibold">
-                          {item.daysOnLot}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center pt-3 border-t">
-                      <Button variant="ghost" size="sm" className="p-1 h-8">
-                        <BarChart3 className="w-4 h-4 text-gray-600" />
-                      </Button>
-                      <div className="flex space-x-1">
-                        <Button variant="ghost" size="sm" className="p-1 h-8">
-                          <Eye className="w-4 h-4 text-gray-600" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="p-1 h-8">
-                          <Edit className="w-4 h-4 text-gray-600" />
+                          <MoreHorizontal className="w-4 h-4 text-gray-600" />
                         </Button>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+
+                      {/* Car Subtitle */}
+                      <p className="text-sm text-gray-500 mb-2">
+                        {item.trim || ""}
+                      </p>
+
+                      {/* VIN and Mileage */}
+                      <div className="flex justify-between items-center bg-gray-100 p-3 rounded-md mb-2">
+                        <span className="text-xs font-mono text-gray-700">
+                          {item.vin}
+                        </span>
+                        <span className="text-sm font-semibold">
+                          {item.mileage.toLocaleString()} mi
+                        </span>
+                      </div>
+
+                      {/* Retail Price */}
+                      <div className="mb-2">
+                        <p className="text-xs text-gray-500 mb-1">
+                          RETAIL PRICE
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-xl font-bold">
+                            ${item.price.toLocaleString()}
+                          </p>
+                          <p
+                            className={`text-sm font-semibold ${
+                              item.marketPercentage > 100
+                                ? "text-red-600"
+                                : "text-green-600"
+                            }`}
+                          >
+                            {item.marketPercentage}% Mkt
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Days on Lot - Moved to bottom */}
+                      <div className="flex items-center justify-between text-sm text-gray-600 border-t pt-3">
+                        <div className="flex items-center space-x-2">
+                          <Clock className="w-4 h-4" />
+                          <span>{item.daysOnLot} Days on Lot</span>
+                        </div>
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Loading More Indicator */}
+            {loadingMore && (
+              <div className="flex justify-center py-8">
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                  <span className="text-sm text-gray-600">
+                    Loading more vehicles...
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* End of Results Indicator */}
+            {!hasMore && inventoryCars.length > 0 && !loadingMore && (
+              <div className="flex justify-center py-8">
+                <p className="text-sm text-gray-500">
+                  Showing all {inventoryCars.length} vehicles
+                </p>
+              </div>
+            )}
           </>
         )}
       </Layout>

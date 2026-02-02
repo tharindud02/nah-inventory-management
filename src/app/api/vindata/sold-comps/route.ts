@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleDemoMode } from "@/lib/demo-mode";
 
-const MARKETCHECK_API_KEY =
-  process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
-const MARKETCHECK_BASE_URL =
-  process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
+const NEXT_PUBLIC_MARKETCHECK_API_KEY =
+  process.env.NEXT_PUBLIC_MARKETCHECK_API_KEY ||
+  "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
+const NEXT_PUBLIC_MARKETCHECK_BASE_URL =
+  process.env.NEXT_PUBLIC_MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
   // Check if demo mode is enabled
@@ -14,7 +15,8 @@ export async function POST(request: NextRequest) {
   }
   try {
     const apiKey =
-      request.headers.get("x-marketcheck-api-key") || MARKETCHECK_API_KEY;
+      request.headers.get("x-marketcheck-api-key") ||
+      NEXT_PUBLIC_MARKETCHECK_API_KEY;
 
     const body = await request.json();
     const { vin, year, make, model, zip, state, city } = body;
@@ -33,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // MarketCheck Sold Comps API - updated to v2 with correct endpoint
     // Add location parameter (required by API)
-    const baseUrl = `${MARKETCHECK_BASE_URL}/v2/search/car/recents?api_key=${apiKey}&sold=true&rows=20`;
+    const baseUrl = `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/search/car/recents?api_key=${apiKey}&sold=true&rows=20`;
 
     let url;
     if (vin) {

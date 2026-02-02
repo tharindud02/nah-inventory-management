@@ -2,14 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { handleDemoMode } from "@/lib/demo-mode";
 import { apiCache, CACHE_TTL } from "@/lib/api-cache";
 
-const MARKETCHECK_API_KEY =
-  process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
-const MARKETCHECK_BASE_URL =
-  process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
+const NEXT_PUBLIC_MARKETCHECK_API_KEY =
+  process.env.NEXT_PUBLIC_MARKETCHECK_API_KEY ||
+  "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
+const NEXT_PUBLIC_MARKETCHECK_BASE_URL =
+  process.env.NEXT_PUBLIC_MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
   // Check if demo mode is enabled
-  const demoResponse = handleDemoMode(request, "/api/vindata/market-days-supply");
+  const demoResponse = handleDemoMode(
+    request,
+    "/api/vindata/market-days-supply",
+  );
   if (demoResponse) {
     return demoResponse;
   }
@@ -32,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     const response = await fetch(
-      `${MARKETCHECK_BASE_URL}/v2/mds/car?api_key=${MARKETCHECK_API_KEY}&vin=${vin}&exact=true&debug=true`,
+      `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/mds/car?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}&vin=${vin}&exact=true&debug=true`,
       {
         method: "GET",
         headers: {

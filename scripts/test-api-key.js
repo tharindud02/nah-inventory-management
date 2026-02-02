@@ -2,18 +2,19 @@
 
 // Simple script to test MarketCheck API connectivity
 
-const MARKETCHECK_API_KEY =
-  process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
-const MARKETCHECK_BASE_URL =
-  process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
+const NEXT_PUBLIC_MARKETCHECK_API_KEY =
+  process.env.NEXT_PUBLIC_MARKETCHECK_API_KEY ||
+  "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
+const NEXT_PUBLIC_MARKETCHECK_BASE_URL =
+  process.env.NEXT_PUBLIC_MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 async function testAPI() {
   console.log("🔑 Testing MarketCheck API connectivity...\n");
-  console.log(`API Key: ${MARKETCHECK_API_KEY.substring(0, 8)}...`);
-  console.log(`Base URL: ${MARKETCHECK_BASE_URL}\n`);
+  console.log(`API Key: ${NEXT_PUBLIC_MARKETCHECK_API_KEY.substring(0, 8)}...`);
+  console.log(`Base URL: ${NEXT_PUBLIC_MARKETCHECK_BASE_URL}\n`);
 
   // Test with a simple search endpoint - using correct v2 API
-  const testUrl = `${MARKETCHECK_BASE_URL}/v2/search/car/active?api_key=${MARKETCHECK_API_KEY}&rows=1`;
+  const testUrl = `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/search/car/active?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}&rows=1`;
 
   try {
     console.log("📡 Testing basic search endpoint...");
@@ -41,7 +42,7 @@ async function testAPI() {
 
     // Test valuation with a known good VIN - using correct v2 API with required parameters
     console.log("\n🚗 Testing valuation endpoint...");
-    const valuationUrl = `${MARKETCHECK_BASE_URL}/v2/predict/car/us/marketcheck_price?api_key=${MARKETCHECK_API_KEY}&vin=1HGCM82633A123456&miles=15000&zip=90210&dealer_type=franchise`;
+    const valuationUrl = `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/predict/car/us/marketcheck_price?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}&vin=1HGCM82633A123456&miles=15000&zip=90210&dealer_type=franchise`;
 
     const valuationResponse = await fetch(valuationUrl);
 
@@ -79,7 +80,7 @@ async function testWorkingVINs() {
 
   for (const vin of commonVINs) {
     console.log(`Testing VIN: ${vin}`);
-    const valuationUrl = `${MARKETCHECK_BASE_URL}/v2/predict/car/us/marketcheck_price?api_key=${MARKETCHECK_API_KEY}&vin=${vin}&miles=15000&zip=90210&dealer_type=franchise`;
+    const valuationUrl = `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/predict/car/us/marketcheck_price?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}&vin=${vin}&miles=15000&zip=90210&dealer_type=franchise`;
 
     try {
       const response = await fetch(valuationUrl);

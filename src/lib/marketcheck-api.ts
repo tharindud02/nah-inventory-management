@@ -56,7 +56,7 @@ export interface KPIData {
   attentionRequiredCount: number;
 }
 
-const MARKETCHECK_API_BASE = "https://marketcheck-prod.apigee.net/v2";
+const MARKETCHECK_API_BASE = "https://api.marketcheck.com/v2";
 
 export class MarketcheckAPI {
   private apiKey: string;
@@ -67,13 +67,17 @@ export class MarketcheckAPI {
     this.dealerId = dealerId;
   }
 
-  async fetchInventoryData(rows: number = 50): Promise<{
+  async fetchInventoryData(
+    start: number = 0,
+    rows: number = 50,
+  ): Promise<{
     kpiData: KPIData;
     inventoryCars: InventoryCar[];
+    totalFound: number;
   }> {
     try {
       const response = await fetch(
-        `${MARKETCHECK_API_BASE}/search/car/active?api_key=${this.apiKey}&dealer_id=${this.dealerId}&rows=${rows}&stats=price,dom`,
+        `${MARKETCHECK_API_BASE}/dealerships/inventory?api_key=${this.apiKey}&dealer_id=${this.dealerId}&start=${start}&rows=${rows}&stats=price,dom`,
       );
 
       if (!response.ok) {
@@ -128,7 +132,7 @@ export class MarketcheckAPI {
         };
       });
 
-      return { kpiData, inventoryCars };
+      return { kpiData, inventoryCars, totalFound: data.num_found };
     } catch (error) {
       throw error;
     }
@@ -178,6 +182,26 @@ export class MarketcheckAPI {
   }
 }
 
+// Empty state fallback for production without demo data
+export function getEmptyInventoryData(): {
+  kpiData: KPIData;
+  inventoryCars: InventoryCar[];
+} {
+  const kpiData: KPIData = {
+    totalRetailValue: 0,
+    totalWholesaleValue: 0,
+    totalProjectedProfit: 0,
+    activeInventory: 0,
+    avgDaysOnLot: 0,
+    overpricedCount: 0,
+    attentionRequiredCount: 0,
+  };
+
+  const inventoryCars: InventoryCar[] = [];
+
+  return { kpiData, inventoryCars };
+}
+
 // Demo mode fallback
 export function getDemoInventoryData(): {
   kpiData: KPIData;
@@ -198,7 +222,8 @@ export function getDemoInventoryData(): {
       id: "1",
       year: 2022,
       make: "BMW",
-      model: "M4 Competition xDrive Coupe",
+      model: "M4",
+      trim: "Competition xDrive Coupe",
       vin: "WBS83AYBXNCH38102",
       mileage: 12450,
       price: 78900,
@@ -211,7 +236,8 @@ export function getDemoInventoryData(): {
       id: "2",
       year: 2023,
       make: "Mercedes-Benz",
-      model: "C 300 Sedan",
+      model: "C 300",
+      trim: "Sedan",
       vin: "W1KDB3HB5PR123456",
       mileage: 8900,
       price: 52500,
@@ -224,7 +250,8 @@ export function getDemoInventoryData(): {
       id: "3",
       year: 2024,
       make: "Porsche",
-      model: "911 Carrera S",
+      model: "911",
+      trim: "Carrera S",
       vin: "WP0AB2A99RS123456",
       mileage: 3200,
       price: 145000,
@@ -237,7 +264,8 @@ export function getDemoInventoryData(): {
       id: "4",
       year: 2023,
       make: "Audi",
-      model: "RS5 Sportback",
+      model: "RS5",
+      trim: "Sportback",
       vin: "WAUZZZF7XPA123456",
       mileage: 15600,
       price: 87500,
@@ -251,6 +279,7 @@ export function getDemoInventoryData(): {
       year: 2022,
       make: "Lexus",
       model: "LC 500",
+      trim: "Coupe",
       vin: "JTHGB5C21NA123456",
       mileage: 9800,
       price: 98500,
@@ -263,7 +292,8 @@ export function getDemoInventoryData(): {
       id: "6",
       year: 2023,
       make: "BMW",
-      model: "M3 Competition",
+      model: "M3",
+      trim: "Competition",
       vin: "WBS83CR30PCH12345",
       mileage: 6700,
       price: 82500,

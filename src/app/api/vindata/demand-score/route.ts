@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleDemoMode } from "@/lib/demo-mode";
 
-const MARKETCHECK_API_KEY =
-  process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
-const MARKETCHECK_BASE_URL =
-  process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
+const NEXT_PUBLIC_MARKETCHECK_API_KEY =
+  process.env.NEXT_PUBLIC_MARKETCHECK_API_KEY ||
+  "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
+const NEXT_PUBLIC_MARKETCHECK_BASE_URL =
+  process.env.NEXT_PUBLIC_MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
   // Check if demo mode is enabled
@@ -14,7 +15,8 @@ export async function POST(request: NextRequest) {
   }
   try {
     const apiKey =
-      request.headers.get("x-marketcheck-api-key") || MARKETCHECK_API_KEY;
+      request.headers.get("x-marketcheck-api-key") ||
+      NEXT_PUBLIC_MARKETCHECK_API_KEY;
 
     const body = await request.json();
     const { vin, year, make, model } = body;
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
       : `year:${year} make:${make} model:${model}`;
 
     // MarketCheck Demand Score API - updated to v2 with correct endpoint (MDS = Market Days Supply)
-    const url = `${MARKETCHECK_BASE_URL}/v2/mds/car?api_key=${apiKey}&vin=${encodeURIComponent(vin)}&exact=true`;
+    const url = `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/mds/car?api_key=${apiKey}&vin=${encodeURIComponent(vin)}&exact=true`;
 
     console.log(`Fetching market days supply for: ${query}`);
 

@@ -2,20 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { handleDemoMode } from "@/lib/demo-mode";
 import { headers } from "next/headers";
 
-const MARKETCHECK_API_KEY =
-  process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
-const MARKETCHECK_BASE_URL =
-  process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
+const NEXT_PUBLIC_MARKETCHECK_API_KEY =
+  process.env.NEXT_PUBLIC_MARKETCHECK_API_KEY ||
+  "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
+const NEXT_PUBLIC_MARKETCHECK_BASE_URL =
+  process.env.NEXT_PUBLIC_MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
   // Check if demo mode is enabled
-  const demoResponse = handleDemoMode(request, "/api/vindata/aamva-access-report");
+  const demoResponse = handleDemoMode(
+    request,
+    "/api/vindata/aamva-access-report",
+  );
   if (demoResponse) {
     return demoResponse;
   }
   try {
     const headersList = headers();
-    const apiKey = headersList.get("x-marketcheck-api-key") || MARKETCHECK_API_KEY;
+    const apiKey =
+      headersList.get("x-marketcheck-api-key") ||
+      NEXT_PUBLIC_MARKETCHECK_API_KEY;
 
     const body = await request.json();
     const { vin } = body;
@@ -27,7 +33,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const url = `${MARKETCHECK_BASE_URL}/v2/vindata/access-report/aamva/${encodeURIComponent(vin)}`;
+    const url = `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/vindata/access-report/aamva/${encodeURIComponent(vin)}`;
     console.log(`Fetching AAMVA access report for VIN: ${vin}`);
 
     const res = await fetch(url, {

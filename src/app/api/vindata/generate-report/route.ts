@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { handleDemoMode } from "@/lib/demo-mode";
 import { apiCache, CACHE_TTL } from "@/lib/api-cache";
 
-const MARKETCHECK_API_KEY =
-  process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
-const MARKETCHECK_BASE_URL =
-  process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
+const NEXT_PUBLIC_MARKETCHECK_API_KEY =
+  process.env.NEXT_PUBLIC_MARKETCHECK_API_KEY ||
+  "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
+const NEXT_PUBLIC_MARKETCHECK_BASE_URL =
+  process.env.NEXT_PUBLIC_MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
   // Check if demo mode is enabled
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     const response = await fetch(
-      `${MARKETCHECK_BASE_URL}/v2/vindata/generate-report/aamva/${vin}?api_key=${MARKETCHECK_API_KEY}`,
+      `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/vindata/generate-report/aamva/${vin}?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}`,
       {
         method: "GET",
         headers: {
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       // Try access-report as fallback
       const fallbackResponse = await fetch(
-        `${MARKETCHECK_BASE_URL}/v2/vindata/access-report/aamva/${vin}?api_key=${MARKETCHECK_API_KEY}`,
+        `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/vindata/access-report/aamva/${vin}?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}`,
         {
           method: "GET",
           headers: {

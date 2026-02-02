@@ -25,7 +25,11 @@ import {
   Sparkles,
   ChevronDown,
   ArrowLeft,
+  Car,
 } from "lucide-react";
+
+// Empty state for production without demo data
+const getEmptySearchCriteria = () => [];
 
 // Mock data for active search criteria
 const mockSearchCriteria = [
@@ -70,6 +74,12 @@ export default function AcquisitionSearchPage() {
   const yearOptions = Array.from({ length: currentYear - 1999 }, (_, index) =>
     (currentYear - index).toString(),
   );
+
+  // Check if we're in demo mode or if API keys are available
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+  const searchCriteria = isDemoMode
+    ? mockSearchCriteria
+    : getEmptySearchCriteria();
 
   const [yearMin, setYearMin] = useState("");
   const [yearMax, setYearMax] = useState("");
@@ -364,10 +374,13 @@ export default function AcquisitionSearchPage() {
               </h2>
               <div className="flex space-x-4 text-sm">
                 <span className="text-gray-600">
-                  ACTIVE <span className="font-bold text-blue-600">12</span>
+                  ACTIVE{" "}
+                  <span className="font-bold text-blue-600">
+                    {searchCriteria.length}
+                  </span>
                 </span>
                 <span className="text-gray-600">
-                  MATCHES <span className="font-bold text-green-600">248</span>
+                  MATCHES <span className="font-bold text-green-600">0</span>
                 </span>
               </div>
             </div>
@@ -377,75 +390,94 @@ export default function AcquisitionSearchPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                    YEAR RANGE
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                    MAKE
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                    MODEL
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                    MAX MILES
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                    ACCIDENTS
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                    DEMAND
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                    ACTIONS
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockSearchCriteria.map((criteria) => (
-                  <tr
-                    key={criteria.id}
-                    className={`border-b border-gray-100 ${criteria.borderColor}`}
-                  >
-                    <td className="py-3 px-4 text-sm text-gray-900">
-                      {criteria.yearRange}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-900">
-                      {criteria.make}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-900">
-                      {criteria.model}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-900">
-                      {criteria.maxMiles}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-900">
-                      {criteria.accidents}
-                    </td>
-                    <td className="py-3 px-4 text-sm font-medium">
-                      <span className={criteria.demandColor}>
-                        {criteria.demand}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center space-x-2">
-                        <Button variant="outline" size="sm" className="text-xs">
-                          VIEW ANALYTICS
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Edit2 className="w-3 h-3" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </td>
+            {searchCriteria.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Search className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Search Criteria
+                </h3>
+                <p className="text-gray-600 text-center max-w-md">
+                  No active search criteria found. Create search criteria above
+                  to start monitoring the market for acquisition opportunities.
+                </p>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                      YEAR RANGE
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                      MAKE
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                      MODEL
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                      MAX MILES
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                      ACCIDENTS
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                      DEMAND
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
+                      ACTIONS
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {searchCriteria.map((criteria) => (
+                    <tr
+                      key={criteria.id}
+                      className={`border-b border-gray-100 ${criteria.borderColor}`}
+                    >
+                      <td className="py-3 px-4 text-sm text-gray-900">
+                        {criteria.yearRange}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-900">
+                        {criteria.make}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-900">
+                        {criteria.model}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-900">
+                        {criteria.maxMiles}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-900">
+                        {criteria.accidents}
+                      </td>
+                      <td className="py-3 px-4 text-sm font-medium">
+                        <span className={criteria.demandColor}>
+                          {criteria.demand}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs"
+                          >
+                            VIEW ANALYTICS
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            <Edit2 className="w-3 h-3" />
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </Card>
 

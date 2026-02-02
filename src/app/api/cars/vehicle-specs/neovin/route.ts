@@ -13,10 +13,11 @@ import type {
   VehicleEquipmentItem,
 } from "@/types/vehicle-specs";
 
-const MARKETCHECK_API_KEY =
-  process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
-const MARKETCHECK_BASE_URL =
-  process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
+const NEXT_PUBLIC_MARKETCHECK_API_KEY =
+  process.env.NEXT_PUBLIC_MARKETCHECK_API_KEY ||
+  "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
+const NEXT_PUBLIC_MARKETCHECK_BASE_URL =
+  process.env.NEXT_PUBLIC_MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 // Extract color string from NeoVIN color object
 const extractColorName = (colorData: unknown): string => {
@@ -332,7 +333,7 @@ export async function POST(request: NextRequest) {
       }
 
       const response = await fetch(
-        `${MARKETCHECK_BASE_URL}/v2/decode/car/neovin/${vin}/specs?api_key=${MARKETCHECK_API_KEY}`,
+        `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/decode/car/neovin/${vin}/specs?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}`,
       );
 
       if (!response.ok) {
@@ -340,7 +341,7 @@ export async function POST(request: NextRequest) {
 
         // Try fallback search endpoint
         const fallback = await fetch(
-          `${MARKETCHECK_BASE_URL}/v2/search/car/active?api_key=${MARKETCHECK_API_KEY}&vin=${vin}&rows=1`,
+          `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/search/car/active?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}&vin=${vin}&rows=1`,
         );
 
         if (!fallback.ok) {
@@ -408,7 +409,7 @@ export async function POST(request: NextRequest) {
     }
 
     const response = await fetch(
-      `${MARKETCHECK_BASE_URL}/v2/search/car/active?api_key=${MARKETCHECK_API_KEY}&${params.toString()}`,
+      `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/search/car/active?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}&${params.toString()}`,
     );
 
     if (!response.ok) {

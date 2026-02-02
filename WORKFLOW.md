@@ -5,18 +5,22 @@ This guide explains how to switch between normal development mode (real APIs) an
 ## 🚀 Quick Start
 
 ### Normal Development (Real APIs)
+
 ```bash
 npm run dev
 ```
+
 - Uses real MarketCheck API calls
 - Requires valid API keys
 - Shows live data
 - Good for testing integrations
 
 ### Demo Development (Mock Data)
+
 ```bash
 npm run dev:demo
 ```
+
 - Uses stored demo data from JSON files
 - No API keys required
 - Instant responses, no network latency
@@ -73,6 +77,7 @@ npm run dev
 ## 🔄 Switching Between Modes
 
 ### From Normal → Demo Mode
+
 ```bash
 # 1. Stop current server (Ctrl+C)
 # 2. Start demo mode
@@ -80,6 +85,7 @@ npm run dev:demo
 ```
 
 ### From Demo → Normal Mode
+
 ```bash
 # 1. Stop current server (Ctrl+C)
 # 2. Start normal mode
@@ -88,17 +94,18 @@ npm run dev
 
 ## 🛠️ Development Commands
 
-| Command | Purpose | Mode | API Calls |
-|---------|---------|------|-----------|
-| `npm run dev` | Normal development | Real | Live MarketCheck APIs |
-| `npm run dev:demo` | Demo development | Mock | JSON files |
-| `npm run demo:capture` | Capture real responses | Real | Saves API responses |
-| `npm run demo:compare` | Compare demo vs real | Analysis | Shows differences |
-| `npm run demo:test-api` | Test API connectivity | Real | Tests MarketCheck |
+| Command                 | Purpose                | Mode     | API Calls             |
+| ----------------------- | ---------------------- | -------- | --------------------- |
+| `npm run dev`           | Normal development     | Real     | Live MarketCheck APIs |
+| `npm run dev:demo`      | Demo development       | Mock     | JSON files            |
+| `npm run demo:capture`  | Capture real responses | Real     | Saves API responses   |
+| `npm run demo:compare`  | Compare demo vs real   | Analysis | Shows differences     |
+| `npm run demo:test-api` | Test API connectivity  | Real     | Tests MarketCheck     |
 
 ## 📊 When to Use Each Mode
 
 ### Use Normal Mode (`npm run dev`) when:
+
 - ✅ Testing new API integrations
 - ✅ Verifying real data formats
 - ✅ Debugging API-specific issues
@@ -106,6 +113,7 @@ npm run dev
 - ✅ Checking API rate limits and errors
 
 ### Use Demo Mode (`npm run dev:demo`) when:
+
 - ✅ Developing UI components
 - ✅ Working offline/no internet
 - ✅ Need fast, predictable responses
@@ -116,12 +124,14 @@ npm run dev
 ## 🎯 Best Practices
 
 ### Development Workflow
+
 1. **Start in Demo Mode** for UI development
 2. **Switch to Normal Mode** for API integration testing
 3. **Capture Real Data** to update demo responses
 4. **Return to Demo Mode** for continued development
 
 ### Updating Demo Data
+
 ```bash
 # 1. Capture fresh data
 npm run demo:capture
@@ -134,19 +144,21 @@ npm run dev:demo
 ```
 
 ### Environment Variables
+
 ```bash
 # .env.local
 DEMO_MODE=false          # For normal mode
 # DEMO_MODE=true         # For demo mode (or use npm run dev:demo)
 
 # API Keys (only needed for normal mode)
-MARKETCHECK_API_KEY=your_key_here
-MARKETCHECK_BASE_URL=https://api.marketcheck.com
+NEXT_PUBLIC_MARKETCHECK_API_KEY=your_key_here
+NEXT_PUBLIC_MARKETCHECK_BASE_URL=https://api.marketcheck.com
 ```
 
 ## 🐛 Troubleshooting
 
 ### Demo Mode Issues
+
 ```bash
 # Check demo data exists
 ls demo-data/api/
@@ -159,18 +171,20 @@ npm run demo:capture
 ```
 
 ### Normal Mode Issues
+
 ```bash
 # Test API connectivity
 npm run demo:test-api
 
 # Check API keys
-echo $MARKETCHECK_API_KEY
+echo $NEXT_PUBLIC_MARKETCHECK_API_KEY
 
 # Verify network connection
 curl -I https://api.marketcheck.com
 ```
 
 ### Switching Issues
+
 ```bash
 # Clear any cached responses
 rm -rf .next/cache
@@ -206,7 +220,7 @@ The app automatically detects the mode:
 
 ```typescript
 // In your API routes
-import { DEMO_MODE } from '@/lib/demo-mode';
+import { DEMO_MODE } from "@/lib/demo-mode";
 
 if (DEMO_MODE) {
   // Return demo data
@@ -224,12 +238,14 @@ if (DEMO_MODE) {
 ## 🎉 Success Indicators
 
 ### Normal Mode Working
+
 - ✅ Real API responses with live data
 - ✅ Network requests in browser dev tools
 - ✅ API rate limiting visible
 - ✅ Real-time data updates
 
 ### Demo Mode Working
+
 - ✅ Instant responses (no network delay)
 - ✅ Consistent, predictable data
 - ✅ No network requests in dev tools

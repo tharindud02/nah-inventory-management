@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { handleDemoMode } from "@/lib/demo-mode";
 import { apiCache, CACHE_TTL } from "@/lib/api-cache";
 
-const MARKETCHECK_API_KEY =
-  process.env.MARKETCHECK_API_KEY || "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
-const MARKETCHECK_BASE_URL =
-  process.env.MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
+const NEXT_PUBLIC_MARKETCHECK_API_KEY =
+  process.env.NEXT_PUBLIC_MARKETCHECK_API_KEY ||
+  "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
+const NEXT_PUBLIC_MARKETCHECK_BASE_URL =
+  process.env.NEXT_PUBLIC_MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
   // Check if demo mode is enabled
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     // Get average days to sell
     const avgDaysResponse = await fetch(
-      `${MARKETCHECK_BASE_URL}/v2/search/car/recents?api_key=${MARKETCHECK_API_KEY}&vins=${vin}&match=year,make,model,trim&sold=true&stats=dom_active&rows=0&state=${defaultState}`,
+      `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/search/car/recents?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}&vins=${vin}&match=year,make,model,trim&sold=true&stats=dom_active&rows=0&state=${defaultState}`,
       {
         method: "GET",
         headers: {
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
 
     // Get sold count (90 days)
     const sold90Response = await fetch(
-      `${MARKETCHECK_BASE_URL}/v2/search/car/recents?api_key=${MARKETCHECK_API_KEY}&vins=${vin}&match=year,make,model,trim&sold=true&last_seen_days=90-*&rows=0&state=${defaultState}`,
+      `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/search/car/recents?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}&vins=${vin}&match=year,make,model,trim&sold=true&last_seen_days=90-*&rows=0&state=${defaultState}`,
       {
         method: "GET",
         headers: {
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     // Get active local inventory
     const activeLocalResponse = await fetch(
-      `${MARKETCHECK_BASE_URL}/v2/search/car/active?api_key=${MARKETCHECK_API_KEY}&vins=${vin}&match=year,make,model,trim&zip=${defaultZip}&radius=${defaultRadius}&rows=0`,
+      `${NEXT_PUBLIC_MARKETCHECK_BASE_URL}/v2/search/car/active?api_key=${NEXT_PUBLIC_MARKETCHECK_API_KEY}&vins=${vin}&match=year,make,model,trim&zip=${defaultZip}&radius=${defaultRadius}&rows=0`,
       {
         method: "GET",
         headers: {
