@@ -61,10 +61,8 @@ export const signUp = async (data: SignUpData) => {
 
   try {
     const response = await client.send(command);
-    console.log("Signup successful:", response);
     return response;
   } catch (error: any) {
-    console.error("Signup error:", error);
     throw new Error(error.message || "Sign up failed");
   }
 };
@@ -84,14 +82,8 @@ export const signIn = async (data: SignInData) => {
 
   try {
     const response = await client.send(command);
-    console.log("Sign in successful:", response);
     return response;
   } catch (error: any) {
-    console.error("Sign in error details:", {
-      name: error.name,
-      message: error.message,
-      code: error.__type || error.Code,
-    });
     throw new Error(error.message || "Sign in failed");
   }
 };

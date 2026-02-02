@@ -11,9 +11,6 @@ const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || "";
 const clientSecret = process.env.NEXT_PUBLIC_COGNITO_CLIENT_SECRET || "";
 
 if (!userPoolId || !clientId) {
-  console.warn(
-    "Cognito configuration missing. Please set NEXT_PUBLIC_COGNITO_USER_POOL_ID and NEXT_PUBLIC_COGNITO_CLIENT_ID",
-  );
 }
 
 const calculateSecretHash = (username: string): string => {

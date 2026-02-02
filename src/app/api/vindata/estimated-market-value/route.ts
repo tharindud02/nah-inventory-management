@@ -9,7 +9,10 @@ const MARKETCHECK_BASE_URL =
 
 export async function POST(request: NextRequest) {
   // Check if demo mode is enabled
-  const demoResponse = handleDemoMode(request, "/api/vindata/estimated-market-value");
+  const demoResponse = handleDemoMode(
+    request,
+    "/api/vindata/estimated-market-value",
+  );
   if (demoResponse) {
     return demoResponse;
   }
@@ -46,7 +49,6 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("MarketCheck Price API error:", response.status, errorText);
 
       let errorMessage = `Failed to get estimated market value: ${response.status}`;
       let errorDetails = errorText;
@@ -86,8 +88,6 @@ export async function POST(request: NextRequest) {
       data: data,
     });
   } catch (error) {
-    console.error("Error getting estimated market value:", error);
-
     return NextResponse.json(
       {
         error: "Internal server error",

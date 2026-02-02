@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/Layout";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import {
   AlertCircle,
   TrendingUp,
@@ -48,19 +49,16 @@ export default function InventoryPage() {
       const dealerId = process.env.NEXT_PUBLIC_DEALER_ID;
 
       if (isDemoMode || !apiKey || !dealerId) {
-        console.log("Using demo data");
         const demoData = getDemoInventoryData();
         setKpiData(demoData.kpiData);
         setInventoryCars(demoData.inventoryCars);
       } else {
-        console.log("Using Marketcheck API");
         const api = new MarketcheckAPI(apiKey, dealerId);
         const data = await api.fetchInventoryData(50);
         setKpiData(data.kpiData);
         setInventoryCars(data.inventoryCars);
       }
     } catch (err) {
-      console.error("Error loading inventory data:", err);
       setError(
         err instanceof Error ? err.message : "Failed to load inventory data",
       );
@@ -110,6 +108,11 @@ export default function InventoryPage() {
         onSearchChange={setSearchQuery}
         showLastUpdated={true}
       >
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <Breadcrumb items={[{ label: "Inventory", isCurrent: true }]} />
+        </div>
+
         {loading ? (
           <div className="flex items-center justify-center h-96">
             <div className="text-center">

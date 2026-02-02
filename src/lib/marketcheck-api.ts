@@ -130,7 +130,6 @@ export class MarketcheckAPI {
 
       return { kpiData, inventoryCars };
     } catch (error) {
-      console.error("Error fetching Marketcheck data:", error);
       throw error;
     }
   }

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/Layout";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import {
   Search,
   ArrowRight,
@@ -185,6 +186,11 @@ export default function VINIntelPage() {
   return (
     <ProtectedRoute>
       <Layout title="VIN Intel">
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <Breadcrumb items={[{ label: "VIN Intel", isCurrent: true }]} />
+        </div>
+
         {/* Hero Section */}
         <div className="text-center w-full max-w-6xl">
           <div className="flex items-center justify-center mb-4">

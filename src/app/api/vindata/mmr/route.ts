@@ -76,8 +76,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, data: cached });
     }
 
-    console.log("Calling Manheim MMR API", payload.subject);
-
     const response = await fetch(MANHEIM_BASE_URL, {
       method: "POST",
       headers: {
@@ -90,7 +88,6 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Manheim API error", response.status, errorText);
       return NextResponse.json(
         {
           success: false,
@@ -109,7 +106,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: normalized });
   } catch (error) {
-    console.error("Error in Manheim MMR route", error);
     return NextResponse.json(
       {
         success: false,

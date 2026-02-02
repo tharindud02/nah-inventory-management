@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { Layout } from "@/components/Layout";
 import { LinearGauge } from "@/components/ui/LinearGauge";
 import { BuildSheetModal } from "@/components/ui/BuildSheetModal";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 import type { VehicleSpecs } from "@/types/vehicle-specs";
 import {
   Search,
-  ArrowLeft,
   TrendingUp,
   TrendingDown,
   Car,
@@ -113,7 +114,6 @@ export default function VINDeepDivePage() {
 
       throw new Error("AAMVA report response missing data");
     } catch (error) {
-      console.error("Error fetching AAMVA report:", error);
       return null;
     }
   }, []);
@@ -144,7 +144,6 @@ export default function VINDeepDivePage() {
 
         throw new Error("MMR response missing data");
       } catch (error) {
-        console.error("Error fetching MMR:", error);
         return null;
       }
     },
@@ -177,7 +176,6 @@ export default function VINDeepDivePage() {
 
         throw new Error("Demand score response missing data");
       } catch (error) {
-        console.error("Error fetching demand score:", error);
         return null;
       }
     },
@@ -210,7 +208,6 @@ export default function VINDeepDivePage() {
 
         throw new Error("Valuation response missing data");
       } catch (error) {
-        console.error("Error fetching valuation:", error);
         return null;
       }
     },
@@ -301,7 +298,6 @@ export default function VINDeepDivePage() {
 
         throw new Error("Market comps response missing data");
       } catch (error) {
-        console.error("Error fetching market comps:", error);
         return [];
       }
     },
@@ -337,7 +333,6 @@ export default function VINDeepDivePage() {
 
         throw new Error("Sold comps response missing data");
       } catch (error) {
-        console.error("Error fetching sold comps:", error);
         return [];
       }
     },
@@ -369,7 +364,6 @@ export default function VINDeepDivePage() {
 
       throw new Error("Vehicle specs response missing data");
     } catch (error) {
-      console.error("Error refreshing vehicle specs:", error);
       toast.warning(
         error instanceof Error
           ? error.message
@@ -397,7 +391,6 @@ export default function VINDeepDivePage() {
           try {
             setVehicleSpecs(JSON.parse(storedVehicleSpecs));
           } catch (specError) {
-            console.warn("Error parsing stored vehicle specs", specError);
             setVehicleSpecs(null);
             if (storedVin) {
               fetchAndStoreVehicleSpecs(storedVin);
@@ -413,7 +406,6 @@ export default function VINDeepDivePage() {
           marketDataFetchedRef.current = true;
         }
       } catch (error) {
-        console.error("Error parsing VIN data:", error);
         toast.error("Error loading vehicle data. Please try again.");
       }
     } else {
@@ -446,37 +438,27 @@ export default function VINDeepDivePage() {
     if (storedMmr) {
       try {
         setMmr(JSON.parse(storedMmr));
-      } catch (e) {
-        console.warn("Failed to parse stored MMR", e);
-      }
+      } catch (e) {}
     }
     if (storedDemandScore) {
       try {
         setDemandScore(JSON.parse(storedDemandScore));
-      } catch (e) {
-        console.warn("Failed to parse stored demand score", e);
-      }
+      } catch (e) {}
     }
     if (storedMarketComps) {
       try {
         setMarketComps(JSON.parse(storedMarketComps));
-      } catch (e) {
-        console.warn("Failed to parse stored market comps", e);
-      }
+      } catch (e) {}
     }
     if (storedSoldComps) {
       try {
         setSoldComps(JSON.parse(storedSoldComps));
-      } catch (e) {
-        console.warn("Failed to parse stored sold comps", e);
-      }
+      } catch (e) {}
     }
     if (storedValuation) {
       try {
         setValuation(JSON.parse(storedValuation));
-      } catch (e) {
-        console.warn("Failed to parse stored valuation", e);
-      }
+      } catch (e) {}
     }
     if (vin) {
       fetchAamvaReport(vin);
@@ -673,7 +655,6 @@ export default function VINDeepDivePage() {
       }
       toast.success("VIN analysis complete!");
     } catch (error) {
-      console.error("Error fetching market data:", error);
       if (loadingToastId !== undefined) {
         toast.dismiss(loadingToastId);
       }
@@ -758,7 +739,6 @@ export default function VINDeepDivePage() {
         },
       };
     } catch (error) {
-      console.error("Error transforming VIN data:", error);
       // Return minimal data if transformation fails
       return {
         vin: vin,
@@ -994,731 +974,663 @@ export default function VINDeepDivePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex">
-          {/* Sidebar */}
-          <aside className="w-64 bg-white shadow-sm fixed left-0 top-0 h-screen flex flex-col">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Inventory Hub
-              </h2>
+      <Layout title="Acquisition Intelligence Deep Dive">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex justify-between items-center">
+            <Breadcrumb
+              items={[
+                { label: "VIN Intel", href: "/vin-intel" },
+                {
+                  label: "Acquisition Intelligence Deep Dive",
+                  isCurrent: true,
+                },
+              ]}
+            />
+            <div className="text-lg font-medium text-gray-700">
+              VIN: {vin || "Loading..."}
             </div>
-            <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => router.push("/dashboard")}
-              >
-                <Package className="w-4 h-4 mr-2" />
-                Dashboard
-              </Button>
-              <Button
-                className="w-full justify-start text-white"
-                style={{ backgroundColor: "#136dec" }}
-              >
-                <Search className="w-4 h-4 mr-2" />
-                VIN Intel
-              </Button>
-            </nav>
+          </div>
+        </div>
 
-            {/* Sign Out Button at Bottom */}
-            <div className="p-4 border-t border-gray-200">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={signOut}
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <span className="ml-3 text-gray-600">Loading vehicle data...</span>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !vinData && (
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <svg
+                className="w-8 h-8 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
             </div>
-          </aside>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No Vehicle Data Found
+            </h3>
+            <p className="text-gray-500 mb-4">
+              Please analyze a VIN first to view acquisition intelligence.
+            </p>
+            <Button onClick={() => router.push("/vin-intel")}>
+              Go to VIN Intel
+            </Button>
+          </div>
+        )}
 
-          {/* Main Content */}
-          <main className="flex-1 ml-64 p-6">
-            {/* Header */}
-            <div className="mb-6">
-              <div className="flex justify-between items-center">
-                <Button
-                  variant="ghost"
-                  onClick={() => router.push("/vin-intel")}
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to VIN Intel
-                </Button>
-                <div className="text-lg font-medium text-gray-700">
-                  VIN: {vin || "Loading..."}
-                </div>
-              </div>
-            </div>
-
-            {/* Loading State */}
-            {isLoading && (
-              <div className="flex justify-center items-center py-12">
-                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <span className="ml-3 text-gray-600">
-                  Loading vehicle data...
-                </span>
-              </div>
-            )}
-
-            {/* Empty State */}
-            {!isLoading && !vinData && (
-              <div className="flex flex-col items-center justify-center py-16">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <svg
-                    className="w-8 h-8 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  No Vehicle Data
-                </h3>
-                <p className="text-gray-600 text-center max-w-md mb-6">
-                  No vehicle information found. Please analyze a VIN first to
-                  view acquisition intelligence data.
-                </p>
-                <Button onClick={() => router.push("/vin-intel")}>
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to VIN Intel
-                </Button>
-              </div>
-            )}
-
-            {/* Vehicle Information */}
-            {!isLoading && vinData && (
-              <>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                  <Card className="lg:col-span-2">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-grow">
-                          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                            {vinData.year} {vinData.make?.toUpperCase()}{" "}
-                            {vinData.model?.toUpperCase()}
-                            {vinData.trim && (
-                              <>
-                                <br />
-                                {vinData.trim.toUpperCase()}
-                              </>
-                            )}
-                          </h2>
-                          <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
-                            {vinData.trim && (
-                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                                {vinData.trim}
-                              </span>
-                            )}
-                            <span>•</span>
-                            <span>
-                              {vinData.odometer?.toLocaleString() || "N/A"} mi
-                            </span>
-                            {vinData.exterior_color && (
-                              <>
-                                <span>•</span>
-                                <span>{vinData.exterior_color}</span>
-                              </>
-                            )}
-                            {vinData.engine && (
-                              <>
-                                <span>•</span>
-                                <span>{vinData.engine}</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end space-y-4 ml-4">
-                          <div className="text-right">
-                            <div className="text-sm text-gray-600">
-                              Estimated Market Value
-                            </div>
-                            <div className="text-4xl font-bold text-gray-900">
-                              {formatMarketValue(
-                                vinData.market_data?.estimated_market_value,
-                              )}
-                            </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            className="flex items-center whitespace-nowrap"
-                            onClick={() => setBuildSheetModalOpen(true)}
-                          >
-                            <Package className="w-4 h-4 mr-2" />
-                            Pull Build Sheet
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <Card className="text-center p-3">
-                      <div className="text-xs text-gray-600 whitespace-nowrap">
-                        Retail Turn Rate
-                      </div>
-                      <div className="text-2xl font-bold text-green-600">
-                        {formatPercentage(
-                          vinData.market_data?.retail_turn_rate,
-                        ) || "—"}
-                      </div>
-                    </Card>
-                    <Card className="text-center p-3">
-                      <div className="text-xs text-gray-600 whitespace-nowrap">
-                        Avg. Days to Sell
-                      </div>
-                      <div className="text-2xl font-bold text-blue-600">
-                        {formatNumber(vinData.market_data?.avg_days_to_sell) ||
-                          "—"}
-                      </div>
-                    </Card>
-                    <Card className="text-center p-3">
-                      <div className="text-xs text-gray-600 whitespace-nowrap">
-                        Market Days Supply
-                      </div>
-                      <div className="text-2xl font-bold text-amber-600">
-                        {formatNumber(
-                          vinData.market_data?.market_days_supply,
-                        ) || "—"}
-                      </div>
-                    </Card>
-                    <Card className="text-center p-3">
-                      <div className="text-xs text-gray-600 whitespace-nowrap">
-                        Active Local
-                      </div>
-                      <div className="text-2xl font-bold text-purple-600">
-                        {formatNumber(vinData.market_data?.active_local) || "—"}
-                      </div>
-                    </Card>
-                    <Card className="text-center p-3">
-                      <div className="text-xs text-gray-600 whitespace-nowrap">
-                        Sold 90d
-                      </div>
-                      <div className="text-2xl font-bold text-indigo-600">
-                        {formatNumber(vinData.market_data?.sold_90d) || "—"}
-                      </div>
-                    </Card>
-                    <Card className="text-center p-3">
-                      <div className="text-xs text-gray-600 whitespace-nowrap">
-                        Consumer Interest
-                      </div>
-                      <div className="text-2xl font-bold text-green-600">
-                        {formatNumber(vinData.market_data?.consumer_interest) ||
-                          "—"}
-                      </div>
-                    </Card>
-                  </div>
-                </div>
-
-                <section className="flex gap-6 mb-6">
-                  <div className="w-[40%]">
-                    <Card className="h-full flex flex-col">
-                      <CardHeader className="flex flex-row justify-between items-start space-y-0 flex-shrink-0">
-                        <div>
-                          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                            Retail Valuation
-                          </div>
-                          <CardTitle className="text-4xl font-bold mt-2">
-                            {formatCurrency(
-                              valuationSummary.retail.marketCheckAvg ?? 0,
-                            )}
-                          </CardTitle>
-                        </div>
-                        <span
-                          className={`text-xs font-semibold px-3 py-1 rounded-full ${valuationSummary.retail.demandTone}`}
-                        >
-                          {valuationSummary.retail.demandLabel}
-                        </span>
-                      </CardHeader>
-                      <CardContent className="space-y-5 flex-1 flex flex-col justify-between">
-                        <div>
-                          <p className="text-xs uppercase text-gray-500 font-semibold">
-                            Market Check Avg
-                          </p>
-                          <p className="text-lg font-semibold text-gray-900">
-                            {formatCurrency(
-                              valuationSummary.retail.marketCheckAvg ?? 0,
-                            )}
-                          </p>
-                        </div>
-                        <div>
-                          <LinearGauge
-                            min={valuationSummary.retail.priceRange.min ?? 0}
-                            max={valuationSummary.retail.priceRange.max ?? 0}
-                            value={valuationSummary.retail.marketCheckAvg ?? 0}
-                            formatCompactCurrency={formatCompactCurrency}
-                          />
-                        </div>
-                        <div className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
-                          <div>
-                            <p className="text-xs uppercase text-blue-700 font-semibold">
-                              Est. Gross Margin
-                            </p>
-                            <p className="text-2xl font-bold text-blue-900">
-                              +
-                              {formatCurrency(
-                                valuationSummary.retail.estGrossMargin ?? 0,
-                              )}
-                            </p>
-                          </div>
-                          <span className="text-xs font-semibold text-blue-700">
-                            Projected
+        {/* Vehicle Data */}
+        {!isLoading && vinData && (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              <Card className="lg:col-span-2">
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-grow">
+                      <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                        {vinData.year} {vinData.make?.toUpperCase()}{" "}
+                        {vinData.model?.toUpperCase()}
+                        {vinData.trim && (
+                          <>
+                            <br />
+                            {vinData.trim.toUpperCase()}
+                          </>
+                        )}
+                      </h2>
+                      <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+                        {vinData.trim && (
+                          <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                            {vinData.trim}
                           </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  <div className="w-[60%]">
-                    <Card className="h-full flex flex-col">
-                      <CardHeader className="flex flex-row justify-between items-start space-y-0 flex-shrink-0">
-                        <div>
-                          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                            <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                            Wholesale Valuation (Full MMR)
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">
-                            Insights based on current Manheim market data
-                          </p>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="flex-1 flex flex-col">
-                        <div className="flex flex-col lg:flex-row gap-6 flex-1">
-                          <div className="lg:w-1/4 border border-gray-100 rounded-2xl p-4 bg-gray-50">
-                            <p className="text-xs uppercase text-gray-500 font-semibold">
-                              Base MMR
-                            </p>
-                            <p className="text-4xl font-bold text-amber-600 mt-1">
-                              {formatCurrency(
-                                valuationSummary.wholesale.baseMMR ?? 0,
-                              )}
-                            </p>
-                            <div className="mt-4 space-y-3">
-                              <div>
-                                <p className="text-xs uppercase text-gray-500 font-semibold">
-                                  Avg ODO (mi)
-                                </p>
-                                <p className="text-lg font-semibold text-gray-900">
-                                  {valuationSummary.wholesale.avgOdo
-                                    ? valuationSummary.wholesale.avgOdo.toLocaleString()
-                                    : "—"}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-xs uppercase text-gray-500 font-semibold">
-                                  Avg Condition
-                                </p>
-                                <p className="text-lg font-semibold text-gray-900">
-                                  {valuationSummary.wholesale.avgCondition ||
-                                    "—"}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="lg:w-2/5 space-y-4">
-                            <h4 className="text-xs uppercase text-gray-500 font-semibold">
-                              Valuation Adjustments
-                            </h4>
-                            <div className="space-y-3">
-                              {valuationSummary.wholesale.adjustments.length >
-                              0 ? (
-                                valuationSummary.wholesale.adjustments.map(
-                                  (adjustment: any) => (
-                                    <div
-                                      key={adjustment.label}
-                                      className="flex items-center justify-between px-4 py-3 rounded-2xl border border-gray-100 bg-white shadow-sm"
-                                    >
-                                      <div>
-                                        <p className="text-sm font-semibold text-gray-900">
-                                          {adjustment.label}
-                                        </p>
-                                        <p className="text-xs text-gray-500">
-                                          {adjustment.value}
-                                        </p>
-                                      </div>
-                                      <span
-                                        className={`text-sm font-semibold ${adjustment.value >= 0 ? "text-emerald-600" : "text-rose-600"}`}
-                                      >
-                                        {adjustment.value >= 0 ? "+" : ""}
-                                        {formatCurrency(
-                                          Math.abs(adjustment.value),
-                                        )}
-                                      </span>
-                                    </div>
-                                  ),
-                                )
-                              ) : (
-                                <div className="text-center py-4 text-gray-500">
-                                  No adjustments available
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="lg:flex-1 flex flex-col gap-0">
-                            <div className="text-center">
-                              <p className="text-xs uppercase text-gray-500 font-semibold">
-                                Adjusted MMR
-                              </p>
-                              <p className="text-3xl font-bold text-gray-900">
-                                {formatCurrency(
-                                  valuationSummary.wholesale.adjustedMMR ?? 0,
-                                )}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                vs. Market
-                              </p>
-                            </div>
-                            <div className="relative w-full max-w-xl h-44 mx-auto -mt-2">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                  <Pie
-                                    data={gaugeData}
-                                    startAngle={180}
-                                    endAngle={0}
-                                    innerRadius="70%"
-                                    outerRadius="90%"
-                                    cx="50%"
-                                    cy="95%"
-                                    paddingAngle={2}
-                                    dataKey="value"
-                                  >
-                                    <Cell fill="#2563eb" />
-                                    <Cell fill="#dbeafe" />
-                                  </Pie>
-                                </PieChart>
-                              </ResponsiveContainer>
-                              <svg
-                                viewBox="0 0 200 110"
-                                className="absolute inset-0 w-full h-full pointer-events-none"
-                                style={{ transform: "rotate(0deg)" }}
-                              >
-                                {renderNeedle(
-                                  (valuationSummary.wholesale.adjustedMMR ??
-                                    0) - gaugeMin,
-                                  0,
-                                  gaugeMax - gaugeMin,
-                                )}
-                              </svg>
-                              <div
-                                className="absolute bottom-0 left-0 text-xs text-gray-500"
-                                style={{ transform: "translateX(-4px)" }}
-                              >
-                                {formatCurrency(gaugeMin)}
-                              </div>
-                              <div
-                                className="absolute bottom-0 right-0 text-xs text-gray-500"
-                                style={{ transform: "translateX(4px)" }}
-                              >
-                                {formatCurrency(gaugeMax)}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </section>
-
-                <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-10">
-                  <Card>
-                    <CardHeader className="flex items-center justify-between space-y-0">
-                      <div className="space-y-1">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                          Sold Comparables
-                        </p>
-                        <CardTitle className="text-2xl font-bold text-gray-900">
-                          {formatCompactCurrency(
-                            valuationSummary.retail.marketCheckAvg,
-                          )}{" "}
-                          Market Snapshot
-                        </CardTitle>
+                        )}
+                        <span>•</span>
+                        <span>
+                          {vinData.odometer?.toLocaleString() || "N/A"} mi
+                        </span>
+                        {vinData.exterior_color && (
+                          <>
+                            <span>•</span>
+                            <span>{vinData.exterior_color}</span>
+                          </>
+                        )}
+                        {vinData.engine && (
+                          <>
+                            <span>•</span>
+                            <span>{vinData.engine}</span>
+                          </>
+                        )}
                       </div>
-                      <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
-                        7 comps found (90d)
+                    </div>
+                    <div className="flex flex-col items-end space-y-4 ml-4">
+                      <div className="text-right">
+                        <div className="text-sm text-gray-600">
+                          Estimated Market Value
+                        </div>
+                        <div className="text-4xl font-bold text-gray-900">
+                          {formatMarketValue(
+                            vinData.market_data?.estimated_market_value,
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        className="flex items-center whitespace-nowrap"
+                        onClick={() => setBuildSheetModalOpen(true)}
+                      >
+                        <Package className="w-4 h-4 mr-2" />
+                        Pull Build Sheet
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card className="text-center p-3">
+                  <div className="text-xs text-gray-600 whitespace-nowrap">
+                    Retail Turn Rate
+                  </div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {formatPercentage(vinData.market_data?.retail_turn_rate) ||
+                      "—"}
+                  </div>
+                </Card>
+                <Card className="text-center p-3">
+                  <div className="text-xs text-gray-600 whitespace-nowrap">
+                    Avg. Days to Sell
+                  </div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {formatNumber(vinData.market_data?.avg_days_to_sell) || "—"}
+                  </div>
+                </Card>
+                <Card className="text-center p-3">
+                  <div className="text-xs text-gray-600 whitespace-nowrap">
+                    Market Days Supply
+                  </div>
+                  <div className="text-2xl font-bold text-amber-600">
+                    {formatNumber(vinData.market_data?.market_days_supply) ||
+                      "—"}
+                  </div>
+                </Card>
+                <Card className="text-center p-3">
+                  <div className="text-xs text-gray-600 whitespace-nowrap">
+                    Active Local
+                  </div>
+                  <div className="text-2xl font-bold text-purple-600">
+                    {formatNumber(vinData.market_data?.active_local) || "—"}
+                  </div>
+                </Card>
+                <Card className="text-center p-3">
+                  <div className="text-xs text-gray-600 whitespace-nowrap">
+                    Sold 90d
+                  </div>
+                  <div className="text-2xl font-bold text-indigo-600">
+                    {formatNumber(vinData.market_data?.sold_90d) || "—"}
+                  </div>
+                </Card>
+                <Card className="text-center p-3">
+                  <div className="text-xs text-gray-600 whitespace-nowrap">
+                    Consumer Interest
+                  </div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {formatNumber(vinData.market_data?.consumer_interest) ||
+                      "—"}
+                  </div>
+                </Card>
+              </div>
+            </div>
+
+            <section className="flex gap-6 mb-6">
+              <div className="w-[40%]">
+                <Card className="h-full flex flex-col">
+                  <CardHeader className="flex flex-row justify-between items-start space-y-0 flex-shrink-0">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                        Retail Valuation
+                      </div>
+                      <CardTitle className="text-4xl font-bold mt-2">
+                        {formatCurrency(
+                          valuationSummary.retail.marketCheckAvg ?? 0,
+                        )}
+                      </CardTitle>
+                    </div>
+                    <span
+                      className={`text-xs font-semibold px-3 py-1 rounded-full ${valuationSummary.retail.demandTone}`}
+                    >
+                      {valuationSummary.retail.demandLabel}
+                    </span>
+                  </CardHeader>
+                  <CardContent className="space-y-5 flex-1 flex flex-col justify-between">
+                    <div>
+                      <p className="text-xs uppercase text-gray-500 font-semibold">
+                        Market Check Avg
+                      </p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {formatCurrency(
+                          valuationSummary.retail.marketCheckAvg ?? 0,
+                        )}
+                      </p>
+                    </div>
+                    <div>
+                      <LinearGauge
+                        min={valuationSummary.retail.priceRange.min ?? 0}
+                        max={valuationSummary.retail.priceRange.max ?? 0}
+                        value={valuationSummary.retail.marketCheckAvg ?? 0}
+                        formatCompactCurrency={formatCompactCurrency}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
+                      <div>
+                        <p className="text-xs uppercase text-blue-700 font-semibold">
+                          Est. Gross Margin
+                        </p>
+                        <p className="text-2xl font-bold text-blue-900">
+                          +
+                          {formatCurrency(
+                            valuationSummary.retail.estGrossMargin ?? 0,
+                          )}
+                        </p>
+                      </div>
+                      <span className="text-xs font-semibold text-blue-700">
+                        Projected
                       </span>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="relative">
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-b from-gray-100 to-transparent z-10 pointer-events-none"></div>
-                        <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-white to-transparent z-10 pointer-events-none flex items-end justify-center pb-2">
-                          <div className="text-xs text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200">
-                            {getScrollIndicator(soldCompsScrollState)}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="w-[60%]">
+                <Card className="h-full flex flex-col">
+                  <CardHeader className="flex flex-row justify-between items-start space-y-0 flex-shrink-0">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        Wholesale Valuation (Full MMR)
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Insights based on current Manheim market data
+                      </p>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col">
+                    <div className="flex flex-col lg:flex-row gap-6 flex-1">
+                      <div className="lg:w-1/4 border border-gray-100 rounded-2xl p-4 bg-gray-50">
+                        <p className="text-xs uppercase text-gray-500 font-semibold">
+                          Base MMR
+                        </p>
+                        <p className="text-4xl font-bold text-amber-600 mt-1">
+                          {formatCurrency(
+                            valuationSummary.wholesale.baseMMR ?? 0,
+                          )}
+                        </p>
+                        <div className="mt-4 space-y-3">
+                          <div>
+                            <p className="text-xs uppercase text-gray-500 font-semibold">
+                              Avg ODO (mi)
+                            </p>
+                            <p className="text-lg font-semibold text-gray-900">
+                              {valuationSummary.wholesale.avgOdo
+                                ? valuationSummary.wholesale.avgOdo.toLocaleString()
+                                : "—"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs uppercase text-gray-500 font-semibold">
+                              Avg Condition
+                            </p>
+                            <p className="text-lg font-semibold text-gray-900">
+                              {valuationSummary.wholesale.avgCondition || "—"}
+                            </p>
                           </div>
                         </div>
-                        <div className="overflow-hidden rounded-xl border border-gray-100">
-                          <div
-                            className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
-                            onScroll={handleSoldCompsScroll}
-                          >
-                            <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                              <span className="col-span-1">Img</span>
-                              <span className="col-span-5">
-                                Year / Make / Model
-                              </span>
-                              <span className="col-span-2 text-right">
-                                Miles
-                              </span>
-                              <span className="col-span-2 text-right">
-                                Price
-                              </span>
-                              <span className="col-span-2 text-right">
-                                Sold
-                              </span>
-                            </div>
-                            {(activeListings || []).map(
-                              (comp: any, idx: number) => (
+                      </div>
+                      <div className="lg:w-2/5 space-y-4">
+                        <h4 className="text-xs uppercase text-gray-500 font-semibold">
+                          Valuation Adjustments
+                        </h4>
+                        <div className="space-y-3">
+                          {valuationSummary.wholesale.adjustments.length > 0 ? (
+                            valuationSummary.wholesale.adjustments.map(
+                              (adjustment: any) => (
                                 <div
-                                  key={`${comp.make}-${comp.miles}-${idx}`}
-                                  className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
+                                  key={adjustment.label}
+                                  className="flex items-center justify-between px-4 py-3 rounded-2xl border border-gray-100 bg-white shadow-sm"
                                 >
-                                  <div className="col-span-1 flex items-center">
-                                    <span
-                                      className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
-                                    ></span>
-                                  </div>
-                                  <div className="col-span-5">
-                                    <p className="font-semibold text-gray-900">
-                                      {comp.year} {comp.make} {comp.model}
+                                  <div>
+                                    <p className="text-sm font-semibold text-gray-900">
+                                      {adjustment.label}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {adjustment.value}
                                     </p>
                                   </div>
-                                  <div className="col-span-2 text-right text-gray-600">
-                                    {comp.miles.toLocaleString()}
-                                  </div>
-                                  <div className="col-span-2 text-right font-semibold text-gray-900">
-                                    {comp.price}
-                                  </div>
-                                  <div className="col-span-2 text-right text-gray-500">
-                                    {comp.soldDate}
-                                  </div>
+                                  <span
+                                    className={`text-sm font-semibold ${adjustment.value >= 0 ? "text-emerald-600" : "text-rose-600"}`}
+                                  >
+                                    {adjustment.value >= 0 ? "+" : ""}
+                                    {formatCurrency(Math.abs(adjustment.value))}
+                                  </span>
                                 </div>
                               ),
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="flex items-center justify-between space-y-0">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                          Price vs. Mileage Scatter Analysis
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Market comps vs target unit
-                        </p>
-                      </div>
-                      <button className="text-xs font-semibold text-blue-700 hover:text-blue-900">
-                        National comps
-                      </button>
-                    </CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={256}>
-                        <ScatterChart
-                          margin={{
-                            top: 20,
-                            right: 20,
-                            bottom: 20,
-                            left: 20,
-                          }}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            stroke="#e5e7eb"
-                          />
-                          <XAxis
-                            type="number"
-                            dataKey="miles"
-                            name="Mileage"
-                            unit=" mi"
-                            domain={[minMiles, maxMiles]}
-                            tick={{ fontSize: 11, fill: "#6b7280" }}
-                            label={{
-                              value: "Mileage",
-                              position: "insideBottom",
-                              offset: -10,
-                              fontSize: 12,
-                              fill: "#6b7280",
-                            }}
-                          />
-                          <YAxis
-                            type="number"
-                            dataKey="price"
-                            name="Price"
-                            unit="$"
-                            domain={[minPrice, maxPrice]}
-                            tickFormatter={(value) =>
-                              `$${(value / 1000).toFixed(0)}K`
-                            }
-                            tick={{ fontSize: 11, fill: "#6b7280" }}
-                            label={{
-                              value: "Price",
-                              angle: -90,
-                              position: "insideLeft",
-                              fontSize: 12,
-                              fill: "#6b7280",
-                            }}
-                          />
-                          <Tooltip
-                            formatter={(value: any, name?: string) => [
-                              name === "Mileage"
-                                ? `${value.toLocaleString()} mi`
-                                : `$${value.toLocaleString()}`,
-                              name === "Mileage" ? "Mileage" : "Price",
-                            ]}
-                            contentStyle={{
-                              backgroundColor: "rgba(255, 255, 255, 0.95)",
-                              border: "1px solid #e5e7eb",
-                              borderRadius: "6px",
-                              fontSize: "12px",
-                            }}
-                          />
-                          <Scatter
-                            name="Market Listings"
-                            data={scatterData.market}
-                            fill="#d1d5db"
-                          />
-                          <Scatter
-                            name="Target Vehicle"
-                            data={[scatterData.target]}
-                            fill="#2563eb"
-                          />
-                        </ScatterChart>
-                      </ResponsiveContainer>
-                      <div className="flex items-center justify-center gap-6 text-xs font-semibold text-gray-500 mt-2">
-                        <div className="flex items-center gap-2">
-                          <span className="h-3 w-3 rounded-full bg-blue-600"></span>
-                          Target Vehicle
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="h-3 w-3 rounded-full bg-gray-300"></span>
-                          Market Listings
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </section>
-
-                <section className="mb-12">
-                  <Card>
-                    <CardHeader className="flex items-center justify-between space-y-0">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                          Your Competition: Active Listings
-                        </p>
-                        <CardTitle className="text-xl font-bold text-gray-900">
-                          Nearby units currently on market
-                        </CardTitle>
-                      </div>
-                      <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
-                        {activeListings.length} active units
-                      </span>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="relative">
-                        <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-b from-gray-100 to-transparent z-10 pointer-events-none"></div>
-                        <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-white to-transparent z-10 pointer-events-none flex items-end justify-center pb-2">
-                          <div className="text-xs text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200">
-                            {getScrollIndicator(activeListingsScrollState)}
-                          </div>
-                        </div>
-                        <div className="overflow-hidden rounded-2xl border border-gray-100">
-                          <div
-                            className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
-                            onScroll={handleActiveListingsScroll}
-                          >
-                            <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                              <span className="col-span-1">Img</span>
-                              <span className="col-span-4">
-                                Year / Make / Model
-                              </span>
-                              <span className="col-span-2 text-right">
-                                Miles
-                              </span>
-                              <span className="col-span-2 text-right">
-                                Price
-                              </span>
-                              <span className="col-span-2 text-right">
-                                Distance
-                              </span>
-                              <span className="col-span-1 text-right">DOM</span>
+                            )
+                          ) : (
+                            <div className="text-center py-4 text-gray-500">
+                              No adjustments available
                             </div>
-                            {(soldComps.length
-                              ? soldComps
-                              : activeListings
-                            ).map((comp: any, idx: number) => (
-                              <div
-                                key={`${comp.make}-${comp.miles}-${idx}`}
-                                className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
+                          )}
+                        </div>
+                      </div>
+                      <div className="lg:flex-1 flex flex-col gap-0">
+                        <div className="text-center">
+                          <p className="text-xs uppercase text-gray-500 font-semibold">
+                            Adjusted MMR
+                          </p>
+                          <p className="text-3xl font-bold text-gray-900">
+                            {formatCurrency(
+                              valuationSummary.wholesale.adjustedMMR ?? 0,
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-500">vs. Market</p>
+                        </div>
+                        <div className="relative w-full max-w-xl h-44 mx-auto -mt-2">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={gaugeData}
+                                startAngle={180}
+                                endAngle={0}
+                                innerRadius="70%"
+                                outerRadius="90%"
+                                cx="50%"
+                                cy="95%"
+                                paddingAngle={2}
+                                dataKey="value"
                               >
-                                <div className="col-span-1 flex items-center">
-                                  <span
-                                    className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
-                                  ></span>
-                                </div>
-                                <div className="col-span-4">
-                                  <p className="font-semibold text-gray-900">
-                                    {comp.year} {comp.make} {comp.model}
-                                  </p>
-                                </div>
-                                <div className="col-span-2 text-right text-gray-600">
-                                  {comp.miles.toLocaleString()}
-                                </div>
-                                <div className="col-span-2 text-right font-semibold text-gray-900">
-                                  {formatCurrency(comp.price)}
-                                </div>
-                                <div className="col-span-2 text-right text-gray-500">
-                                  {comp.distance || "N/A"}
-                                </div>
-                                <div className="col-span-1 text-right text-gray-500">
-                                  {comp.dom || comp.days_on_market || "N/A"}
-                                </div>
-                              </div>
-                            ))}
+                                <Cell fill="#2563eb" />
+                                <Cell fill="#dbeafe" />
+                              </Pie>
+                            </PieChart>
+                          </ResponsiveContainer>
+                          <svg
+                            viewBox="0 0 200 110"
+                            className="absolute inset-0 w-full h-full pointer-events-none"
+                            style={{ transform: "rotate(0deg)" }}
+                          >
+                            {renderNeedle(
+                              (valuationSummary.wholesale.adjustedMMR ?? 0) -
+                                gaugeMin,
+                              0,
+                              gaugeMax - gaugeMin,
+                            )}
+                          </svg>
+                          <div
+                            className="absolute bottom-0 left-0 text-xs text-gray-500"
+                            style={{ transform: "translateX(-4px)" }}
+                          >
+                            {formatCurrency(gaugeMin)}
+                          </div>
+                          <div
+                            className="absolute bottom-0 right-0 text-xs text-gray-500"
+                            style={{ transform: "translateX(4px)" }}
+                          >
+                            {formatCurrency(gaugeMax)}
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </section>
-              </>
-            )}
-
-            {/* Error State */}
-            {!isLoading && !vinData && (
-              <div className="text-center py-12">
-                <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  No Vehicle Data Found
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Unable to retrieve vehicle information. Please try again.
-                </p>
-                <Button onClick={() => router.push("/vin-intel")}>
-                  Back to VIN Intel
-                </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            )}
+            </section>
 
-            {/* Build Sheet Modal */}
-            <BuildSheetModal
-              open={buildSheetModalOpen}
-              onOpenChange={setBuildSheetModalOpen}
-              vinData={vinData || undefined}
-              vehicleSpecs={vehicleSpecs}
-            />
-          </main>
-        </div>
-      </div>
+            <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-10">
+              <Card>
+                <CardHeader className="flex items-center justify-between space-y-0">
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Sold Comparables
+                    </p>
+                    <CardTitle className="text-2xl font-bold text-gray-900">
+                      {formatCompactCurrency(
+                        valuationSummary.retail.marketCheckAvg,
+                      )}{" "}
+                      Market Snapshot
+                    </CardTitle>
+                  </div>
+                  <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
+                    7 comps found (90d)
+                  </span>
+                </CardHeader>
+                <CardContent>
+                  <div className="relative">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-b from-gray-100 to-transparent z-10 pointer-events-none"></div>
+                    <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-white to-transparent z-10 pointer-events-none flex items-end justify-center pb-2">
+                      <div className="text-xs text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200">
+                        {getScrollIndicator(soldCompsScrollState)}
+                      </div>
+                    </div>
+                    <div className="overflow-hidden rounded-xl border border-gray-100">
+                      <div
+                        className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
+                        onScroll={handleSoldCompsScroll}
+                      >
+                        <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                          <span className="col-span-1">Img</span>
+                          <span className="col-span-5">
+                            Year / Make / Model
+                          </span>
+                          <span className="col-span-2 text-right">Miles</span>
+                          <span className="col-span-2 text-right">Price</span>
+                          <span className="col-span-2 text-right">Sold</span>
+                        </div>
+                        {(activeListings || []).map(
+                          (comp: any, idx: number) => (
+                            <div
+                              key={`${comp.make}-${comp.miles}-${idx}`}
+                              className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
+                            >
+                              <div className="col-span-1 flex items-center">
+                                <span
+                                  className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
+                                ></span>
+                              </div>
+                              <div className="col-span-5">
+                                <p className="font-semibold text-gray-900">
+                                  {comp.year} {comp.make} {comp.model}
+                                </p>
+                              </div>
+                              <div className="col-span-2 text-right text-gray-600">
+                                {comp.miles.toLocaleString()}
+                              </div>
+                              <div className="col-span-2 text-right font-semibold text-gray-900">
+                                {comp.price}
+                              </div>
+                              <div className="col-span-2 text-right text-gray-500">
+                                {comp.soldDate}
+                              </div>
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex items-center justify-between space-y-0">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Price vs. Mileage Scatter Analysis
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Market comps vs target unit
+                    </p>
+                  </div>
+                  <button className="text-xs font-semibold text-blue-700 hover:text-blue-900">
+                    National comps
+                  </button>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={256}>
+                    <ScatterChart
+                      margin={{
+                        top: 20,
+                        right: 20,
+                        bottom: 20,
+                        left: 20,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis
+                        type="number"
+                        dataKey="miles"
+                        name="Mileage"
+                        unit=" mi"
+                        domain={[minMiles, maxMiles]}
+                        tick={{ fontSize: 11, fill: "#6b7280" }}
+                        label={{
+                          value: "Mileage",
+                          position: "insideBottom",
+                          offset: -10,
+                          fontSize: 12,
+                          fill: "#6b7280",
+                        }}
+                      />
+                      <YAxis
+                        type="number"
+                        dataKey="price"
+                        name="Price"
+                        unit="$"
+                        domain={[minPrice, maxPrice]}
+                        tickFormatter={(value) =>
+                          `$${(value / 1000).toFixed(0)}K`
+                        }
+                        tick={{ fontSize: 11, fill: "#6b7280" }}
+                        label={{
+                          value: "Price",
+                          angle: -90,
+                          position: "insideLeft",
+                          fontSize: 12,
+                          fill: "#6b7280",
+                        }}
+                      />
+                      <Tooltip
+                        formatter={(value: any, name?: string) => [
+                          name === "Mileage"
+                            ? `${value.toLocaleString()} mi`
+                            : `$${value.toLocaleString()}`,
+                          name === "Mileage" ? "Mileage" : "Price",
+                        ]}
+                        contentStyle={{
+                          backgroundColor: "rgba(255, 255, 255, 0.95)",
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "6px",
+                          fontSize: "12px",
+                        }}
+                      />
+                      <Scatter
+                        name="Market Listings"
+                        data={scatterData.market}
+                        fill="#d1d5db"
+                      />
+                      <Scatter
+                        name="Target Vehicle"
+                        data={[scatterData.target]}
+                        fill="#2563eb"
+                      />
+                    </ScatterChart>
+                  </ResponsiveContainer>
+                  <div className="flex items-center justify-center gap-6 text-xs font-semibold text-gray-500 mt-2">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3 w-3 rounded-full bg-blue-600"></span>
+                      Target Vehicle
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-3 w-3 rounded-full bg-gray-300"></span>
+                      Market Listings
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            <section className="mb-12">
+              <Card>
+                <CardHeader className="flex items-center justify-between space-y-0">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      Your Competition: Active Listings
+                    </p>
+                    <CardTitle className="text-xl font-bold text-gray-900">
+                      Nearby units currently on market
+                    </CardTitle>
+                  </div>
+                  <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
+                    {activeListings.length} active units
+                  </span>
+                </CardHeader>
+                <CardContent>
+                  <div className="relative">
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-b from-gray-100 to-transparent z-10 pointer-events-none"></div>
+                    <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-white to-transparent z-10 pointer-events-none flex items-end justify-center pb-2">
+                      <div className="text-xs text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200">
+                        {getScrollIndicator(activeListingsScrollState)}
+                      </div>
+                    </div>
+                    <div className="overflow-hidden rounded-2xl border border-gray-100">
+                      <div
+                        className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
+                        onScroll={handleActiveListingsScroll}
+                      >
+                        <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                          <span className="col-span-1">Img</span>
+                          <span className="col-span-4">
+                            Year / Make / Model
+                          </span>
+                          <span className="col-span-2 text-right">Miles</span>
+                          <span className="col-span-2 text-right">Price</span>
+                          <span className="col-span-2 text-right">
+                            Distance
+                          </span>
+                          <span className="col-span-1 text-right">DOM</span>
+                        </div>
+                        {(soldComps.length ? soldComps : activeListings).map(
+                          (comp: any, idx: number) => (
+                            <div
+                              key={`${comp.make}-${comp.miles}-${idx}`}
+                              className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
+                            >
+                              <div className="col-span-1 flex items-center">
+                                <span
+                                  className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
+                                ></span>
+                              </div>
+                              <div className="col-span-4">
+                                <p className="font-semibold text-gray-900">
+                                  {comp.year} {comp.make} {comp.model}
+                                </p>
+                              </div>
+                              <div className="col-span-2 text-right text-gray-600">
+                                {comp.miles.toLocaleString()}
+                              </div>
+                              <div className="col-span-2 text-right font-semibold text-gray-900">
+                                {formatCurrency(comp.price)}
+                              </div>
+                              <div className="col-span-2 text-right text-gray-500">
+                                {comp.distance || "N/A"}
+                              </div>
+                              <div className="col-span-1 text-right text-gray-500">
+                                {comp.dom || comp.days_on_market || "N/A"}
+                              </div>
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          </>
+        )}
+
+        {/* Error State */}
+        {!isLoading && !vinData && (
+          <div className="text-center py-12">
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No Vehicle Data Found
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Unable to retrieve vehicle information. Please try again.
+            </p>
+            <Button onClick={() => router.push("/vin-intel")}>
+              Go to VIN Intel
+            </Button>
+          </div>
+        )}
+
+        {/* Build Sheet Modal */}
+        <BuildSheetModal
+          open={buildSheetModalOpen}
+          onOpenChange={setBuildSheetModalOpen}
+          vinData={vinData || undefined}
+          vehicleSpecs={vehicleSpecs}
+        />
+      </Layout>
     </ProtectedRoute>
   );
 }

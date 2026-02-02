@@ -147,10 +147,6 @@ export default function SignInPage() {
     setSuccessMessage("");
 
     try {
-      console.log("Attempting sign in with:", {
-        email,
-        passwordLength: password.length,
-      });
       const result = await signIn({ email, password });
 
       // Store tokens in localStorage for the AuthContext to use
@@ -182,12 +178,10 @@ export default function SignInPage() {
       }
 
       await refreshUser();
-      console.log("User refreshed, redirecting to dashboard...");
 
       // Redirect immediately without showing success message
       router.push("/dashboard");
     } catch (err: any) {
-      console.log("Sign in error:", err);
       if (
         err.message.includes("User is not confirmed") ||
         err.name === "UserNotConfirmedException"
@@ -226,11 +220,6 @@ export default function SignInPage() {
     }
 
     try {
-      console.log("Attempting confirmation and sign in with:", {
-        email,
-        passwordLength: password.length,
-        confirmationCode,
-      });
       // First confirm the user
       await confirmSignUp(email, getFullCode());
 

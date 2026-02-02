@@ -9,7 +9,10 @@ const MARKETCHECK_BASE_URL =
 
 export async function POST(request: NextRequest) {
   // Check if demo mode is enabled
-  const demoResponse = handleDemoMode(request, "/api/vindata/consumer-interest");
+  const demoResponse = handleDemoMode(
+    request,
+    "/api/vindata/consumer-interest",
+  );
   if (demoResponse) {
     return demoResponse;
   }
@@ -55,11 +58,6 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(
-        "MarketCheck Popular Cars API error:",
-        response.status,
-        errorText,
-      );
 
       let errorMessage = `Failed to get consumer interest: ${response.status}`;
       let errorDetails = errorText;
@@ -104,8 +102,6 @@ export async function POST(request: NextRequest) {
       data: data,
     });
   } catch (error) {
-    console.error("Error getting consumer interest:", error);
-
     return NextResponse.json(
       {
         error: "Internal server error",

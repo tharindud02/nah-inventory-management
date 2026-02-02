@@ -705,7 +705,6 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
       URL.revokeObjectURL(url);
       toast.success("Build sheet PDF downloaded.");
     } catch (error) {
-      console.error("Error exporting build sheet PDF", error);
       toast.error("Failed to generate build sheet PDF. Please try again.");
     } finally {
       setIsExporting(false);
@@ -750,7 +749,7 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
               onClick={handleExport}
               disabled={isExporting}
             >
-              {isExporting ? "Generating…" : "Export PDF"}
+              {isExporting ? "Generating…" : "Export"}
             </Button>
           </div>
 

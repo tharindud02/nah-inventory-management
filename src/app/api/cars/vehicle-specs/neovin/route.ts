@@ -293,7 +293,10 @@ const cacheAndRespond = (
 
 export async function POST(request: NextRequest) {
   // Check if demo mode is enabled
-  const demoResponse = handleDemoMode(request, "/api/cars/vehicle-specs/neovin");
+  const demoResponse = handleDemoMode(
+    request,
+    "/api/cars/vehicle-specs/neovin",
+  );
   if (demoResponse) {
     return demoResponse;
   }
@@ -334,7 +337,6 @@ export async function POST(request: NextRequest) {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("NeoVIN specs error:", response.status, errorText);
 
         // Try fallback search endpoint
         const fallback = await fetch(
@@ -411,7 +413,6 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Vehicle specs search error:", response.status, errorText);
       return NextResponse.json(
         {
           error: `Failed to search vehicle specs: ${response.status}`,
@@ -432,7 +433,6 @@ export async function POST(request: NextRequest) {
     const vehicleSpecs = buildVehicleSpecsFromListing(data.listings[0]);
     return cacheAndRespond(cacheKey, vehicleSpecs, "marketcheck-search");
   } catch (error) {
-    console.error("Error fetching NeoVIN specs:", error);
     return NextResponse.json(
       {
         error: "Internal server error",
