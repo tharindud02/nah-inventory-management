@@ -2,8 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { useState } from "react";
-import { ChevronUp, ChevronDown, Check, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, ChevronDown, Droplet, Gauge, MapPin } from "lucide-react";
 
 interface MMRData {
   base_mmr?: number;
@@ -45,8 +45,8 @@ const renderNeedle = (value: number, min: number, max: number) => {
   const radians = (angle * Math.PI) / 180;
 
   // Needle dimensions
-  const needleLength = 70;
-  const needleStart = 15;
+  const needleLength = 65;
+  const needleStart = 20;
 
   // Calculate needle coordinates
   const x1 = 100 + needleStart * Math.cos(radians);
@@ -62,11 +62,11 @@ const renderNeedle = (value: number, min: number, max: number) => {
         x2={x2}
         y2={y2}
         stroke="#1f2937"
-        strokeWidth="3"
+        strokeWidth="2.5"
         strokeLinecap="round"
       />
-      <circle cx={x2} cy={y2} r="4" fill="#1f2937" />
-      <circle cx={100} cy={95} r="3" fill="#6b7280" />
+      <circle cx={x2} cy={y2} r="3" fill="#dc2626" />
+      <circle cx={100} cy={95} r="2.5" fill="#6b7280" />
     </g>
   );
 };
@@ -76,19 +76,35 @@ export function MMRSection({
   isLoading = false,
   compact = false,
 }: MMRSectionProps) {
-  const [adjustments, setAdjustments] = useState({
-    odometer: "12,450",
-    region: "Southeast Region",
-    cr_score: "4.3",
-    color: "Isle of Man Green",
-  });
+  const initialTextAdjustments = {
+    odometer: "",
+    region: "",
+    cr_score: "",
+    color: "",
+  };
 
-  const [adjustmentValues, setAdjustmentValues] = useState({
-    odometer: 620,
-    region: 0,
-    cr_score: -510,
-    color: -60,
-  });
+  const [adjustments, setAdjustments] = useState(initialTextAdjustments);
+
+  const [adjustmentValues, setAdjustmentValues] = useState(() => ({
+    odometer: mmrData?.adjustments?.odometer ?? 0,
+    region: mmrData?.adjustments?.region ?? 0,
+    cr_score: mmrData?.adjustments?.cr_score ?? 0,
+    color: mmrData?.adjustments?.color ?? 0,
+  }));
+
+  useEffect(() => {
+    if (!mmrData) {
+      setAdjustmentValues({ odometer: 0, region: 0, cr_score: 0, color: 0 });
+      return;
+    }
+
+    setAdjustmentValues({
+      odometer: mmrData.adjustments?.odometer ?? 0,
+      region: mmrData.adjustments?.region ?? 0,
+      cr_score: mmrData.adjustments?.cr_score ?? 0,
+      color: mmrData.adjustments?.color ?? 0,
+    });
+  }, [mmrData]);
 
   if (isLoading || !mmrData) {
     return (
@@ -113,32 +129,51 @@ export function MMRSection({
     );
   }
 
-  const baseMmr = mmrData.base_mmr || 74800;
-  const adjustedMmr = mmrData.adjusted_mmr || 74830;
-  const avgOdo = mmrData.avg_odo || 12688;
-  const avgCondition = mmrData.avg_condition || "4.6";
+  const toNumber = (value?: number | null, fallback = 0) =>
+    typeof value === "number" && !Number.isNaN(value) ? value : fallback;
 
-  const gaugeMin = mmrData.typical_range?.min || 72100;
-  const gaugeMax = mmrData.typical_range?.max || 76900;
+  const baseMmr = toNumber(mmrData.base_mmr, 0);
+  const adjustedMmr = toNumber(mmrData.adjusted_mmr, baseMmr);
+  const avgOdo = toNumber(mmrData.avg_odo, 0);
+  const avgCondition = mmrData.avg_condition ?? "N/A";
+
+  const hasRangeBounds =
+    typeof mmrData.typical_range?.min === "number" &&
+    typeof mmrData.typical_range?.max === "number";
+
+  const displayRangeMin = hasRangeBounds
+    ? toNumber(mmrData.typical_range?.min, 0)
+    : 0;
+  const displayRangeMax = hasRangeBounds
+    ? toNumber(mmrData.typical_range?.max, 0)
+    : 0;
+
+  const rawGaugeMin = toNumber(mmrData.typical_range?.min, 0);
+  const rawGaugeMax = toNumber(
+    mmrData.typical_range?.max,
+    rawGaugeMin > 0 ? rawGaugeMin + 1 : 1,
+  );
+  const gaugeMin = rawGaugeMin;
+  const gaugeMax = rawGaugeMax > rawGaugeMin ? rawGaugeMax : rawGaugeMin + 1;
+  const gaugeSpan = gaugeMax - gaugeMin;
+  const adjustedOffset = Math.max(
+    0,
+    Math.min(adjustedMmr - gaugeMin, gaugeSpan),
+  );
 
   const gaugeData = [
     {
       name: "value",
-      value: adjustedMmr - gaugeMin,
+      value: adjustedOffset,
     },
     {
       name: "remaining",
-      value: gaugeMax - adjustedMmr,
+      value: gaugeSpan - adjustedOffset,
     },
   ];
 
   const handleClearAdjustments = () => {
-    setAdjustments({
-      odometer: "12,688",
-      region: "Southeast Region",
-      cr_score: "4.6",
-      color: "Isle of Man Green",
-    });
+    setAdjustments(initialTextAdjustments);
     setAdjustmentValues({
       odometer: 0,
       region: 0,
@@ -151,15 +186,34 @@ export function MMRSection({
     setAdjustments((prev) => ({ ...prev, [field]: value }));
   };
 
-  const updateAdjustmentValue = (
-    field: keyof typeof adjustmentValues,
-    delta: number,
-  ) => {
-    setAdjustmentValues((prev) => ({ ...prev, [field]: prev[field] + delta }));
+  const adjustmentFieldMeta: {
+    key: keyof typeof adjustments;
+    icon: "odometer" | "region" | "cr" | "color";
+    highlight?: boolean;
+  }[] = [
+    { key: "odometer", icon: "odometer", highlight: true },
+    { key: "region", icon: "region" },
+    { key: "cr_score", icon: "cr" },
+    { key: "color", icon: "color" },
+  ];
+
+  const renderIcon = (type: "odometer" | "region" | "cr" | "color") => {
+    if (type === "odometer") {
+      return <Gauge className="w-4 h-4" />;
+    }
+    if (type === "region") {
+      return <MapPin className="w-4 h-4" />;
+    }
+    if (type === "cr") {
+      return (
+        <span className="text-[10px] font-semibold text-slate-600">CR</span>
+      );
+    }
+    return <Droplet className="w-4 h-4" />;
   };
 
   return (
-    <Card className={`${compact ? "" : "h-full"} flex flex-col`}>
+    <Card className={`flex flex-col ${compact ? "mx-0" : "mx-4"}`}>
       <CardHeader
         className={`${compact ? "pb-2" : "border-b border-gray-200"}`}
       >
@@ -168,17 +222,16 @@ export function MMRSection({
         >
           MMR
         </CardTitle>
-        <div className="h-1 bg-blue-600 w-full mt-2"></div>
       </CardHeader>
       <CardContent
-        className={`flex-1 flex flex-col ${compact ? "p-3" : "p-6"}`}
+        className={`flex-1 flex flex-col ${compact ? "py-3 px-6" : "py-6 px-8"}`}
       >
         <div
-          className={`grid ${compact ? "grid-cols-3 gap-2" : "grid-cols-3 gap-6"} flex-1`}
+          className={`grid ${compact ? "grid-cols-[1fr_1.4fr_1fr] gap-4" : "grid-cols-[1.2fr_1.8fr_1.3fr] gap-8"} flex-1 items-start`}
         >
           {/* BASE MMR Section */}
           <div className="flex flex-col">
-            <div className={`${compact ? "mb-1" : "mb-4"}`}>
+            <div className={`${compact ? "mb-1" : "mb-3"}`}>
               <p
                 className={`font-bold uppercase tracking-wide text-gray-700 ${compact ? "text-[9px]" : "text-xs"} ${compact ? "mb-1" : "mb-2"}`}
               >
@@ -191,9 +244,7 @@ export function MMRSection({
               </p>
             </div>
 
-            <div
-              className={`space-y-${compact ? "1" : "3"} ${compact ? "mb-1" : "mb-4"}`}
-            >
+            <div className={`${compact ? "space-y-1" : "space-y-2"}`}>
               <div>
                 <p
                   className={`font-bold uppercase text-gray-700 ${compact ? "text-[9px]" : "text-xs"}`}
@@ -203,7 +254,7 @@ export function MMRSection({
                 <p
                   className={`${compact ? "text-xs" : "text-lg"} font-semibold text-gray-900 leading-tight`}
                 >
-                  {avgOdo.toLocaleString()}
+                  {avgOdo.toLocaleString() ?? "N/A"}
                 </p>
               </div>
               <div>
@@ -220,26 +271,29 @@ export function MMRSection({
               </div>
             </div>
 
-            <div
-              className={`mt-auto ${compact ? "pt-1" : "pt-4"} border-t border-gray-200`}
-            >
-              <p
-                className={`font-bold uppercase text-gray-700 ${compact ? "text-[9px]" : "text-xs"} ${compact ? "mb-0" : "mb-1"}`}
+            <div className={`mt-auto ${compact ? "pt-2" : "pt-4"}`}>
+              <div
+                className={`border-t border-gray-300 ${compact ? "pt-1" : "pt-2"}`}
               >
-                TYPICAL RANGE
-              </p>
-              <p
-                className={`${compact ? "text-[10px]" : "text-sm"} font-semibold text-gray-900 leading-tight`}
-              >
-                {formatCurrency(gaugeMin)} - {formatCurrency(gaugeMax)}
-              </p>
+                <p
+                  className={`font-bold uppercase text-gray-700 ${compact ? "text-[9px]" : "text-xs"} ${compact ? "mb-0.5" : "mb-1"}`}
+                >
+                  TYPICAL RANGE
+                </p>
+                <p
+                  className={`${compact ? "text-[10px]" : "text-sm"} font-semibold text-gray-900 leading-tight`}
+                >
+                  {formatCurrency(displayRangeMin)} -{" "}
+                  {formatCurrency(displayRangeMax)}
+                </p>
+              </div>
             </div>
           </div>
 
           {/* MMR ADJUSTMENTS Section */}
           <div className="flex flex-col">
             <div
-              className={`flex items-center justify-between ${compact ? "mb-1" : "mb-4"}`}
+              className={`flex items-center justify-between ${compact ? "mb-1" : "mb-2"}`}
             >
               <p
                 className={`font-bold uppercase tracking-wide text-gray-700 ${compact ? "text-[9px]" : "text-xs"}`}
@@ -254,187 +308,97 @@ export function MMRSection({
               </button>
             </div>
 
-            <div className={`space-y-${compact ? "1" : "3"} flex-1`}>
-              {/* Odometer Adjustment */}
-              <div className="flex items-center gap-1">
-                <div
-                  className={`bg-gray-200 rounded flex items-center justify-center ${compact ? "w-3 h-3" : "w-6 h-6"}`}
-                >
-                  <div
-                    className={`bg-gray-400 rounded-full ${compact ? "w-1.5 h-1.5" : "w-3 h-3"}`}
-                  ></div>
-                </div>
-                <input
-                  type="text"
-                  value={adjustments.odometer}
-                  onChange={(e) => updateAdjustment("odometer", e.target.value)}
-                  className={`flex-1 px-1 py-0.5 border border-gray-300 rounded ${compact ? "text-[10px]" : "text-sm"}`}
-                />
-                <button
-                  onClick={() => updateAdjustmentValue("odometer", 10)}
-                  className="p-0.5 hover:bg-gray-100 rounded"
-                >
-                  <ChevronUp
-                    className={`text-gray-600 ${compact ? "w-2 h-2" : "w-3 h-3"}`}
-                  />
-                </button>
-                <button
-                  onClick={() => updateAdjustmentValue("odometer", -10)}
-                  className="p-0.5 hover:bg-gray-100 rounded"
-                >
-                  <ChevronDown
-                    className={`text-gray-600 ${compact ? "w-2 h-2" : "w-3 h-3"}`}
-                  />
-                </button>
-                <button className="p-0.5 hover:bg-gray-100 rounded">
-                  <Check
-                    className={`text-green-600 ${compact ? "w-2 h-2" : "w-3 h-3"}`}
-                  />
-                </button>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <div
-                    className={`w-1 ${compact ? "h-2" : "h-4"} ${adjustmentValues.odometer >= 0 ? "bg-green-500" : "bg-red-500"}`}
-                  ></div>
-                  <span
-                    className={`font-semibold ${adjustmentValues.odometer >= 0 ? "text-green-600" : "text-red-600"} ${compact ? "text-[9px]" : "text-sm"} whitespace-nowrap`}
-                  >
-                    {adjustmentValues.odometer >= 0 ? "+" : ""}
-                    {formatCurrency(adjustmentValues.odometer)}
-                  </span>
-                </div>
-              </div>
+            <div className={`${compact ? "space-y-1.5" : "space-y-3"} flex-1`}>
+              {adjustmentFieldMeta.map((field) => {
+                const numericValue = adjustmentValues[field.key];
+                const indicatorColor =
+                  numericValue > 0
+                    ? "text-emerald-600"
+                    : numericValue < 0
+                      ? "text-rose-600"
+                      : "text-slate-500";
+                const barColor =
+                  numericValue > 0
+                    ? "bg-emerald-500"
+                    : numericValue < 0
+                      ? "bg-rose-500"
+                      : "bg-slate-300";
+                const formattedValue = `${
+                  numericValue > 0 ? "+" : numericValue < 0 ? "-" : ""
+                } ${formatCurrency(Math.abs(numericValue))}`;
 
-              {/* Region Adjustment */}
-              <div className="flex items-center gap-1">
-                <div
-                  className={`bg-gray-200 rounded flex items-center justify-center ${compact ? "w-3 h-3" : "w-6 h-6"}`}
-                >
-                  <div
-                    className={`bg-gray-400 rounded-full ${compact ? "w-1 h-1" : "w-2 h-2"}`}
-                  ></div>
-                </div>
-                <input
-                  type="text"
-                  value={adjustments.region}
-                  onChange={(e) => updateAdjustment("region", e.target.value)}
-                  className={`flex-1 px-1 py-0.5 border border-gray-300 rounded ${compact ? "text-[10px]" : "text-sm"}`}
-                />
-                <button className="p-0.5 hover:bg-gray-100 rounded">
-                  <ChevronDown
-                    className={`text-gray-600 ${compact ? "w-2 h-2" : "w-3 h-3"}`}
-                  />
-                </button>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <div
-                    className={`w-1 ${compact ? "h-2" : "h-4"} ${adjustmentValues.region >= 0 ? "bg-green-500" : adjustmentValues.region === 0 ? "bg-gray-400" : "bg-red-500"}`}
-                  ></div>
-                  <span
-                    className={`font-semibold ${adjustmentValues.region >= 0 ? "text-green-600" : adjustmentValues.region === 0 ? "text-gray-600" : "text-red-600"} ${compact ? "text-[9px]" : "text-sm"} whitespace-nowrap`}
-                  >
-                    {adjustmentValues.region >= 0 ? "+" : ""}
-                    {formatCurrency(adjustmentValues.region)}
-                  </span>
-                </div>
-              </div>
+                const iconStyles = field.highlight
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-slate-500";
 
-              {/* CR Score Adjustment */}
-              <div className="flex items-center gap-1">
-                <div
-                  className={`bg-gray-200 rounded flex items-center justify-center ${compact ? "w-3 h-3" : "w-6 h-6"}`}
-                >
-                  <span
-                    className={`font-bold text-gray-600 ${compact ? "text-[7px]" : "text-xs"}`}
-                  >
-                    CR
-                  </span>
-                </div>
-                <input
-                  type="text"
-                  value={adjustments.cr_score}
-                  onChange={(e) => updateAdjustment("cr_score", e.target.value)}
-                  className={`flex-1 px-1 py-0.5 border border-gray-300 rounded ${compact ? "text-[10px]" : "text-sm"}`}
-                />
-                <button
-                  onClick={() => updateAdjustmentValue("cr_score", 0.1)}
-                  className="p-0.5 hover:bg-gray-100 rounded"
-                >
-                  <ChevronUp
-                    className={`text-gray-600 ${compact ? "w-2 h-2" : "w-3 h-3"}`}
-                  />
-                </button>
-                <button
-                  onClick={() => updateAdjustmentValue("cr_score", -0.1)}
-                  className="p-0.5 hover:bg-gray-100 rounded"
-                >
-                  <ChevronDown
-                    className={`text-gray-600 ${compact ? "w-2 h-2" : "w-3 h-3"}`}
-                  />
-                </button>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <div
-                    className={`w-1 ${compact ? "h-2" : "h-4"} ${adjustmentValues.cr_score >= 0 ? "bg-green-500" : "bg-red-500"}`}
-                  ></div>
-                  <span
-                    className={`font-semibold ${adjustmentValues.cr_score >= 0 ? "text-green-600" : "text-red-600"} ${compact ? "text-[9px]" : "text-sm"} whitespace-nowrap`}
-                  >
-                    {adjustmentValues.cr_score >= 0 ? "+" : ""}
-                    {formatCurrency(adjustmentValues.cr_score)}
-                  </span>
-                </div>
-              </div>
+                return (
+                  <div key={field.key} className="flex items-stretch gap-2">
+                    <div
+                      className={`flex flex-1 min-w-0 items-center gap-1.5 rounded-md border ${compact ? "px-1.5 py-0.5" : "px-2 py-1"} ${field.highlight ? "bg-white border-blue-200 ring-2 ring-blue-100 shadow-sm" : "bg-slate-50 border-slate-200"}`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-sm flex items-center justify-center shrink-0 ${iconStyles}`}
+                      >
+                        {renderIcon(field.icon)}
+                      </div>
+                      <input
+                        type="text"
+                        value={adjustments[field.key]}
+                        onChange={(e) =>
+                          updateAdjustment(field.key, e.target.value)
+                        }
+                        placeholder="N/A"
+                        className={`flex-1 min-w-0 bg-transparent ${compact ? "text-xxs" : "text-xs"} font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none`}
+                      />
+                      {field.key === "odometer" ? (
+                        <div
+                          className={`w-5 h-5 rounded-sm bg-blue-700 text-white flex items-center justify-center ${compact ? "text-xxs" : "text-xs"} font-semibold shrink-0`}
+                        >
+                          <Check className="w-2.5 h-2.5" />
+                        </div>
+                      ) : (
+                        <div
+                          className={`w-5 h-5 rounded-sm border border-slate-200 bg-white text-slate-500 flex items-center justify-center shrink-0`}
+                        >
+                          <ChevronDown className="w-2.5 h-2.5" />
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      className={`flex items-center gap-1.5 justify-end flex-shrink-0 ${compact ? "min-w-[60px]" : "min-w-[90px]"}`}
+                    >
+                      <span
+                        className={`font-semibold ${compact ? "text-xs" : "text-sm"} ${indicatorColor}`}
+                      >
+                        {numericValue === 0 ? "$0" : formattedValue}
+                      </span>
+                      <div
+                        className={`${compact ? "h-5 w-1" : "h-6 w-1.5"} rounded-full ${barColor}`}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
 
-              {/* Color Adjustment */}
-              <div className="flex items-center gap-1">
-                <div
-                  className={`bg-gray-200 rounded flex items-center justify-center ${compact ? "w-3 h-3" : "w-6 h-6"}`}
-                >
-                  <div
-                    className={`bg-gray-400 rounded ${compact ? "w-1.5 h-1.5" : "w-3 h-3"}`}
-                  ></div>
+              {!compact && (
+                <div className="mt-3 pt-2 border-t border-gray-200">
+                  <p className="text-xs italic text-gray-500">
+                    Numbers may not add exactly due to rounding
+                  </p>
                 </div>
-                <input
-                  type="text"
-                  value={adjustments.color}
-                  onChange={(e) => updateAdjustment("color", e.target.value)}
-                  className={`flex-1 px-1 py-0.5 border border-gray-300 rounded ${compact ? "text-[10px]" : "text-sm"}`}
-                />
-                <button className="p-0.5 hover:bg-gray-100 rounded">
-                  <ChevronDown
-                    className={`text-gray-600 ${compact ? "w-2 h-2" : "w-3 h-3"}`}
-                  />
-                </button>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <div
-                    className={`w-1 ${compact ? "h-2" : "h-4"} ${adjustmentValues.color >= 0 ? "bg-green-500" : "bg-red-500"}`}
-                  ></div>
-                  <span
-                    className={`font-semibold ${adjustmentValues.color >= 0 ? "text-green-600" : "text-red-600"} ${compact ? "text-[9px]" : "text-sm"} whitespace-nowrap`}
-                  >
-                    {adjustmentValues.color >= 0 ? "+" : ""}
-                    {formatCurrency(adjustmentValues.color)}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
-
-            {!compact && (
-              <div className="mt-4 pt-2 border-t border-gray-200">
-                <p className="text-xs italic text-gray-500">
-                  Numbers may not add exactly due to rounding
-                </p>
-              </div>
-            )}
           </div>
 
           {/* ADJUSTED MMR Section */}
           <div className="flex flex-col">
-            <div className={`${compact ? "mb-1" : "mb-4"}`}>
+            <div className={`${compact ? "mb-1" : "mb-3"} text-center`}>
               <p
                 className={`font-bold uppercase tracking-wide text-gray-700 ${compact ? "text-[9px]" : "text-xs"} ${compact ? "mb-1" : "mb-2"}`}
               >
                 ADJUSTED MMR
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <p
                   className={`${compact ? "text-xl" : "text-3xl"} font-bold text-amber-600 leading-tight`}
                 >
@@ -446,7 +410,7 @@ export function MMRSection({
 
             <div className="flex-1 relative">
               <div
-                className={`relative w-full ${compact ? "h-28" : "h-44"} flex items-end justify-center`}
+                className={`relative w-full ${compact ? "h-32" : "h-48"} flex items-end justify-center`}
               >
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -454,39 +418,33 @@ export function MMRSection({
                       data={gaugeData}
                       startAngle={180}
                       endAngle={0}
-                      innerRadius="70%"
-                      outerRadius="90%"
+                      innerRadius="65%"
+                      outerRadius="85%"
                       cx="50%"
-                      cy="85%"
-                      paddingAngle={2}
+                      cy="80%"
+                      paddingAngle={0}
                       dataKey="value"
                     >
                       <Cell fill="#2563eb" />
-                      <Cell fill="#dbeafe" />
+                      <Cell fill="#e0e7ff" />
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
                 <svg
-                  viewBox="0 0 200 110"
+                  viewBox="0 0 200 120"
                   className="absolute inset-0 w-full h-full pointer-events-none"
                   style={{ transform: "rotate(0deg)" }}
                 >
                   {renderNeedle(adjustedMmr - gaugeMin, 0, gaugeMax - gaugeMin)}
                 </svg>
-                <div
-                  className="absolute bottom-0 left-0 text-xs text-gray-500"
-                  style={{ transform: "translateX(-4px)" }}
-                >
-                  {formatCurrency(gaugeMin)}
+                <div className="absolute bottom-2 left-2 text-xs text-gray-600 font-medium">
+                  {formatCurrency(displayRangeMin)}
+                </div>
+                <div className="absolute bottom-2 right-2 text-xs text-gray-600 font-medium">
+                  {formatCurrency(displayRangeMax)}
                 </div>
                 <div
-                  className="absolute bottom-0 right-0 text-xs text-gray-500"
-                  style={{ transform: "translateX(4px)" }}
-                >
-                  {formatCurrency(gaugeMax)}
-                </div>
-                <div
-                  className={`absolute bottom-${compact ? "2" : "6"} left-1/2 transform -translate-x-1/2 text-xs text-gray-600 font-semibold`}
+                  className={`absolute ${compact ? "bottom-8" : "bottom-10"} left-1/2 transform -translate-x-1/2 text-xs text-gray-700 font-semibold bg-white px-2 py-1 rounded shadow-sm border border-gray-200`}
                 >
                   {formatCurrency(baseMmr)}
                 </div>

@@ -190,12 +190,12 @@ export default function LossPreventionAnalysisPage() {
 
   return (
     <ProtectedRoute>
-      <Layout title="Loss Prevention Analysis">
+      <Layout title="VIN Analysis">
         <div className="mb-6">
           <Breadcrumb
             items={[
               { label: "VIN Intel", href: "/vin-intel" },
-              { label: "Loss Prevention Analysis", isCurrent: true },
+              { label: "VIN Analysis", isCurrent: true },
             ]}
           />
         </div>
@@ -218,13 +218,13 @@ export default function LossPreventionAnalysisPage() {
           </div>
         </div>
 
-        {/* Loss Prevention Analysis Card */}
+        {/* VIN Analysis Card */}
         <Card className="mb-6">
           <CardHeader className="border-b border-gray-200">
             <div className="flex items-center space-x-2">
               <Shield className="w-5 h-5 text-blue-600" />
               <CardTitle className="text-sm font-semibold uppercase tracking-wide text-gray-700">
-                LOSS PREVENTION ANALYSIS
+                VIN Analysis
               </CardTitle>
               <span className="ml-auto px-2 py-1 bg-red-50 text-red-600 text-xs font-semibold rounded">
                 ACTION REQUIRED: IMMEDIATE
@@ -436,11 +436,6 @@ export default function LossPreventionAnalysisPage() {
 
             {/* Summary Metrics Card */}
             <Card>
-              <CardHeader className="border-b border-gray-200">
-                <CardTitle className="text-sm font-semibold uppercase tracking-wide text-gray-700">
-                  SUMMARY METRICS
-                </CardTitle>
-              </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-4 gap-4">
                   <div className="text-center">

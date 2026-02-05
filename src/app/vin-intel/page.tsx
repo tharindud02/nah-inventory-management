@@ -86,7 +86,7 @@ export default function VINIntelPage() {
       sessionStorage.removeItem("vehicleSpecs");
     }
 
-    router.push("/vin-intel/loss-prevention-analysis");
+    router.push("/vin-intel/vin-analysis");
   };
 
   const fetchVINData = async (vin: string) => {

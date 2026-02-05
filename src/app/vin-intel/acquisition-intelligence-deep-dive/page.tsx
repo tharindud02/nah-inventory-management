@@ -1128,8 +1128,8 @@ export default function VINDeepDivePage() {
     return ((value - min) / (max - min)) * 100;
   };
 
-  const gaugeMin = 124000;
-  const gaugeMax = 140000;
+  const gaugeMin = 0;
+  const gaugeMax = 0;
   const gaugePercent = Math.min(
     1,
     Math.max(
@@ -1401,79 +1401,114 @@ export default function VINDeepDivePage() {
               )}
             </section>
 
-            <section className="grid lg:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-                      Retail Valuation
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Current market conditions
-                    </p>
+            <section className="grid grid-cols-1 lg:grid-cols-[0.3fr_0.7fr] gap-6 mb-8">
+              <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col gap-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      >
+                        <path d="M4 9h16l-1 10H5L4 9Z" />
+                        <path d="M9 9v-2.5A2.5 2.5 0 0 1 11.5 4h1A2.5 2.5 0 0 1 15 6.5V9" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">
+                        Retail Valuation
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        Current ask price
+                      </p>
+                    </div>
                   </div>
-                  <span
-                    className={`text-xs font-semibold px-3 py-1 rounded-full ${valuationSummary.retail.demandTone}`}
-                  >
-                    {valuationSummary.retail.demandLabel}
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 uppercase">
+                    {valuationSummary.retail.demandLabel || "In Demand"}
                   </span>
                 </div>
-                <div className="grid sm:grid-cols-3 gap-4 mt-6">
-                  <div>
-                    <p className="text-xs uppercase text-gray-500 font-semibold">
-                      Market Avg
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {formatCurrency(
-                        valuationSummary.retail.marketCheckAvg ?? 0,
-                      )}
-                    </p>
-                    <p className="text-xs text-emerald-600 font-semibold mt-1">
-                      $
-                      {Math.abs(
-                        valuationSummary.retail.estGrossMargin || 0,
-                      ).toLocaleString()}{" "}
-                      Upside
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase text-gray-500 font-semibold">
-                      Price Range
-                    </p>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {formatCurrency(
-                        valuationSummary.retail.priceRange.min ?? 0,
-                      )}{" "}
-                      -{" "}
-                      {formatCurrency(
-                        valuationSummary.retail.priceRange.max ?? 0,
-                      )}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Low vs high demand
-                    </p>
-                  </div>
-                  <div className="bg-blue-50 rounded-2xl p-4">
-                    <p className="text-xs uppercase text-blue-700 font-semibold">
-                      Pricing vs Market
-                    </p>
-                    <p className="text-xl font-bold text-blue-900">
+
+                <div>
+                  <p className="text-xs font-semibold uppercase text-slate-500 tracking-wide">
+                    Current Ask Price
+                  </p>
+                  <p className="text-4xl font-bold text-slate-900 mt-2">
+                    {formatCurrency(
+                      valuationSummary.retail.currentAsk ??
+                        valuationSummary.retail.marketCheckAvg ??
+                        0,
+                    )}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between text-xs font-semibold uppercase text-slate-500">
+                    <span>Pricing vs Market</span>
+                    <span
+                      className={`text-sm ${(valuationSummary.retail.estGrossMargin ?? 0) <= 0 ? "text-emerald-600" : "text-rose-600"}`}
+                    >
                       {formatCurrency(
                         valuationSummary.retail.estGrossMargin ?? 0,
-                      )}
-                    </p>
-                    <p className="text-[11px] text-blue-600 font-semibold">
-                      Aggressive
-                    </p>
+                      )}{" "}
+                      <span className="uppercase text-[11px] ml-1">
+                        (
+                        {valuationSummary.retail.estGrossMargin &&
+                        valuationSummary.retail.estGrossMargin < 0
+                          ? "Aggressive"
+                          : "Retail"}
+                        )
+                      </span>
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <div className="relative h-3 rounded-full bg-gradient-to-r from-emerald-500 via-amber-300 to-rose-500">
+                      <div
+                        className="absolute -top-1 w-4 h-4 rounded-full border-2 border-white shadow-md"
+                        style={{
+                          left: `${Math.min(
+                            100,
+                            Math.max(
+                              0,
+                              (((valuationSummary.retail.marketCheckAvg ?? 0) -
+                                (valuationSummary.retail.priceRange.min ?? 0)) /
+                                ((valuationSummary.retail.priceRange.max ?? 0) -
+                                  (valuationSummary.retail.priceRange.min ??
+                                    1))) *
+                                100,
+                            ),
+                          )}%`,
+                          backgroundColor: "#2563eb",
+                          transform: "translateX(-50%)",
+                        }}
+                      ></div>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-slate-400 mt-2">
+                      <span>Low</span>
+                      <span>Avg Market</span>
+                      <span>High</span>
+                    </div>
                   </div>
                 </div>
-                <div className="mt-6">
-                  <LinearGauge
-                    min={valuationSummary.retail.priceRange.min ?? 0}
-                    max={valuationSummary.retail.priceRange.max ?? 0}
-                    value={valuationSummary.retail.marketCheckAvg ?? 0}
-                    formatCompactCurrency={formatCompactCurrency}
-                  />
+
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase text-slate-500">
+                        Market Check Avg
+                      </p>
+                      <p className="text-3xl font-bold text-slate-900 mt-1">
+                        {formatCurrency(
+                          valuationSummary.retail.marketCheckAvg ?? 0,
+                        )}
+                      </p>
+                    </div>
+                    <span className="text-xs font-semibold uppercase text-slate-500 border border-slate-300 rounded-full px-3 py-1">
+                      Retail
+                    </span>
+                  </div>
                 </div>
               </div>
               <MMRSection
