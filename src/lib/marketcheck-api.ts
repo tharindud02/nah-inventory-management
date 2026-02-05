@@ -44,6 +44,9 @@ export interface InventoryCar {
   marketPercentage: number;
   status: "healthy" | "attention" | "overpriced";
   image: string;
+  media?: {
+    photo_links: string[];
+  };
 }
 
 export interface KPIData {
@@ -77,7 +80,7 @@ export class MarketcheckAPI {
   }> {
     try {
       const response = await fetch(
-        `${MARKETCHECK_API_BASE}/dealerships/inventory?api_key=${this.apiKey}&dealer_id=${this.dealerId}&start=${start}&rows=${rows}&stats=price,dom`,
+        `${MARKETCHECK_API_BASE}/dealerships/inventory?api_key=${this.apiKey}&dealer_id=${this.dealerId}&start=${start}&rows=${rows}&stats=price,dom&owned=true`,
       );
 
       if (!response.ok) {
@@ -108,7 +111,7 @@ export class MarketcheckAPI {
         // Determine status based on logic
         let status: "healthy" | "attention" | "overpriced" = "healthy";
 
-        if (car.dom > 60 || !car.media.photo_links.length) {
+        if (car.dom > 60 || !car.media?.photo_links?.length) {
           status = "attention";
           kpiData.attentionRequiredCount++;
         } else if (marketPercentage > 103) {
@@ -128,7 +131,10 @@ export class MarketcheckAPI {
           daysOnLot: car.dom,
           marketPercentage,
           status,
-          image: car.media.photo_links[0] || "/api/placeholder/300/200",
+          image: car.media?.photo_links?.[0] || "/api/placeholder/300/200",
+          media: {
+            photo_links: car.media?.photo_links || [],
+          },
         };
       });
 
@@ -230,7 +236,7 @@ export function getDemoInventoryData(): {
       marketPercentage: 104,
       daysOnLot: 74,
       status: "attention",
-      image: "/api/placeholder/300/200",
+      image: `https://picsum.photos/seed/WBS83AYBXNCH38102/300/200.jpg`,
     },
     {
       id: "2",
@@ -244,7 +250,7 @@ export function getDemoInventoryData(): {
       marketPercentage: 98,
       daysOnLot: 21,
       status: "healthy",
-      image: "/api/placeholder/300/200",
+      image: `https://picsum.photos/seed/W1KDB3HB5PR123456/300/200.jpg`,
     },
     {
       id: "3",
@@ -258,7 +264,7 @@ export function getDemoInventoryData(): {
       marketPercentage: 112,
       daysOnLot: 45,
       status: "overpriced",
-      image: "/api/placeholder/300/200",
+      image: `https://picsum.photos/seed/WP0AB2A99RS123456/300/200.jpg`,
     },
     {
       id: "4",
@@ -272,7 +278,7 @@ export function getDemoInventoryData(): {
       marketPercentage: 101,
       daysOnLot: 18,
       status: "healthy",
-      image: "/api/placeholder/300/200",
+      image: `https://picsum.photos/seed/WAUZZZF7XPA123456/300/200.jpg`,
     },
     {
       id: "5",
@@ -286,7 +292,7 @@ export function getDemoInventoryData(): {
       marketPercentage: 96,
       daysOnLot: 92,
       status: "attention",
-      image: "/api/placeholder/300/200",
+      image: `https://picsum.photos/seed/JTHGB5C21NA123456/300/200.jpg`,
     },
     {
       id: "6",
@@ -300,7 +306,7 @@ export function getDemoInventoryData(): {
       marketPercentage: 108,
       daysOnLot: 12,
       status: "healthy",
-      image: "/api/placeholder/300/200",
+      image: `https://picsum.photos/seed/WBS83CR30PCH12345/300/200.jpg`,
     },
   ];
 

@@ -10,6 +10,7 @@ import {
   MoreVertical,
   LogOut,
   Car,
+  AlertTriangle,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -31,6 +32,11 @@ export function Sidebar({ children }: SidebarProps) {
       label: "Inventory",
       href: "/inventory",
       icon: Package,
+    },
+    {
+      label: "Inventory Alerts",
+      href: "/inventory-alerts",
+      icon: AlertTriangle,
     },
     {
       label: "Vehicle Acquisition",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -32,6 +33,7 @@ import {
 } from "@/lib/marketcheck-api";
 
 export default function InventoryPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [kpiData, setKpiData] = useState<KPIData | null>(null);
   const [inventoryCars, setInventoryCars] = useState<InventoryCar[]>([]);
@@ -114,6 +116,27 @@ export default function InventoryPage() {
     },
     [loadingMore, hasMore],
   );
+
+  const handleCarClick = (car: InventoryCar) => {
+    // Store car data in sessionStorage for the VIN intelligence page
+    sessionStorage.setItem("vinData", JSON.stringify(car));
+    sessionStorage.setItem("vin", car.vin);
+    sessionStorage.setItem("carImage", car.image);
+
+    // Store media data separately for the slider
+    if (car.media?.photo_links) {
+      sessionStorage.setItem(
+        "carMedia",
+        JSON.stringify({
+          photo_links: car.media.photo_links,
+          photo_links_cached: [], // No cached photos from inventory page
+        }),
+      );
+    }
+
+    // Navigate to VIN intelligence page
+    router.push("/vin-intel/acquisition-intelligence-deep-dive");
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -356,13 +379,14 @@ export default function InventoryPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {inventoryCars.map((item, index) => (
                   <Card
-                    key={item.id}
+                    key={`${item.vin}-${index}`}
                     ref={
                       index === inventoryCars.length - 1
                         ? lastCarElementRef
                         : undefined
                     }
-                    className="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 pt-0 pb-4"
+                    className="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 pt-0 pb-4 cursor-pointer"
+                    onClick={() => handleCarClick(item)}
                   >
                     {/* Car Image */}
                     <div className="w-full h-48 overflow-hidden relative">
@@ -407,7 +431,8 @@ export default function InventoryPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="p-1 h-8 flex-shrink-0"
+                          className="p-1 h-8 shrink-0"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <MoreHorizontal className="w-4 h-4 text-gray-600" />
                         </Button>
@@ -424,7 +449,7 @@ export default function InventoryPage() {
                           {item.vin}
                         </span>
                         <span className="text-sm font-semibold">
-                          {item.mileage.toLocaleString()} mi
+                          {item.mileage?.toLocaleString() || "0"} mi
                         </span>
                       </div>
 
@@ -435,16 +460,16 @@ export default function InventoryPage() {
                         </p>
                         <div className="flex items-center justify-between">
                           <p className="text-xl font-bold">
-                            ${item.price.toLocaleString()}
+                            ${item.price?.toLocaleString() || "0"}
                           </p>
                           <p
                             className={`text-sm font-semibold ${
-                              item.marketPercentage > 100
+                              (item.marketPercentage ?? 0) > 100
                                 ? "text-red-600"
                                 : "text-green-600"
                             }`}
                           >
-                            {item.marketPercentage}% Mkt
+                            {item.marketPercentage ?? 0}% Mkt
                           </p>
                         </div>
                       </div>
@@ -453,7 +478,7 @@ export default function InventoryPage() {
                       <div className="flex items-center justify-between text-sm text-gray-600 border-t pt-3">
                         <div className="flex items-center space-x-2">
                           <Clock className="w-4 h-4" />
-                          <span>{item.daysOnLot} Days on Lot</span>
+                          <span>{item.daysOnLot || 0} Days on Lot</span>
                         </div>
                         <CheckCircle className="w-4 h-4 text-green-500" />
                       </div>

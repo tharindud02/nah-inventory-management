@@ -68,6 +68,10 @@ export default function VINIntelPage() {
     vinData: any,
     extras?: { reportId?: string },
   ) => {
+    // Clear any previous inventory data to prevent contamination
+    sessionStorage.removeItem("carImage");
+    sessionStorage.removeItem("carMedia");
+
     sessionStorage.setItem("vinData", JSON.stringify(vinData));
     sessionStorage.setItem("vin", vin);
 
@@ -82,7 +86,7 @@ export default function VINIntelPage() {
       sessionStorage.removeItem("vehicleSpecs");
     }
 
-    router.push("/vin-intel/acquisition-intelligence-deep-dive");
+    router.push("/vin-intel/loss-prevention-analysis");
   };
 
   const fetchVINData = async (vin: string) => {
