@@ -21,7 +21,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 // Mock data for the tables
 const overSuggestedPriceData = [
@@ -145,7 +145,7 @@ export default function InventoryAlertsPage() {
 
   return (
     <ProtectedRoute>
-      <Layout 
+      <Layout
         title="Inventory Alerts Management Center"
         showSearch={true}
         searchPlaceholder="Search by VIN, make, model..."
@@ -154,7 +154,9 @@ export default function InventoryAlertsPage() {
       >
         {/* Breadcrumbs */}
         <div className="mb-6">
-          <Breadcrumb items={[{ label: "Inventory Alerts", isCurrent: true }]} />
+          <Breadcrumb
+            items={[{ label: "Inventory Alerts", isCurrent: true }]}
+          />
         </div>
 
         {/* Critical Issues Summary */}
@@ -164,8 +166,13 @@ export default function InventoryAlertsPage() {
               <div className="flex items-center space-x-3">
                 <AlertTriangle className="w-6 h-6 text-red-600" />
                 <div>
-                  <h3 className="text-lg font-semibold text-red-900">Critical Issues Detected</h3>
-                  <p className="text-red-700">3 vehicles priced above market value, 2 with significant market price changes</p>
+                  <h3 className="text-lg font-semibold text-red-900">
+                    Critical Issues Detected
+                  </h3>
+                  <p className="text-red-700">
+                    3 vehicles priced above market value, 2 with significant
+                    market price changes
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
@@ -194,7 +201,8 @@ export default function InventoryAlertsPage() {
                 }`}
                 onClick={() => setSelectedTab("all")}
               >
-                All Alerts ({overSuggestedPriceData.length + marketUpdatesData.length})
+                All Alerts (
+                {overSuggestedPriceData.length + marketUpdatesData.length})
               </button>
               <button
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -233,35 +241,64 @@ export default function InventoryAlertsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Vehicle</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">VIN</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Mileage</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Our Price</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Suggested Price</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Over By</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Days in Stock</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Vehicle
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        VIN
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Mileage
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Our Price
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Suggested Price
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Over By
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Days in Stock
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {overSuggestedPriceData.map((vehicle) => (
-                      <tr key={vehicle.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr
+                        key={vehicle.id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
                         <td className="py-3 px-4">
                           <div className="font-medium text-gray-900">
                             {vehicle.year} {vehicle.make} {vehicle.model}
                           </div>
                           <div className="text-gray-500">{vehicle.trim}</div>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">{vehicle.vin}</td>
-                        <td className="py-3 px-4 text-gray-600">{vehicle.mileage.toLocaleString()}</td>
-                        <td className="py-3 px-4 font-medium text-gray-900">${vehicle.ourPrice.toLocaleString()}</td>
-                        <td className="py-3 px-4 text-gray-600">${vehicle.suggestedPrice.toLocaleString()}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {vehicle.vin}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {vehicle.mileage.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4 font-medium text-gray-900">
+                          ${vehicle.ourPrice.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">
+                          ${vehicle.suggestedPrice.toLocaleString()}
+                        </td>
                         <td className="py-3 px-4">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                             ${vehicle.overPriceBy.toLocaleString()}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">{vehicle.daysInStock}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {vehicle.daysInStock}
+                        </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2">
                             <Button
@@ -304,27 +341,50 @@ export default function InventoryAlertsPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Vehicle</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">VIN</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Current Price</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">New Market Price</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Price Change</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Last Updated</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Vehicle
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        VIN
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Current Price
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        New Market Price
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Price Change
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Last Updated
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-700">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {marketUpdatesData.map((vehicle) => (
-                      <tr key={vehicle.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <tr
+                        key={vehicle.id}
+                        className="border-b border-gray-100 hover:bg-gray-50"
+                      >
                         <td className="py-3 px-4">
                           <div className="font-medium text-gray-900">
                             {vehicle.year} {vehicle.make} {vehicle.model}
                           </div>
                           <div className="text-gray-500">{vehicle.trim}</div>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">{vehicle.vin}</td>
-                        <td className="py-3 px-4 font-medium text-gray-900">${vehicle.currentPrice.toLocaleString()}</td>
-                        <td className="py-3 px-4 text-gray-600">${vehicle.newMarketPrice.toLocaleString()}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {vehicle.vin}
+                        </td>
+                        <td className="py-3 px-4 font-medium text-gray-900">
+                          ${vehicle.currentPrice.toLocaleString()}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">
+                          ${vehicle.newMarketPrice.toLocaleString()}
+                        </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-1">
                             {vehicle.trend === "up" ? (
@@ -334,14 +394,19 @@ export default function InventoryAlertsPage() {
                             )}
                             <span
                               className={`font-medium ${
-                                vehicle.trend === "up" ? "text-green-600" : "text-red-600"
+                                vehicle.trend === "up"
+                                  ? "text-green-600"
+                                  : "text-red-600"
                               }`}
                             >
-                              ${Math.abs(vehicle.priceChange).toLocaleString()} ({vehicle.priceChangePercent}%)
+                              ${Math.abs(vehicle.priceChange).toLocaleString()}{" "}
+                              ({vehicle.priceChangePercent}%)
                             </span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 text-gray-600">{vehicle.lastUpdated}</td>
+                        <td className="py-3 px-4 text-gray-600">
+                          {vehicle.lastUpdated}
+                        </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2">
                             <Button
@@ -385,8 +450,8 @@ export default function InventoryAlertsPage() {
               {selectedTab === "all"
                 ? overSuggestedPriceData.length + marketUpdatesData.length
                 : selectedTab === "overpriced"
-                ? overSuggestedPriceData.length
-                : marketUpdatesData.length}
+                  ? overSuggestedPriceData.length
+                  : marketUpdatesData.length}
             </span>{" "}
             results
           </div>
@@ -419,8 +484,6 @@ export default function InventoryAlertsPage() {
             </Button>
           </div>
         </div>
-
-        <Toaster />
       </Layout>
     </ProtectedRoute>
   );

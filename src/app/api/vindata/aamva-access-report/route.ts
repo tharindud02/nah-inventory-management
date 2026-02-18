@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     return demoResponse;
   }
   try {
-    const headersList = headers();
+    const headersList = await headers();
     const apiKey =
       headersList.get("x-marketcheck-api-key") ||
       NEXT_PUBLIC_MARKETCHECK_API_KEY;

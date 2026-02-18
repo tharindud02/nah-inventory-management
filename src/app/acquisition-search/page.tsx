@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/Layout";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
@@ -26,49 +27,33 @@ import {
   ChevronDown,
   ArrowLeft,
   Car,
+  RefreshCw,
 } from "lucide-react";
-
-// Empty state for production without demo data
-const getEmptySearchCriteria = () => [];
+import { fetchJobs as fetchJobsApi } from "@/lib/api/jobs";
+import { JobSummary } from "@/lib/types/jobs";
 
 // Mock data for active search criteria
-const mockSearchCriteria = [
+const mockSearchCriteria: JobSummary[] = [
   {
-    id: 1,
-    yearRange: "2018-2022",
-    make: "Toyota",
-    model: "Tacoma",
-    maxMiles: "0 - 45,000 mi",
-    accidents: "No Accidents",
-    demand: "HIGH DEMAND",
-    demandColor: "text-red-600",
+    id: "job-1",
+    jobKey: "demo-job-1",
+    scrapedCount: 12,
+    status: "RUNNING",
+    demandColor: "text-blue-600",
     borderColor: "border-l-blue-500",
   },
   {
-    id: 2,
-    yearRange: "2019-2023",
-    make: "Ford",
-    model: "F-150",
-    maxMiles: "0 - 60,000 mi",
-    accidents: "Minor Accidents",
-    demand: "MEDIUM DEMAND",
-    demandColor: "text-orange-600",
+    id: "job-2",
+    jobKey: "demo-job-2",
+    scrapedCount: 34,
+    status: "COMPLETED",
+    demandColor: "text-green-600",
     borderColor: "border-l-green-500",
-  },
-  {
-    id: 3,
-    yearRange: "2017-2021",
-    make: "Honda",
-    model: "Civic",
-    maxMiles: "0 - 80,000 mi",
-    accidents: "Moderate Accidents",
-    demand: "LOW DEMAND",
-    demandColor: "text-gray-600",
-    borderColor: "border-l-orange-500",
   },
 ];
 
 export default function AcquisitionSearchPage() {
+  const router = useRouter();
   const [searchValue, setSearchValue] = useState("");
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: currentYear - 1999 }, (_, index) =>
@@ -77,9 +62,9 @@ export default function AcquisitionSearchPage() {
 
   // Check if we're in demo mode or if API keys are available
   const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-  const searchCriteria = isDemoMode
-    ? mockSearchCriteria
-    : getEmptySearchCriteria();
+  const [searchCriteria, setSearchCriteria] = useState<JobSummary[]>(
+    isDemoMode ? mockSearchCriteria : [],
+  );
 
   const [yearMin, setYearMin] = useState("");
   const [yearMax, setYearMax] = useState("");
@@ -87,10 +72,71 @@ export default function AcquisitionSearchPage() {
   const [model, setModel] = useState("");
   const [maxMileage, setMaxMileage] = useState(45);
   const [accidentPreference, setAccidentPreference] = useState("NONE");
+  const [showMakeSuggestions, setShowMakeSuggestions] = useState(false);
+
+  const allMakes = [
+    "Toyota",
+    "Ford",
+    "Honda",
+    "Chevrolet",
+    "Nissan",
+    "BMW",
+    "Mercedes-Benz",
+    "Audi",
+    "Lexus",
+    "Hyundai",
+    "Kia",
+    "Mazda",
+    "Subaru",
+    "Volkswagen",
+    "Tesla",
+  ];
+
+  const filteredMakes = allMakes.filter((makeOption) =>
+    makeOption.toLowerCase().includes((make || "").toLowerCase()),
+  );
+
+  // If no matches, show all makes
+  const displayMakes = filteredMakes.length > 0 ? filteredMakes : allMakes;
   const [suggestedModalOpen, setSuggestedModalOpen] = useState(false);
   const [modalView, setModalView] = useState<"summary" | "fast-moving">(
     "summary",
   );
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createMessage, setCreateMessage] = useState<string | null>(null);
+  const [jobsError, setJobsError] = useState<string | null>(null);
+  const [isLoadingJobs, setIsLoadingJobs] = useState(false);
+
+  const fetchJobs = async () => {
+    if (isDemoMode) return;
+
+    setJobsError(null);
+    setIsLoadingJobs(true);
+
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      setJobsError("Missing access token. Please log in again.");
+      setIsLoadingJobs(false);
+      return;
+    }
+
+    try {
+      const jobs = await fetchJobsApi(accessToken);
+      setSearchCriteria(jobs);
+    } catch (error) {
+      setJobsError(
+        error instanceof Error ? error.message : "Failed to load jobs",
+      );
+    } finally {
+      setIsLoadingJobs(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const opportunityHighlights = [
     {
@@ -175,9 +221,59 @@ export default function AcquisitionSearchPage() {
     },
   ];
 
-  const handleCreateSearch = () => {
-    // Handle creating new search
-    // TODO: Implement search creation logic
+  const handleCreateSearch = async () => {
+    setCreateError(null);
+    setCreateMessage(null);
+
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      setCreateError("Missing access token. Please log in again.");
+      return;
+    }
+
+    const payload = {
+      zipCodes: [], // TODO: collect real zip codes from user input
+      make: make === "Any Make" ? "" : make,
+      models: model ? [model] : [],
+      minPrice: 0,
+      maxPrice: 0,
+      mileage: maxMileage,
+      radius: 0,
+      daysSinceListed: 0,
+      sortBy: "",
+      minYear: yearMin,
+      maxYear: yearMax,
+      accidentPreference,
+    };
+
+    setIsCreating(true);
+    try {
+      const response = await fetch(
+        "https://i3hjth9ogf.execute-api.ap-south-1.amazonaws.com/configs/generate?save=true&process=true",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Request failed");
+      }
+
+      setCreateMessage("Search created successfully.");
+      fetchJobs();
+    } catch (error) {
+      setCreateError(
+        error instanceof Error ? error.message : "Failed to create search",
+      );
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const renderYearSelect = (
@@ -193,7 +289,7 @@ export default function AcquisitionSearchPage() {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          "w-full h-12 rounded-xl border border-slate-200 bg-white px-3 pt-4 pb-1 text-sm font-medium text-slate-800 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 appearance-none",
+          "w-full h-10 rounded-xl border border-slate-200 bg-white px-3 pt-3 pb-1 text-sm font-medium text-slate-800 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 appearance-none",
           !value && "text-slate-400",
         )}
       >
@@ -269,24 +365,42 @@ export default function AcquisitionSearchPage() {
                 Vehicle Make
               </label>
               <div className="relative">
-                <select
-                  value={make}
-                  onChange={(e) => setMake(e.target.value)}
-                  className="w-full h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 appearance-none"
-                >
-                  <option value="Any Make">Any Make</option>
-                  <option value="Toyota">Toyota</option>
-                  <option value="Ford">Ford</option>
-                  <option value="Honda">Honda</option>
-                  <option value="Chevrolet">Chevrolet</option>
-                  <option value="Nissan">Nissan</option>
-                  <option value="BMW">BMW</option>
-                  <option value="Mercedes-Benz">Mercedes-Benz</option>
-                  <option value="Audi">Audi</option>
-                  <option value="Lexus">Lexus</option>
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Input
+                  type="text"
+                  value={make === "Any Make" ? "" : make}
+                  onChange={(e) => {
+                    setMake(e.target.value || "Any Make");
+                    setShowMakeSuggestions(e.target.value.length > 0);
+                  }}
+                  onFocus={() => setShowMakeSuggestions(true)}
+                  onBlur={() =>
+                    setTimeout(() => setShowMakeSuggestions(false), 200)
+                  }
+                  placeholder="Enter vehicle make (e.g., Toyota, Ford, BMW)"
+                  className="w-full h-10 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                />
+
+                {/* Custom dropdown suggestions */}
+                {showMakeSuggestions && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-40 overflow-y-auto">
+                    {displayMakes.map((makeOption: string) => (
+                      <div
+                        key={makeOption}
+                        onClick={() => {
+                          setMake(makeOption);
+                          setShowMakeSuggestions(false);
+                        }}
+                        className="px-4 py-2 text-sm text-slate-800 hover:bg-slate-100 cursor-pointer transition-colors"
+                      >
+                        {makeOption}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Type a make name or select from suggestions
+              </p>
             </div>
 
             {/* Model */}
@@ -298,7 +412,7 @@ export default function AcquisitionSearchPage() {
                 placeholder="e.g. Tacoma"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className="w-full h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 shadow-sm focus-visible:border-blue-500 focus-visible:ring-blue-200"
+                className="w-full h-10 rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-slate-800 shadow-sm focus-visible:border-blue-500 focus-visible:ring-blue-200"
               />
             </div>
 
@@ -354,14 +468,25 @@ export default function AcquisitionSearchPage() {
               </div>
               <Button
                 onClick={handleCreateSearch}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-8 py-4 text-base font-semibold text-white shadow-[0_18px_35px_rgba(19,109,236,0.35)] transition hover:bg-blue-700 self-start md:self-auto"
+                disabled={isCreating}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-8 py-4 text-base font-semibold text-white shadow-[0_18px_35px_rgba(19,109,236,0.35)] transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70 self-start md:self-auto"
               >
                 <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/40 text-white">
                   <Plus className="h-3.5 w-3.5" />
                 </span>
-                Create Search
+                {isCreating ? "Creating..." : "Create Search"}
               </Button>
             </div>
+            {(createError || createMessage) && (
+              <p
+                className={cn(
+                  "mt-2 text-sm",
+                  createError ? "text-red-600" : "text-green-600",
+                )}
+              >
+                {createError || createMessage}
+              </p>
+            )}
           </div>
         </Card>
 
@@ -369,18 +494,29 @@ export default function AcquisitionSearchPage() {
         <Card className="bg-white p-6 mb-6 shadow-sm">
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xl font-bold text-slate-900">
-                Active Search Criteria
-              </h2>
+              <div className="flex items-center space-x-3">
+                <h2 className="text-xl font-bold text-slate-900">
+                  Active Search Criteria
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchJobs}
+                  disabled={isLoadingJobs}
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw
+                    className={`w-4 h-4 ${isLoadingJobs ? "animate-spin" : ""}`}
+                  />
+                  {isLoadingJobs ? "Loading..." : "Reload Status"}
+                </Button>
+              </div>
               <div className="flex space-x-4 text-sm">
                 <span className="text-gray-600">
                   ACTIVE{" "}
                   <span className="font-bold text-blue-600">
                     {searchCriteria.length}
                   </span>
-                </span>
-                <span className="text-gray-600">
-                  MATCHES <span className="font-bold text-green-600">0</span>
                 </span>
               </div>
             </div>
@@ -390,7 +526,15 @@ export default function AcquisitionSearchPage() {
           </div>
 
           <div className="overflow-x-auto">
-            {searchCriteria.length === 0 ? (
+            {isLoadingJobs ? (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-600">
+                Loading jobs...
+              </div>
+            ) : jobsError ? (
+              <div className="flex flex-col items-center justify-center py-12 text-red-600">
+                {jobsError}
+              </div>
+            ) : searchCriteria.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                   <Search className="w-8 h-8 text-gray-400" />
@@ -408,26 +552,15 @@ export default function AcquisitionSearchPage() {
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                      YEAR RANGE
+                      JOB ID
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                      MAKE
+                      SCRAPED
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                      MODEL
+                      STATUS
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                      MAX MILES
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                      ACCIDENTS
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                      DEMAND
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700">
-                      ACTIONS
-                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-700"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -437,41 +570,30 @@ export default function AcquisitionSearchPage() {
                       className={`border-b border-gray-100 ${criteria.borderColor}`}
                     >
                       <td className="py-3 px-4 text-sm text-gray-900">
-                        {criteria.yearRange}
+                        {criteria.jobKey}
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-900">
-                        {criteria.make}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-gray-900">
-                        {criteria.model}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-gray-900">
-                        {criteria.maxMiles}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-gray-900">
-                        {criteria.accidents}
+                        Scraped {criteria.scrapedCount}
                       </td>
                       <td className="py-3 px-4 text-sm font-medium">
                         <span className={criteria.demandColor}>
-                          {criteria.demand}
+                          {criteria.status}
                         </span>
                       </td>
                       <td className="py-3 px-4">
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-xs"
-                          >
-                            VIEW ANALYTICS
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Edit2 className="w-3 h-3" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs"
+                          disabled={
+                            criteria.status?.toUpperCase() !== "COMPLETED"
+                          }
+                          onClick={() =>
+                            router.push(`/job-listing/${criteria.jobKey}`)
+                          }
+                        >
+                          LISTING VIEW
+                        </Button>
                       </td>
                     </tr>
                   ))}

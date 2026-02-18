@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
 import { AlertCircle, Check, Mail } from "lucide-react";
 import { confirmSignUp } from "@/lib/cognito-aws-sdk";
 
-export default function ConfirmSignUpPage() {
+function ConfirmPageContent() {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -48,7 +48,9 @@ export default function ConfirmSignUpPage() {
 
   const handleResendCode = async () => {
     // TODO: Implement resend confirmation code
-    setError("Resend functionality not implemented yet. Please check your email.");
+    setError(
+      "Resend functionality not implemented yet. Please check your email.",
+    );
   };
 
   if (success) {
@@ -87,8 +89,7 @@ export default function ConfirmSignUpPage() {
             Confirm your email
           </h2>
           <p className="text-gray-600">
-            We've sent a confirmation code to{" "}
-            <strong>{email}</strong>
+            We've sent a confirmation code to <strong>{email}</strong>
           </p>
         </div>
 
@@ -159,5 +160,13 @@ export default function ConfirmSignUpPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ConfirmSignUpPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ConfirmPageContent />
+    </Suspense>
   );
 }

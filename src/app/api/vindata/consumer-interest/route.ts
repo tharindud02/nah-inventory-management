@@ -102,11 +102,11 @@ export async function POST(request: NextRequest) {
       success: true,
       data: data,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json(
       {
         error: "Internal server error",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );

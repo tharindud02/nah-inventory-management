@@ -1,16 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Lock, Eye, EyeOff, Check, AlertCircle, Shield } from "lucide-react";
+import {
+  ArrowLeft,
+  Lock,
+  Eye,
+  EyeOff,
+  Check,
+  AlertCircle,
+  Shield,
+} from "lucide-react";
 import { confirmPassword as confirmForgotPassword } from "@/lib/cognito-aws-sdk";
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -49,8 +57,9 @@ export default function ResetPasswordPage() {
 
   const isFormValid = () => {
     const hasValidPassword = newPassword.length >= 8;
-    const hasMatchingPassword = newPassword === confirmPassword && confirmPassword.length > 0;
-    
+    const hasMatchingPassword =
+      newPassword === confirmPassword && confirmPassword.length > 0;
+
     return hasValidPassword && hasMatchingPassword;
   };
 
@@ -85,16 +94,19 @@ export default function ResetPasswordPage() {
 
     try {
       await confirmForgotPassword(email, code, newPassword);
-      
+
       // Show success message and redirect
       setSuccess(true);
       setError("");
-      
+
       setTimeout(() => {
         router.push("/signin?message=password_reset");
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "Failed to reset password. Please try again or request a new reset link.");
+      setError(
+        err.message ||
+          "Failed to reset password. Please try again or request a new reset link.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +125,9 @@ export default function ResetPasswordPage() {
             </p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-            <h3 className="text-lg font-semibold mb-3">Password Security Tips</h3>
+            <h3 className="text-lg font-semibold mb-3">
+              Password Security Tips
+            </h3>
             <ul className="space-y-2 text-gray-300">
               <li className="flex items-start">
                 <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 shrink-0"></div>
@@ -147,7 +161,7 @@ export default function ResetPasswordPage() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to sign in
             </Link>
-            
+
             <div className="flex items-center mb-4">
               <div className="inline-flex items-center justify-center w-12 h-12 bg-slate-900 rounded-2xl mr-4">
                 <Lock className="w-6 h-6 text-white" />
@@ -233,12 +247,14 @@ export default function ResetPasswordPage() {
                         )}
                       </button>
                     </div>
-                    
+
                     {/* Password Strength Indicator */}
                     {newPassword && (
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-xs text-gray-500">Password Strength</span>
+                          <span className="text-xs text-gray-500">
+                            Password Strength
+                          </span>
                           <span
                             className={`text-xs font-medium ${
                               passwordStrength.strength <= 2
@@ -283,7 +299,9 @@ export default function ResetPasswordPage() {
                       <button
                         type="button"
                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="h-4 w-4 text-gray-400" />
@@ -292,7 +310,7 @@ export default function ResetPasswordPage() {
                         )}
                       </button>
                     </div>
-                    
+
                     {/* Password Matching Indicator */}
                     {confirmPassword && newPassword !== confirmPassword && (
                       <div className="flex items-center space-x-1 text-xs text-red-500">
@@ -328,5 +346,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordPageContent />
+    </Suspense>
   );
 }
