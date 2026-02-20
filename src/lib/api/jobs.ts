@@ -23,8 +23,12 @@ export async function fetchJobs(accessToken: string): Promise<JobSummary[]> {
       : [];
 
   return jobs.map((job: any, idx: number): JobSummary => {
-    const totalScraped = job.total_scraped ?? job.totalScraped ?? 0;
-    const jobKey = job.SK || job.dataset_id || job.jobId || `job-${idx}`;
+    const totalScraped =
+      job.stats?.total_scraped ??
+      job.total_scraped ??
+      job.totalScraped ??
+      0;
+    const jobKey = job.SK || job.job_id || job.jobId || `job-${idx}`;
 
     const status = (job.status || "ACTIVE").toString().toUpperCase();
 

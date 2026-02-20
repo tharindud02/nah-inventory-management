@@ -4,39 +4,27 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard,
-  Package,
-  Search,
   Car,
-  AlertTriangle,
+  Key,
+  ShoppingCart,
   Settings,
-  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface SidebarProps {
-  children?: React.ReactNode;
-}
-
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Inventory", href: "/inventory", icon: Package },
-  { label: "Inventory Alerts", href: "/inventory-alerts", icon: AlertTriangle },
-  { label: "Acquisition", href: "/acquisition-search", icon: Car },
-  { label: "VIN Intel", href: "/vin-intel", icon: Search },
+  { label: "Inventory", href: "/inventory", icon: Car },
+  { label: "VIN Intel", href: "/vin-intel", icon: Key },
+  { label: "Acquisition", href: "/acquisition-search", icon: ShoppingCart },
 ] as const;
 
-export function Sidebar({ children }: SidebarProps) {
+export function AcquisitionSidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
 
-  const isActive = (href: string) => {
-    if (pathname === href) return true;
-    if (pathname.startsWith(`${href}/`)) return true;
-    if (href === "/acquisition-search" && pathname.startsWith("/acquisition/"))
-      return true;
-    return false;
-  };
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-slate-900">
@@ -69,7 +57,7 @@ export function Sidebar({ children }: SidebarProps) {
         })}
       </nav>
 
-      <div className="space-y-1 border-t border-slate-700 p-4">
+      <div className="border-t border-slate-700 p-4 space-y-1">
         <button
           type="button"
           onClick={() => router.push("/settings")}
@@ -77,14 +65,6 @@ export function Sidebar({ children }: SidebarProps) {
         >
           <Settings className="h-5 w-5 shrink-0" aria-hidden />
           Settings
-        </button>
-        <button
-          type="button"
-          onClick={signOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-slate-800 hover:text-red-300"
-        >
-          <LogOut className="h-5 w-5 shrink-0" aria-hidden />
-          Sign Out
         </button>
         <div className="flex items-center gap-3 rounded-lg px-3 py-2">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-700 text-xs font-medium text-white">

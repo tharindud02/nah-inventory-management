@@ -316,10 +316,30 @@ export default function AcquisitionSearchPage() {
         onSearchChange={setSearchValue}
       >
         {/* Breadcrumbs */}
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <Breadcrumb
             items={[{ label: "Acquisition Search", isCurrent: true }]}
           />
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/acquisition/vehicle/sample")}
+              className="gap-2"
+            >
+              <Car className="h-4 w-4" />
+              View Sample (with VIN)
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push("/acquisition/vehicle/sample-no-vin")}
+              className="gap-2"
+            >
+              <Car className="h-4 w-4" />
+              View Sample (no VIN)
+            </Button>
+          </div>
         </div>
 
         {/* Add New Acquisition Search Section */}
