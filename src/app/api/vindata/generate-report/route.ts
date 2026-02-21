@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { handleDemoMode } from "@/lib/demo-mode";
 import { apiCache, CACHE_TTL } from "@/lib/api-cache";
 
+export const dynamic = "force-dynamic";
+
 const NEXT_PUBLIC_MARKETCHECK_API_KEY =
   process.env.NEXT_PUBLIC_MARKETCHECK_API_KEY ||
   "zeAJMagqPVoNjv9iHBdj51d2Rzr6MMhs";
@@ -9,13 +11,21 @@ const NEXT_PUBLIC_MARKETCHECK_BASE_URL =
   process.env.NEXT_PUBLIC_MARKETCHECK_BASE_URL || "https://api.marketcheck.com";
 
 export async function POST(request: NextRequest) {
-  // Check if demo mode is enabled
+  const jsonError = (msg: string, status: number) =>
+    NextResponse.json({ success: false, error: msg }, { status });
+
   const demoResponse = handleDemoMode(request, "/api/vindata/generate-report");
   if (demoResponse) {
     return demoResponse;
   }
   try {
-    const { vin } = await request.json();
+    let body: { vin?: string };
+    try {
+      body = await request.json();
+    } catch {
+      return jsonError("Invalid JSON body", 400);
+    }
+    const { vin } = body;
 
     if (!vin) {
       return NextResponse.json({ error: "VIN is required" }, { status: 400 });
@@ -33,11 +43,16 @@ export async function POST(request: NextRequest) {
     const cachedData = apiCache.get("vin-report", cacheKey);
 
     if (cachedData) {
+      const cached = cachedData as {
+        report_id?: string;
+        data?: unknown;
+        summary?: unknown;
+      };
       return NextResponse.json({
         success: true,
         data: cachedData,
-        reportId: cachedData.report_id || null,
-        hasDirectData: !!cachedData.data || !!cachedData.summary,
+        reportId: cached.report_id || null,
+        hasDirectData: !!cached.data || !!cached.summary,
         endpoint: "cache",
       });
     }

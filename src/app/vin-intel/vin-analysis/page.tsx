@@ -9,17 +9,8 @@ import { Layout } from "@/components/Layout";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { MMRSection } from "@/components/ui/MMRSection";
 import {
-  ArrowLeft,
   Shield,
-  TrendingDown,
-  TrendingUp,
-  AlertTriangle,
-  DollarSign,
-  Activity,
   Users,
-  Calendar,
-  Eye,
-  MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -54,55 +45,82 @@ interface CompetitiveListing {
   distance: number;
 }
 
-export default function LossPreventionAnalysisPage() {
+interface ValuationData {
+  marketcheck_price?: number;
+  msrp?: number;
+}
+
+interface RawVinReportData {
+  summary?: { make?: string; model?: string; year?: number };
+  make?: string;
+  model?: string;
+  year?: number;
+  trimLevels?: { Default?: { General?: { Trim?: string } } };
+  trim?: string;
+  odometerInformation?: { reportedOdometer?: number }[];
+}
+
+function extractLatestOdometer(raw: RawVinReportData): number | null {
+  const readings = raw?.odometerInformation;
+  if (!readings?.length) return null;
+  const sorted = [...readings].sort(
+    (a, b) => (b.reportedOdometer ?? 0) - (a.reportedOdometer ?? 0),
+  );
+  return sorted[0]?.reportedOdometer ?? null;
+}
+
+function deriveRecommendation(
+  marketPrice: number | null,
+  msrp: number | null,
+  mmrAdjusted: number | null,
+): { label: string; accent: "green" | "yellow" | "red"; reasoning: string } {
+  if (!marketPrice || !mmrAdjusted) {
+    return {
+      label: "NEEDS REVIEW",
+      accent: "yellow",
+      reasoning:
+        "Insufficient data to generate a recommendation. Manual review required.",
+    };
+  }
+
+  const spread = marketPrice - mmrAdjusted;
+  const spreadPct = mmrAdjusted > 0 ? (spread / mmrAdjusted) * 100 : 0;
+
+  if (spreadPct > 10) {
+    return {
+      label: "STRONG BUY",
+      accent: "green",
+      reasoning: `Market price is ${spreadPct.toFixed(0)}% above wholesale MMR, indicating strong retail demand and healthy margin potential.`,
+    };
+  }
+  if (spreadPct > 0) {
+    return {
+      label: "HOLD / PRICE TO MARKET",
+      accent: "yellow",
+      reasoning: `Market price is ${spreadPct.toFixed(0)}% above wholesale MMR. Moderate margin — price competitively to accelerate turn.`,
+    };
+  }
+  return {
+    label: "LIQUIDATE ASAP",
+    accent: "red",
+    reasoning: `Market price is at or below wholesale MMR by ${Math.abs(spreadPct).toFixed(0)}%. High depreciation risk — consider wholesale exit.`,
+  };
+}
+
+export default function VINAnalysisPage() {
   const router = useRouter();
   const [vinData, setVinData] = useState<VINData | null>(null);
   const [vin, setVin] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [mmrData, setMmrData] = useState<MMRData | null>(null);
-  const [currentAsk, setCurrentAsk] = useState<number>(142500);
-  const [projectedLiquidation, setProjectedLiquidation] =
-    useState<number>(135200);
-  const [showRecommendationModal, setShowRecommendationModal] = useState(false);
+  const [valuation, setValuation] = useState<ValuationData | null>(null);
   const [competitiveListings, setCompetitiveListings] = useState<
     CompetitiveListing[]
-  >([
-    {
-      id: "1",
-      vehicle: "2024 RS e-tron GT",
-      miles: 850,
-      price: 134900,
-      distance: 4,
-    },
-    {
-      id: "2",
-      vehicle: "2024 RS e-tron GT",
-      miles: 2100,
-      price: 135500,
-      distance: 12,
-    },
-    {
-      id: "3",
-      vehicle: "2024 RS e-tron GT",
-      miles: 1420,
-      price: 133200,
-      distance: 15,
-    },
-    {
-      id: "4",
-      vehicle: "2024 RS e-tron GT",
-      miles: 540,
-      price: 138000,
-      distance: 22,
-    },
-    {
-      id: "5",
-      vehicle: "2024 RS e-tron GT",
-      miles: 3400,
-      price: 132999,
-      distance: 45,
-    },
-  ]);
+  >([]);
+  const [compsLoading, setCompsLoading] = useState(false);
+  const [valuationLoading, setValuationLoading] = useState(false);
+  const [odometer, setOdometer] = useState<number | null>(null);
+  const [showRecommendationModal, setShowRecommendationModal] = useState(false);
 
   const fetchMmr = useCallback(async (vinParam: string, miles?: number) => {
     try {
@@ -134,59 +152,145 @@ export default function LossPreventionAnalysisPage() {
     }
   }, []);
 
+  const fetchValuation = useCallback(async (vinParam: string, miles?: number) => {
+    setValuationLoading(true);
+    try {
+      const response = await fetch("/api/vindata/valuation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vin: vinParam, miles }),
+      });
+
+      if (!response.ok) return;
+
+      const result = await response.json();
+      if (result?.success && result.data) {
+        setValuation(result.data);
+      }
+    } catch (error) {
+      console.error("Error fetching valuation:", error);
+    } finally {
+      setValuationLoading(false);
+    }
+  }, []);
+
+  const fetchMarketComps = useCallback(
+    async (params: { vin: string; year?: number; make?: string; model?: string }) => {
+      setCompsLoading(true);
+      try {
+        const response = await fetch("/api/vindata/market-comps", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(params),
+        });
+
+        if (!response.ok) return;
+
+        const result = await response.json();
+        if (result?.success && result.data?.listings) {
+          const mapped: CompetitiveListing[] = result.data.listings
+            .slice(0, 10)
+            .map((listing: Record<string, unknown>, idx: number) => ({
+              id: (listing.id as string) || String(idx),
+              vehicle: (listing.heading as string) ||
+                `${listing.year ?? ""} ${listing.make ?? ""} ${listing.model ?? ""}`.trim(),
+              miles: (listing.miles as number) ?? 0,
+              price: (listing.price as number) ?? 0,
+              distance: (listing.dom_active as number) ?? 0,
+            }));
+          setCompetitiveListings(mapped);
+        }
+      } catch (error) {
+        console.error("Error fetching market comps:", error);
+      } finally {
+        setCompsLoading(false);
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
     const storedVinData = sessionStorage.getItem("vinData");
     const storedVin = sessionStorage.getItem("vin");
     const storedMmr = sessionStorage.getItem("mmr");
 
-    if (storedVinData && storedVin) {
-      try {
-        const rawData = JSON.parse(storedVinData);
-        const transformedData: VINData = {
-          vin: storedVin,
-          make: rawData.summary?.make || rawData.make || "N/A",
-          model: rawData.summary?.model || rawData.model || "N/A",
-          year: rawData.summary?.year || rawData.year || null,
-          trim:
-            rawData.trimLevels?.Default?.General?.Trim ||
-            rawData.trim ||
-            "Base",
-        };
-        setVinData(transformedData);
-        setVin(storedVin);
-      } catch (error) {
-        console.error("Error processing VIN data:", error);
-        toast.error("Error loading vehicle data. Please try again.");
-      }
+    if (!storedVinData || !storedVin) {
+      setIsLoading(false);
+      return;
     }
 
-    if (storedMmr) {
-      try {
-        setMmrData(JSON.parse(storedMmr));
-      } catch (e) {
-        console.error("Error parsing MMR data:", e);
-      }
-    }
+    try {
+      const rawData: RawVinReportData = JSON.parse(storedVinData);
+      const transformedData: VINData = {
+        vin: storedVin,
+        make: rawData.summary?.make || rawData.make || "N/A",
+        model: rawData.summary?.model || rawData.model || "N/A",
+        year: rawData.summary?.year || rawData.year || undefined,
+        trim:
+          rawData.trimLevels?.Default?.General?.Trim ||
+          rawData.trim ||
+          "Base",
+      };
+      setVinData(transformedData);
+      setVin(storedVin);
 
-    // Fetch MMR if we have VIN but no stored data
-    if (storedVin && !storedMmr) {
-      fetchMmr(storedVin);
+      const latestOdo = extractLatestOdometer(rawData);
+      if (latestOdo !== null) setOdometer(latestOdo);
+
+      if (storedMmr) {
+        try {
+          setMmrData(JSON.parse(storedMmr));
+        } catch (e) {
+          console.error("Error parsing MMR data:", e);
+        }
+      }
+
+      if (!storedMmr) {
+        fetchMmr(storedVin, latestOdo ?? undefined);
+      }
+
+      fetchValuation(storedVin, latestOdo ?? undefined);
+      fetchMarketComps({
+        vin: storedVin,
+        year: transformedData.year,
+        make: transformedData.make,
+        model: transformedData.model,
+      });
+    } catch (error) {
+      console.error("Error processing VIN data:", error);
+      toast.error("Error loading vehicle data. Please try again.");
     }
 
     setIsLoading(false);
-  }, [fetchMmr]);
+  }, [fetchMmr, fetchValuation, fetchMarketComps]);
 
-  const handleBackToAlerts = () => {
-    router.push("/vin-intel");
+  const marketPrice = valuation?.marketcheck_price ?? null;
+  const msrp = valuation?.msrp ?? null;
+  const adjustedMmr = mmrData?.adjusted_mmr ?? mmrData?.base_mmr ?? null;
+
+  const priceDiff =
+    marketPrice !== null && adjustedMmr !== null
+      ? marketPrice - adjustedMmr
+      : null;
+
+  const recommendation = deriveRecommendation(marketPrice, msrp, adjustedMmr);
+
+  const recommendationAccentMap = {
+    green: "bg-green-50 text-green-600",
+    yellow: "bg-yellow-50 text-yellow-600",
+    red: "bg-red-50 text-red-600",
+  } as const;
+
+  const recommendationCardBg = {
+    green: "bg-emerald-900",
+    yellow: "bg-gray-900",
+    red: "bg-gray-900",
+  } as const;
+
+  const formatPrice = (value: number | null): string => {
+    if (value === null) return "—";
+    return `$${value.toLocaleString()}`;
   };
-
-  const suggestedPriceDiff = currentAsk - projectedLiquidation;
-  const velocityDaysAt142k = 115;
-  const velocityDaysAt135k = 12;
-  const daysOnLot = 45;
-  const vdpViews = 12;
-  const marketSupply = 142;
-  const odometer = 1240;
 
   return (
     <ProtectedRoute>
@@ -208,10 +312,17 @@ export default function LossPreventionAnalysisPage() {
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {vinData?.year} {vinData?.make} {vinData?.model}
+                  {vinData
+                    ? `${vinData.year ?? ""} ${vinData.make ?? ""} ${vinData.model ?? ""}`.trim()
+                    : "Loading..."}
                 </h1>
                 <p className="text-sm text-gray-500 mt-1">
-                  VIN: {vin || "WAU2ZZF8BAA21948"}
+                  VIN: {vin || "—"}
+                  {vinData?.trim && vinData.trim !== "Base" && (
+                    <span className="ml-3 text-gray-400">
+                      Trim: {vinData.trim}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
@@ -226,63 +337,78 @@ export default function LossPreventionAnalysisPage() {
               <CardTitle className="text-sm font-semibold uppercase tracking-wide text-gray-700">
                 VIN Analysis
               </CardTitle>
-              <span className="ml-auto px-2 py-1 bg-red-50 text-red-600 text-xs font-semibold rounded">
-                ACTION REQUIRED: IMMEDIATE
+              <span
+                className={`ml-auto px-2 py-1 text-xs font-semibold rounded ${recommendationAccentMap[recommendation.accent]}`}
+              >
+                {recommendation.label}
               </span>
             </div>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="grid grid-cols-3 gap-6">
-              {/* Current Ask */}
-              <div className="text-center">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  CURRENT ASK
-                </p>
-                <p className="text-4xl font-bold text-gray-900">
-                  ${currentAsk.toLocaleString()}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  98th Percentile of Local Market
-                </p>
+            {valuationLoading ? (
+              <div className="animate-pulse grid grid-cols-3 gap-6">
+                <div className="h-20 bg-gray-200 rounded" />
+                <div className="h-20 bg-gray-200 rounded" />
+                <div className="h-20 bg-gray-200 rounded" />
               </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-6">
+                <div className="text-center">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                    MARKET VALUE
+                  </p>
+                  <p className="text-4xl font-bold text-gray-900">
+                    {formatPrice(marketPrice)}
+                  </p>
+                  {msrp !== null && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      MSRP: {formatPrice(msrp)}
+                    </p>
+                  )}
+                </div>
 
-              {/* Suggested Price Difference */}
-              <div className="text-center">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  SUGGESTED PRICE DIFFERENCE
-                </p>
-                <p className="text-4xl font-bold text-red-600">
-                  -${suggestedPriceDiff.toLocaleString()}
-                </p>
-              </div>
+                <div className="text-center">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                    MARKET vs WHOLESALE
+                  </p>
+                  <p
+                    className={`text-4xl font-bold ${priceDiff !== null && priceDiff >= 0 ? "text-green-600" : "text-red-600"}`}
+                  >
+                    {priceDiff !== null
+                      ? `${priceDiff >= 0 ? "+" : "-"}$${Math.abs(priceDiff).toLocaleString()}`
+                      : "—"}
+                  </p>
+                </div>
 
-              {/* Projected Liquidation Price */}
-              <div className="text-center">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  PROJECTED LIQUIDATION PRICE
-                </p>
-                <p className="text-4xl font-bold text-green-600">
-                  ${projectedLiquidation.toLocaleString()}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Target price for &lt; 45 day turn
-                </p>
+                <div className="text-center">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                    WHOLESALE MMR
+                  </p>
+                  <p className="text-4xl font-bold text-amber-600">
+                    {formatPrice(adjustedMmr)}
+                  </p>
+                  {mmrData?.base_mmr !== undefined &&
+                    mmrData.base_mmr !== mmrData.adjusted_mmr && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Base: {formatPrice(mmrData.base_mmr)}
+                      </p>
+                    )}
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Left Column */}
           <div className="space-y-6">
-            {/* MMR Section */}
             <MMRSection
               mmrData={mmrData}
               isLoading={isLoading}
               compact={true}
             />
 
-            {/* Your Competition: Active Listings */}
+            {/* Competitive Listings */}
             <Card>
               <CardHeader className="border-b border-gray-200 flex flex-row items-center justify-between">
                 <div>
@@ -290,139 +416,106 @@ export default function LossPreventionAnalysisPage() {
                     YOUR COMPETITION: ACTIVE LISTINGS
                   </CardTitle>
                   <p className="text-xs text-blue-600 font-semibold mt-1">
-                    5 Matches Found
+                    {compsLoading
+                      ? "Loading..."
+                      : `${competitiveListings.length} Matches Found`}
                   </p>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                          VEHICLE
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                          MILES
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                          PRICE
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                          DIST.
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {competitiveListings.map((listing, index) => (
-                        <tr
-                          key={listing.id}
-                          className={`hover:bg-gray-50 ${index === 2 ? "bg-red-50" : ""}`}
-                        >
-                          <td className="px-6 py-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                <Users className="w-5 h-5 text-gray-500" />
-                              </div>
-                              <span
-                                className={`text-sm font-medium ${index === 2 ? "text-red-700" : "text-gray-900"}`}
-                              >
-                                {listing.vehicle}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
-                            {listing.miles.toLocaleString()}
-                          </td>
-                          <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                            ${listing.price.toLocaleString()}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
-                            {listing.distance} mi
-                          </td>
+                {compsLoading ? (
+                  <div className="p-6 animate-pulse space-y-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="h-10 bg-gray-200 rounded" />
+                    ))}
+                  </div>
+                ) : competitiveListings.length === 0 ? (
+                  <div className="p-6 text-center text-sm text-gray-500">
+                    No competitive listings found for this vehicle.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                            VEHICLE
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                            MILES
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                            PRICE
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                            DAYS ACTIVE
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {competitiveListings.map((listing) => (
+                          <tr key={listing.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                  <Users className="w-5 h-5 text-gray-500" />
+                                </div>
+                                <span className="text-sm font-medium text-gray-900">
+                                  {listing.vehicle}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600">
+                              {listing.miles.toLocaleString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                              ${listing.price.toLocaleString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600">
+                              {listing.distance}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
 
           {/* Right Column */}
           <div className="space-y-6">
-            {/* Velocity Projections Card */}
-            <Card>
-              <CardHeader className="border-b border-gray-200">
-                <CardTitle className="text-sm font-semibold uppercase tracking-wide text-gray-700">
-                  VELOCITY PROJECTIONS
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-2 gap-6 mb-6">
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-red-50 mb-3">
-                      <div className="text-center">
-                        <p className="text-3xl font-bold text-red-600">
-                          {velocityDaysAt142k}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      VELOCITY GAP
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      EST. DAYS AT ${(currentAsk / 1000).toFixed(1)}K
-                    </p>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-50 mb-3">
-                      <div className="text-center">
-                        <p className="text-3xl font-bold text-green-600">
-                          {velocityDaysAt135k}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1"></p>
-                    <p className="text-sm text-gray-600">
-                      EST. DAYS AT ${(projectedLiquidation / 1000).toFixed(1)}K
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Liquidation Recommendation Card */}
-            <Card className="bg-gray-900 text-white">
+            {/* Recommendation Card */}
+            <Card className={`${recommendationCardBg[recommendation.accent]} text-white`}>
               <CardContent className="p-6">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-400 mb-2">
-                  NEO'S STRATEGIC RECOMMENDATION
+                  NEO&apos;S STRATEGIC RECOMMENDATION
                 </p>
                 <h3 className="text-3xl font-bold italic mb-6">
-                  LIQUIDATE ASAP
+                  {recommendation.label}
                 </h3>
-                <div className="bg-gray-800 rounded-lg p-4 mb-6">
+                <div className="bg-white/10 rounded-lg p-4 mb-6">
                   <p className="text-sm leading-relaxed opacity-95">
-                    "Current market saturation is increasing rapidly. The local
-                    supply for performance EVs has surged 300% in 45 days.
-                    Holding this unit beyond 60 days will result in an
-                    additional $4,500 depreciation loss based on wholesale
-                    trends."
+                    &ldquo;{recommendation.reasoning}&rdquo;
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-red-700/30 rounded-lg p-3 border border-red-600">
-                    <p className="text-xs uppercase tracking-wide mb-1 opacity-75 text-red-300">
-                      RISK EXPOSURE
+                  <div className="bg-white/10 rounded-lg p-3 border border-white/20">
+                    <p className="text-xs uppercase tracking-wide mb-1 opacity-75">
+                      MARKET PRICE
                     </p>
-                    <p className="text-lg font-bold">-$2,100 next 30d</p>
+                    <p className="text-lg font-bold">
+                      {formatPrice(marketPrice)}
+                    </p>
                   </div>
-                  <div className="bg-green-700/30 rounded-lg p-3 border border-green-600">
-                    <p className="text-xs uppercase tracking-wide mb-1 opacity-75 text-green-300">
-                      OPPORTUNITY COST
+                  <div className="bg-white/10 rounded-lg p-3 border border-white/20">
+                    <p className="text-xs uppercase tracking-wide mb-1 opacity-75">
+                      WHOLESALE MMR
                     </p>
-                    <p className="text-lg font-bold">2.4x Re-investment</p>
+                    <p className="text-lg font-bold">
+                      {formatPrice(adjustedMmr)}
+                    </p>
                   </div>
                 </div>
                 <Button
@@ -437,38 +530,31 @@ export default function LossPreventionAnalysisPage() {
             {/* Summary Metrics Card */}
             <Card>
               <CardContent className="p-6">
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                      DAYS ON LOT
-                    </p>
-                    <p className="text-lg font-bold text-gray-900">
-                      {daysOnLot} Days
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                      VDP VIEWS
-                    </p>
-                    <p className="text-lg font-bold text-gray-900">
-                      {vdpViews}{" "}
-                      <span className="text-red-600 text-sm">(-45%)</span>
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                      MARKET SUPPLY
-                    </p>
-                    <p className="text-lg font-bold text-gray-900">
-                      {marketSupply} Days
-                    </p>
-                  </div>
+                <div className="grid grid-cols-3 gap-4">
                   <div className="text-center">
                     <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
                       ODOMETER
                     </p>
                     <p className="text-lg font-bold text-gray-900">
-                      {odometer.toLocaleString()} mi
+                      {odometer !== null
+                        ? `${odometer.toLocaleString()} mi`
+                        : "—"}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                      MARKET COMPS
+                    </p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {competitiveListings.length}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                      TRIM
+                    </p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {vinData?.trim ?? "—"}
                     </p>
                   </div>
                 </div>
@@ -486,9 +572,8 @@ export default function LossPreventionAnalysisPage() {
                   Accept Strategy
                 </h3>
                 <p className="text-sm text-gray-600 mb-6">
-                  Are you sure you want to accept this liquidation strategy and
-                  update the asking price to $
-                  {projectedLiquidation.toLocaleString()}?
+                  Are you sure you want to accept the &ldquo;
+                  {recommendation.label}&rdquo; strategy for this vehicle?
                 </p>
                 <div className="flex space-x-3">
                   <Button
@@ -501,7 +586,7 @@ export default function LossPreventionAnalysisPage() {
                   <Button
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={() => {
-                      toast.success("Strategy accepted! Asking price updated.");
+                      toast.success("Strategy accepted!");
                       setShowRecommendationModal(false);
                     }}
                   >

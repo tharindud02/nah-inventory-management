@@ -21,6 +21,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { toast, Toaster } from "sonner";
 import { Tooltip } from "react-tooltip";
+import { parseJsonResponse } from "@/lib/fetch-json";
 
 export default function VINIntelPage() {
   const [vinInput, setVinInput] = useState("");
@@ -39,14 +40,20 @@ export default function VINIntelPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
+        const errorData = await parseJsonResponse<{
+          error?: string;
+          details?: string;
+        }>(response);
         throw new Error(
-          (errorData && (errorData.error || errorData.details)) ||
+          errorData?.error ||
+            errorData?.details ||
             `Failed to fetch vehicle specs: ${response.status}`,
         );
       }
 
-      const result = await response.json();
+      const result = await parseJsonResponse<{ success?: boolean; data?: unknown }>(
+        response,
+      );
       if (result?.success && result.data) {
         return result.data;
       }
@@ -103,14 +110,21 @@ export default function VINIntelPage() {
       });
 
       if (!generateResponse.ok) {
-        const errorData = await generateResponse.json();
+        const errorData = await parseJsonResponse<{ error?: string }>(
+          generateResponse,
+        );
         throw new Error(
-          errorData.error ||
+          errorData?.error ||
             `Failed to generate report: ${generateResponse.status}`,
         );
       }
 
-      const generateResult = await generateResponse.json();
+      const generateResult = await parseJsonResponse<{
+        success?: boolean;
+        data?: unknown;
+        reportId?: string;
+        hasDirectData?: boolean;
+      }>(generateResponse);
 
       if (!generateResult.success) {
         throw new Error("Failed to generate VIN report");
@@ -138,14 +152,19 @@ export default function VINIntelPage() {
         });
 
         if (!accessResponse.ok) {
-          const errorData = await accessResponse.json();
+          const errorData = await parseJsonResponse<{ error?: string }>(
+            accessResponse,
+          );
           throw new Error(
-            errorData.error ||
+            errorData?.error ||
               `Failed to access report: ${accessResponse.status}`,
           );
         }
 
-        const accessResult = await accessResponse.json();
+        const accessResult = await parseJsonResponse<{
+          success?: boolean;
+          data?: unknown;
+        }>(accessResponse);
 
         if (!accessResult.success) {
           throw new Error("Failed to retrieve VIN data");
