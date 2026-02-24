@@ -100,80 +100,123 @@ export default function VINAnalysisPage() {
   const [activeTab, setActiveTab] = useState<VehicleDetailTabId>("valuation");
   const [actualMileage, setActualMileage] = useState<number | null>(null);
 
-  const loadAndTransform = useCallback(async (storedVin: string) => {
-    const storedVinData = sessionStorage.getItem("vinData");
-    if (!storedVinData) return;
+  const loadAndTransform = useCallback(
+    async (storedVin: string, signal?: AbortSignal) => {
+      const storedVinData = sessionStorage.getItem("vinData");
+      if (!storedVinData) return;
 
-    const rawData = JSON.parse(storedVinData) as RawVinReportData;
-    const miles =
-      extractLatestOdometer(rawData) ??
-      rawData?.vehicle_details?.mileage ??
-      undefined;
+      const rawData = JSON.parse(storedVinData) as RawVinReportData;
+      const miles =
+        extractLatestOdometer(rawData) ??
+        rawData?.vehicle_details?.mileage ??
+        undefined;
 
-    const valuationRes = await fetch("/api/vindata/valuation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vin: storedVin, miles, zip: "" }),
-    });
-    const valuationJson = await valuationRes.json().catch(() => null);
-    if (!valuationRes.ok || !valuationJson?.success) {
-      const err = valuationJson?.error ?? "Failed to fetch VIN valuation";
-      throw new Error(err);
-    }
+      const maxRetries = 2;
+      let lastError: Error | null = null;
 
-    const mdsValue = valuationJson?.data?.mds?.mds;
-    const enrichedRawData: RawVinReportData & {
-      market_insights?: { days_supply?: number };
-    } = {
-      ...rawData,
-      market_insights:
-        typeof mdsValue === "number" ? { days_supply: mdsValue } : undefined,
-    };
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        if (signal?.aborted) {
+          throw new DOMException("Aborted", "AbortError");
+        }
+        try {
+          const valuationRes = await fetch("/api/vindata/valuation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ vin: storedVin, miles, zip: "" }),
+            signal,
+          });
+          const valuationJson = await valuationRes.json().catch(() => null);
+          if (!valuationRes.ok || !valuationJson?.success) {
+            const err = valuationJson?.error ?? "Failed to fetch valuation";
+            const isRetryable =
+              valuationRes.status === 502 || valuationRes.status === 504;
+            if (isRetryable && attempt < maxRetries) {
+              lastError = new Error(err);
+              await new Promise((r) =>
+                setTimeout(r, 800 * (attempt + 1)),
+              );
+              continue;
+            }
+            throw new Error(err);
+          }
 
-    const listings = (valuationJson?.data?.marketComps?.listings ??
-      []) as ActiveListingSnapshot[];
-    const exactListing = listings.find(
-      (listing) =>
-        typeof listing.vin === "string" &&
-        listing.vin.toUpperCase() === storedVin.toUpperCase(),
-    );
+          const mdsValue = valuationJson?.data?.mds?.mds;
+          const enrichedRawData: RawVinReportData & {
+            market_insights?: { days_supply?: number };
+          } = {
+            ...rawData,
+            market_insights:
+              typeof mdsValue === "number" ? { days_supply: mdsValue } : undefined,
+          };
 
-    const photoLinks = Array.isArray(exactListing?.media?.photo_links)
-      ? exactListing.media.photo_links
-      : [];
-    setImages(photoLinks);
+          const listings = (valuationJson?.data?.marketComps?.listings ??
+            []) as ActiveListingSnapshot[];
+          const exactListing = listings.find(
+            (listing) =>
+              typeof listing.vin === "string" &&
+              listing.vin.toUpperCase() === storedVin.toUpperCase(),
+          );
 
-    const listingMileage =
-      typeof exactListing?.miles === "number" ? exactListing.miles : miles;
-    const listingPrice =
-      typeof exactListing?.price === "number" ? exactListing.price : undefined;
-    const listingDaysOnMarket =
-      typeof exactListing?.dom_active === "number"
-        ? exactListing.dom_active
-        : typeof exactListing?.dom === "number"
-          ? exactListing.dom
-          : undefined;
+          const photoLinks = Array.isArray(exactListing?.media?.photo_links)
+            ? exactListing.media.photo_links
+            : [];
+          setImages(photoLinks);
 
-    if (typeof listingMileage === "number" && listingMileage > 0) {
-      setActualMileage(listingMileage);
-    }
+          const listingMileage =
+            typeof exactListing?.miles === "number" ? exactListing.miles : miles;
+          const listingPrice =
+            typeof exactListing?.price === "number" ? exactListing.price : undefined;
+          const listingDaysOnMarket =
+            typeof exactListing?.dom_active === "number"
+              ? exactListing.dom_active
+              : typeof exactListing?.dom === "number"
+                ? exactListing.dom
+                : undefined;
 
-    const genJson = { success: true, data: enrichedRawData };
-    const result = transformVindataToValuationResults({
-      vin: storedVin,
-      generateReport: genJson,
-      valuation: { data: valuationJson?.data?.valuation },
-      marketComps: { data: valuationJson?.data?.marketComps },
-      soldComps: { data: valuationJson?.data?.soldComps },
-      listingPrice,
-      listingMileage,
-      listingDaysOnMarket,
-    });
-    setValuationData(result);
-    setConfiguration(buildConfiguration(rawData));
-  }, []);
+          if (typeof listingMileage === "number" && listingMileage > 0) {
+            setActualMileage(listingMileage);
+          }
+
+          const genJson = { success: true, data: enrichedRawData };
+          const result = transformVindataToValuationResults({
+            vin: storedVin,
+            generateReport: genJson,
+            valuation: { data: valuationJson?.data?.valuation },
+            marketComps: { data: valuationJson?.data?.marketComps },
+            soldComps: { data: valuationJson?.data?.soldComps },
+            listingPrice,
+            listingMileage,
+            listingDaysOnMarket,
+          });
+          setValuationData(result);
+          setConfiguration(buildConfiguration(rawData));
+          return;
+        } catch (err) {
+          if (err instanceof DOMException && err.name === "AbortError") {
+            throw err;
+          }
+          lastError =
+            err instanceof Error ? err : new Error(String(err));
+          const msg = lastError.message.toLowerCase();
+          const isRetryable =
+            msg.includes("fetch") ||
+            msg.includes("timeout") ||
+            msg.includes("network") ||
+            msg.includes("aborted");
+          if (isRetryable && attempt < maxRetries) {
+            await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
+            continue;
+          }
+          throw lastError;
+        }
+      }
+      throw lastError ?? new Error("Failed to fetch valuation");
+    },
+    [],
+  );
 
   useEffect(() => {
+    const controller = new AbortController();
     let active = true;
 
     const run = async () => {
@@ -224,9 +267,10 @@ export default function VINAnalysisPage() {
           setVin(storedVin);
           setValuationError(null);
         }
-        await loadAndTransform(storedVin);
+        await loadAndTransform(storedVin, controller.signal);
       } catch (error) {
         if (!active) return;
+        if (error instanceof DOMException && error.name === "AbortError") return;
         const message =
           error instanceof Error
             ? error.message
@@ -243,6 +287,7 @@ export default function VINAnalysisPage() {
 
     return () => {
       active = false;
+      controller.abort();
     };
   }, [loadAndTransform, router]);
 
@@ -291,7 +336,7 @@ export default function VINAnalysisPage() {
           <VehicleDetailTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            hiddenTabs={["seller", "notes", "appointments"]}
+            hiddenTabs={["details", "cost-analysis", "seller", "notes", "appointments"]}
           />
 
           <main className="flex-1 p-6">

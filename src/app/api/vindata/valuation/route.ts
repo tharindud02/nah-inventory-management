@@ -10,12 +10,23 @@ interface ValuationBody {
 
 const VIN_PATTERN = /^[A-HJ-NPR-Z0-9]{17}$/i;
 
+const FETCH_TIMEOUT_MS = 25_000;
+
 async function fetchJson(url: string): Promise<Record<string, unknown> | null> {
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!res.ok) return null;
-  const text = await res.text();
-  if (!text.trim().startsWith("{")) return null;
-  return JSON.parse(text) as Record<string, unknown>;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+    const text = await res.text();
+    if (!text.trim().startsWith("{")) return null;
+    return JSON.parse(text) as Record<string, unknown>;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function getListingsCount(data: Record<string, unknown> | null): number {
@@ -183,7 +194,15 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to fetch valuation";
-    return NextResponse.json({ success: false, error: msg }, { status: 500 });
+    const isAbort = err instanceof Error && err.name === "AbortError";
+    const msg = isAbort
+      ? "Valuation request timed out. Please try again."
+      : err instanceof Error
+        ? err.message
+        : "Failed to fetch valuation";
+    return NextResponse.json(
+      { success: false, error: msg },
+      { status: isAbort ? 504 : 500 },
+    );
   }
 }
