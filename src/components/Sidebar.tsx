@@ -7,7 +7,6 @@ import {
   Package,
   Search,
   Car,
-  Users,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -22,7 +21,6 @@ const NAV_ITEMS = [
   { label: "Inventory", href: "/inventory", icon: Package },
   { label: "Acquisition", href: "/acquisition-search", icon: Car },
   { label: "VIN Intel", href: "/vin-intel", icon: Search },
-  { label: "Customers", href: "/customers", icon: Users },
 ] as const;
 
 export function Sidebar({ children }: SidebarProps) {

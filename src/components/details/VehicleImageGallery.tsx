@@ -12,8 +12,9 @@ export interface VehicleImageGalleryProps {
   className?: string;
 }
 
+/** Inline SVG placeholder: clean neutral gray. No external requests. */
 const PLACEHOLDER_IMAGE =
-  "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&h=600&fit=crop";
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect fill='%23f1f5f9' width='800' height='600'/%3E%3C/svg%3E";
 
 function toImageUrl(
   img: string | { url?: string; src?: string },
