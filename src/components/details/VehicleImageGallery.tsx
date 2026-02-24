@@ -173,7 +173,7 @@ export function VehicleImageGallery({
           <img
             src={currentImage}
             alt={title}
-            className="h-full w-full object-cover transition-opacity group-hover:opacity-95 pointer-events-none"
+            className="h-full w-full object-contain transition-opacity group-hover:opacity-95 pointer-events-none"
           />
         </div>
 
@@ -232,7 +232,7 @@ export function VehicleImageGallery({
             <img
               src={img}
               alt={`Thumbnail ${i + 1}`}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
           </button>
         ))}

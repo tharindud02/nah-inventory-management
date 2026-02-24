@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 export type RoleVariant = "acquisition" | "service" | "manager";
 
 const VARIANT_STYLES: Record<RoleVariant, string> = {
-  acquisition: "bg-emerald-100 text-emerald-800",
-  service: "bg-lime-100 text-lime-800",
-  manager: "bg-amber-100 text-amber-800",
+  acquisition: "bg-emerald-50 text-emerald-600 border border-emerald-200",
+  service: "bg-blue-50 text-blue-600 border border-blue-200",
+  manager: "bg-amber-50 text-amber-600 border border-amber-200",
 };
 
 export interface RoleBadgeProps {

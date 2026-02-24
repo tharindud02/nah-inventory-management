@@ -31,8 +31,8 @@ export function Header({
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
             {showLastUpdated && (
-              <div className="text-sm text-gray-500 flex items-center">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+              <div className="text-sm text-gray-500 flex items-center" suppressHydrationWarning>
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2" />
                 LAST UPDATED: 2 MINS AGO
               </div>
             )}

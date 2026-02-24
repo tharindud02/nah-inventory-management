@@ -7,7 +7,7 @@ import {
   Package,
   Search,
   Car,
-  AlertTriangle,
+  Users,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -20,9 +20,9 @@ interface SidebarProps {
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Inventory", href: "/inventory", icon: Package },
-  { label: "Inventory Alerts", href: "/inventory-alerts", icon: AlertTriangle },
   { label: "Acquisition", href: "/acquisition-search", icon: Car },
   { label: "VIN Intel", href: "/vin-intel", icon: Search },
+  { label: "Customers", href: "/customers", icon: Users },
 ] as const;
 
 export function Sidebar({ children }: SidebarProps) {
@@ -34,6 +34,8 @@ export function Sidebar({ children }: SidebarProps) {
     if (pathname === href) return true;
     if (pathname.startsWith(`${href}/`)) return true;
     if (href === "/acquisition-search" && pathname.startsWith("/acquisition/"))
+      return true;
+    if (href === "/acquisition-search" && pathname.startsWith("/job-listing/"))
       return true;
     return false;
   };

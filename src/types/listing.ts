@@ -92,6 +92,7 @@ export interface ListingItem {
   scraped_at?: string;
   SK?: string;
   PK?: string;
+  bookmarked?: boolean;
   [key: string]: unknown;
 }
 
@@ -124,5 +125,6 @@ export interface ListingDetail {
   seller_contact_notes?: string | null;
   seller_phone?: string | null;
   seller_email?: string | null;
+  bookmarked?: boolean;
   [key: string]: unknown;
 }

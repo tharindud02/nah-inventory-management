@@ -51,7 +51,7 @@ export const BuildSheetModal: React.FC<BuildSheetModalProps> = ({
     interiorFeatures: [
       "Adaptive Sport Seats Plus (18-way)",
       "Memory Package",
-      "Heated and Ventilated Front Seats",
+      "Heated and Ventilated Front Seats",  
       "GT Sport Steering Wheel in Leather",
       "Tachometer Dial in Guards Red",
       "Sport Chrono Stopwatch Dial in Guards Red",

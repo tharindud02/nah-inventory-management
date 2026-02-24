@@ -1,38 +1,38 @@
+/** MarketCheck dealership inventory API listing (matches actual response). */
 interface MarketcheckCar {
   id: string;
   vin: string;
+  heading?: string;
   price: number;
   miles: number;
-  dom: number;
-  build: {
-    year: number;
-    make: string;
-    model: string;
+  dom?: number;
+  dom_active?: number;
+  ref_price?: number;
+  build?: {
+    year?: number;
+    make?: string;
+    model?: string;
     trim?: string;
   };
-  media: {
-    photo_links: string[];
+  media?: {
+    photo_links?: string[];
   };
-  p_price?: number; // Predicted market price
+  p_price?: number;
   msrp?: number;
 }
 
 interface MarketcheckResponse {
-  num_found: number;
-  stats: {
-    price: {
-      mean: number;
-      sum: number;
-    };
-    dom: {
-      mean: number;
-    };
+  num_found?: number;
+  stats?: {
+    price?: { mean?: number; sum?: number };
+    dom?: { mean?: number };
   };
-  listings: MarketcheckCar[];
+  listings?: MarketcheckCar[];
 }
 
 export interface InventoryCar {
   id: string;
+  heading: string;
   year: number;
   make: string;
   model: string;
@@ -90,28 +90,41 @@ export class MarketcheckAPI {
       }
 
       const data: MarketcheckResponse = await response.json();
+      const listings = data.listings ?? [];
 
       // Process KPI data
       const kpiData: KPIData = {
-        totalRetailValue: data.stats.price.sum || 0,
-        totalWholesaleValue: 0, // Marketcheck doesn't provide wholesale data
-        totalProjectedProfit: 0, // Need to calculate with internal data
-        activeInventory: data.num_found,
-        avgDaysOnLot: Math.round(data.stats.dom.mean || 0),
+        totalRetailValue: data.stats?.price?.sum ?? 0,
+        totalWholesaleValue: 0,
+        totalProjectedProfit: 0,
+        activeInventory: data.num_found ?? listings.length,
+        avgDaysOnLot: Math.round(data.stats?.dom?.mean ?? 0),
         overpricedCount: 0,
         attentionRequiredCount: 0,
       };
 
-      // Process inventory cars
-      const inventoryCars: InventoryCar[] = data.listings.map((car) => {
-        // Calculate market percentage
-        const predictedPrice = car.p_price || car.price;
-        const marketPercentage = Math.round((car.price / predictedPrice) * 100);
+      // Process inventory cars from MarketCheck API response
+      const inventoryCars: InventoryCar[] = listings.map((car) => {
+        const build = car.build ?? {};
+        const year = build.year ?? 0;
+        const make = build.make ?? "";
+        const model = build.model ?? "";
+        const trim = build.trim;
 
-        // Determine status based on logic
+        const heading =
+          car.heading ??
+          [year, make, model, trim].filter(Boolean).join(" ");
+
+        const refPrice = car.ref_price ?? car.p_price ?? car.price;
+        const marketPercentage =
+          refPrice > 0 ? Math.round((car.price / refPrice) * 100) : 100;
+
+        const daysOnLot = car.dom_active ?? car.dom ?? 0;
+
         let status: "healthy" | "attention" | "overpriced" = "healthy";
+        const hasPhotos = (car.media?.photo_links?.length ?? 0) > 0;
 
-        if (car.dom > 60 || !car.media?.photo_links?.length) {
+        if (daysOnLot > 60 || !hasPhotos) {
           status = "attention";
           kpiData.attentionRequiredCount++;
         } else if (marketPercentage > 103) {
@@ -121,24 +134,25 @@ export class MarketcheckAPI {
 
         return {
           id: car.id,
-          year: car.build.year,
-          make: car.build.make,
-          model: car.build.model,
-          trim: car.build.trim,
-          vin: car.vin,
-          mileage: car.miles,
-          price: car.price,
-          daysOnLot: car.dom,
+          heading,
+          year,
+          make,
+          model,
+          trim,
+          vin: car.vin ?? "",
+          mileage: car.miles ?? 0,
+          price: car.price ?? 0,
+          daysOnLot,
           marketPercentage,
           status,
-          image: car.media?.photo_links?.[0] || "/api/placeholder/300/200",
+          image: car.media?.photo_links?.[0] ?? "",
           media: {
-            photo_links: car.media?.photo_links || [],
+            photo_links: car.media?.photo_links ?? [],
           },
         };
       });
 
-      return { kpiData, inventoryCars, totalFound: data.num_found };
+      return { kpiData, inventoryCars, totalFound: data.num_found ?? listings.length };
     } catch (error) {
       throw error;
     }
@@ -192,6 +206,7 @@ export class MarketcheckAPI {
 export function getEmptyInventoryData(): {
   kpiData: KPIData;
   inventoryCars: InventoryCar[];
+  totalFound: number;
 } {
   const kpiData: KPIData = {
     totalRetailValue: 0,
@@ -205,110 +220,5 @@ export function getEmptyInventoryData(): {
 
   const inventoryCars: InventoryCar[] = [];
 
-  return { kpiData, inventoryCars };
-}
-
-// Demo mode fallback
-export function getDemoInventoryData(): {
-  kpiData: KPIData;
-  inventoryCars: InventoryCar[];
-} {
-  const kpiData: KPIData = {
-    totalRetailValue: 4200000,
-    totalWholesaleValue: 3100000,
-    totalProjectedProfit: 210000,
-    activeInventory: 142,
-    avgDaysOnLot: 42,
-    overpricedCount: 12,
-    attentionRequiredCount: 8,
-  };
-
-  const inventoryCars: InventoryCar[] = [
-    {
-      id: "1",
-      year: 2022,
-      make: "BMW",
-      model: "M4",
-      trim: "Competition xDrive Coupe",
-      vin: "WBS83AYBXNCH38102",
-      mileage: 12450,
-      price: 78900,
-      marketPercentage: 104,
-      daysOnLot: 74,
-      status: "attention",
-      image: `https://picsum.photos/seed/WBS83AYBXNCH38102/300/200.jpg`,
-    },
-    {
-      id: "2",
-      year: 2023,
-      make: "Mercedes-Benz",
-      model: "C 300",
-      trim: "Sedan",
-      vin: "W1KDB3HB5PR123456",
-      mileage: 8900,
-      price: 52500,
-      marketPercentage: 98,
-      daysOnLot: 21,
-      status: "healthy",
-      image: `https://picsum.photos/seed/W1KDB3HB5PR123456/300/200.jpg`,
-    },
-    {
-      id: "3",
-      year: 2024,
-      make: "Porsche",
-      model: "911",
-      trim: "Carrera S",
-      vin: "WP0AB2A99RS123456",
-      mileage: 3200,
-      price: 145000,
-      marketPercentage: 112,
-      daysOnLot: 45,
-      status: "overpriced",
-      image: `https://picsum.photos/seed/WP0AB2A99RS123456/300/200.jpg`,
-    },
-    {
-      id: "4",
-      year: 2023,
-      make: "Audi",
-      model: "RS5",
-      trim: "Sportback",
-      vin: "WAUZZZF7XPA123456",
-      mileage: 15600,
-      price: 87500,
-      marketPercentage: 101,
-      daysOnLot: 18,
-      status: "healthy",
-      image: `https://picsum.photos/seed/WAUZZZF7XPA123456/300/200.jpg`,
-    },
-    {
-      id: "5",
-      year: 2022,
-      make: "Lexus",
-      model: "LC 500",
-      trim: "Coupe",
-      vin: "JTHGB5C21NA123456",
-      mileage: 9800,
-      price: 98500,
-      marketPercentage: 96,
-      daysOnLot: 92,
-      status: "attention",
-      image: `https://picsum.photos/seed/JTHGB5C21NA123456/300/200.jpg`,
-    },
-    {
-      id: "6",
-      year: 2023,
-      make: "BMW",
-      model: "M3",
-      trim: "Competition",
-      vin: "WBS83CR30PCH12345",
-      mileage: 6700,
-      price: 82500,
-      marketPercentage: 108,
-      daysOnLot: 12,
-      status: "healthy",
-      image: `https://picsum.photos/seed/WBS83CR30PCH12345/300/200.jpg`,
-    },
-  ];
-
-  return { kpiData, inventoryCars };
+  return { kpiData, inventoryCars, totalFound: 0 };
 }

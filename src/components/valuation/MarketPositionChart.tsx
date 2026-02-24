@@ -9,7 +9,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DataPoint {
@@ -95,16 +94,6 @@ export function MarketPositionChart({
             )}
           </ScatterChart>
         </ResponsiveContainer>
-      </div>
-
-      <div className="mt-2 flex justify-end">
-        <button
-          type="button"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700"
-          aria-label="Chart options"
-        >
-          <BarChart3 className="h-4 w-4" />
-        </button>
       </div>
     </div>
   );

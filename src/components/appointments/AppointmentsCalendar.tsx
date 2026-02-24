@@ -16,9 +16,9 @@ export interface CalendarEvent {
 }
 
 const VARIANT_STYLES = {
-  inspection: "bg-blue-100 text-blue-700",
-  "test-drive": "bg-emerald-100 text-emerald-700",
-  signing: "bg-amber-100 text-amber-700",
+  inspection: "bg-blue-50 text-blue-600 border border-blue-200",
+  "test-drive": "bg-emerald-50 text-emerald-600 border border-emerald-200",
+  signing: "bg-amber-50 text-amber-600 border border-amber-200",
 } as const;
 
 const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
@@ -183,7 +183,7 @@ export function AppointmentsCalendar({
   const displayLabel = viewMode === "weekly" ? weekLabel : monthLabel;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6">
+    <div className="rounded-xl border border-gray-200 bg-white p-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Button
@@ -194,7 +194,7 @@ export function AppointmentsCalendar({
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h2 className="min-w-[180px] text-center text-lg font-semibold text-slate-900">
+          <h2 className="min-w-[180px] text-center text-lg font-semibold text-gray-800">
             {displayLabel}
           </h2>
           <Button
@@ -208,15 +208,15 @@ export function AppointmentsCalendar({
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-slate-200 p-0.5">
+          <div className="flex rounded-lg border border-gray-200 p-0.5">
             <button
               type="button"
               onClick={() => setViewMode("monthly")}
               className={cn(
                 "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
                 viewMode === "monthly"
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100",
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-500 hover:bg-gray-100",
               )}
             >
               Monthly
@@ -227,8 +227,8 @@ export function AppointmentsCalendar({
               className={cn(
                 "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
                 viewMode === "weekly"
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100",
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-500 hover:bg-gray-100",
               )}
             >
               Weekly
@@ -253,7 +253,7 @@ export function AppointmentsCalendar({
               {DAYS.map((day) => (
                 <th
                   key={day}
-                  className="pb-2 text-center text-xs font-semibold uppercase tracking-wide text-slate-500"
+                  className="pb-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-500"
                 >
                   {day}
                 </th>
@@ -276,9 +276,9 @@ export function AppointmentsCalendar({
                     <td
                       key={di}
                       className={cn(
-                        "group border-t border-slate-100 p-2 align-top",
-                        isToday(cell) && "bg-blue-50",
-                        isFuture && "cursor-pointer hover:bg-slate-50 transition-colors",
+                        "group border-t border-gray-200 p-2 align-top",
+                        isToday(cell) && "bg-gray-50",
+                        isFuture && "cursor-pointer hover:bg-gray-50 transition-colors",
                       )}
                       onClick={() => {
                         if (isFuture && onDateClick) {
@@ -290,12 +290,12 @@ export function AppointmentsCalendar({
                         className={cn(
                           "inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium transition-colors",
                           isToday(cell)
-                            ? "bg-blue-600 text-white"
+                            ? "bg-gray-800 text-white"
                             : isFuture
-                              ? "text-slate-700 hover:bg-blue-100"
+                              ? "text-gray-800 hover:bg-gray-50"
                               : cell.isCurrentMonth
-                                ? "text-slate-400"
-                                : "text-slate-300",
+                                ? "text-gray-500"
+                                : "text-gray-300",
                         )}
                       >
                         {cell.day}
@@ -307,7 +307,7 @@ export function AppointmentsCalendar({
                             className={cn(
                               "group relative flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium cursor-pointer transition-all",
                               VARIANT_STYLES[ev.variant],
-                              hoveredEventId === ev.id && "ring-2 ring-blue-500",
+                              hoveredEventId === ev.id && "ring-2 ring-gray-800",
                             )}
                             onClick={(e) => {
                               e.stopPropagation();

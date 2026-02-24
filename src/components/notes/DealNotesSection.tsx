@@ -37,26 +37,26 @@ export function DealNotesSection({
   return (
     <div
       className={cn(
-        "rounded-xl border border-slate-200 bg-white",
+        "rounded-xl border border-gray-200 bg-white",
         className,
       )}
     >
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 px-6 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 px-6 py-4">
         <div className="flex items-center gap-2">
-          <FileText className="h-5 w-5 text-slate-500" aria-hidden />
-          <h2 className="text-lg font-semibold text-slate-900">Deal Notes</h2>
+          <FileText className="h-5 w-5 text-gray-500" aria-hidden />
+          <h2 className="text-lg font-semibold text-gray-800">Deal Notes</h2>
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={onTagMember}
-            className="gap-2"
+            className="gap-2 border-gray-200 text-gray-600 hover:bg-gray-50"
           >
             <AtSign className="h-4 w-4" aria-hidden />
             Tag Team Member
           </Button>
-          <Button size="sm" onClick={onAddNote} className="gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button size="sm" onClick={onAddNote} className="gap-2 bg-gray-800 hover:bg-gray-900 text-white">
             <Plus className="h-4 w-4" aria-hidden />
             Add Note
           </Button>
@@ -66,8 +66,8 @@ export function DealNotesSection({
       <div className="max-h-[calc(100vh-320px)] overflow-y-auto px-6 py-6">
         <div className="space-y-0">
           {notes.length === 0 ? (
-            <div className="py-12 text-center text-slate-500">
-              <FileText className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+            <div className="py-12 text-center text-gray-500">
+              <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
               <p className="text-sm">No notes yet. Add your first note to get started.</p>
             </div>
           ) : (

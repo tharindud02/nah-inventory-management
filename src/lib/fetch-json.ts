@@ -14,7 +14,7 @@ export async function parseJsonResponse<T = unknown>(
   if (isHtml) {
     throw new Error(
       `API returned an HTML page (${response.status}) instead of JSON. ` +
-        "Ensure DEMO_MODE=false and NEXT_PUBLIC_MARKETCHECK_API_KEY are set in production.",
+        "Ensure DEMO_MODE=false and MARKETCHECK_API_KEY are set in production.",
     );
   }
   try {

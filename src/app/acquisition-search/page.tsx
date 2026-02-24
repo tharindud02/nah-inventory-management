@@ -32,26 +32,6 @@ import {
 import { fetchJobs as fetchJobsApi } from "@/lib/api/jobs";
 import { JobSummary } from "@/lib/types/jobs";
 
-// Mock data for active search criteria
-const mockSearchCriteria: JobSummary[] = [
-  {
-    id: "job-1",
-    jobKey: "demo-job-1",
-    scrapedCount: 12,
-    status: "RUNNING",
-    demandColor: "text-blue-600",
-    borderColor: "border-l-blue-500",
-  },
-  {
-    id: "job-2",
-    jobKey: "demo-job-2",
-    scrapedCount: 34,
-    status: "COMPLETED",
-    demandColor: "text-green-600",
-    borderColor: "border-l-green-500",
-  },
-];
-
 export default function AcquisitionSearchPage() {
   const router = useRouter();
   const [searchValue, setSearchValue] = useState("");
@@ -61,10 +41,7 @@ export default function AcquisitionSearchPage() {
   );
 
   // Check if we're in demo mode or if API keys are available
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-  const [searchCriteria, setSearchCriteria] = useState<JobSummary[]>(
-    isDemoMode ? mockSearchCriteria : [],
-  );
+  const [searchCriteria, setSearchCriteria] = useState<JobSummary[]>([]);
 
   const [yearMin, setYearMin] = useState("");
   const [yearMax, setYearMax] = useState("");
@@ -109,8 +86,6 @@ export default function AcquisitionSearchPage() {
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
 
   const fetchJobs = async () => {
-    if (isDemoMode) return;
-
     setJobsError(null);
     setIsLoadingJobs(true);
 
@@ -138,88 +113,31 @@ export default function AcquisitionSearchPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const opportunityHighlights = [
-    {
-      title: "2020 Honda CR-V",
-      badge: "Fast Seller",
-      daysOnMarket: 14,
-    },
-    {
-      title: "2021 Jeep Grand Cherokee",
-      badge: "Fast Seller",
-      daysOnMarket: 18,
-    },
-    {
-      title: "2019 Toyota RAV4",
-      badge: "Fast Seller",
-      daysOnMarket: 16,
-    },
-  ];
+  const opportunityHighlights: Array<{
+    title: string;
+    badge: string;
+    daysOnMarket: number;
+  }> = [];
 
-  const volumeAlerts = [
-    {
-      title: "2018-2022 Chevrolet Silverado 1500",
-      volume: "842 Available",
-      spread: "$4,200 Gap",
-      trend: "High Volume",
-    },
-    {
-      title: "2019-2023 Ford Explorer",
-      volume: "1,120 Available",
-      spread: "+$3,850 Gap",
-      trend: "High Volume",
-    },
-  ];
+  const volumeAlerts: Array<{
+    title: string;
+    volume: string;
+    spread: string;
+    trend: string;
+  }> = [];
 
   const seasonalTrend = {
-    focus: "Convertible Season & Performance Prep",
-    demand: "Expected in 30-45 Days",
+    focus: "—",
+    demand: "—",
   };
 
-  const fastMovingTable = [
-    {
-      vehicle: "2020 Honda CR-V",
-      daysOnMarket: 14,
-      demand: "Very High",
-      inventory: "12 units",
-      tone: "text-emerald-600",
-    },
-    {
-      vehicle: "2021 Jeep Grand Cherokee",
-      daysOnMarket: 18,
-      demand: "High",
-      inventory: "8 units",
-      tone: "text-green-600",
-    },
-    {
-      vehicle: "2019 Toyota RAV4",
-      daysOnMarket: 16,
-      demand: "Very High",
-      inventory: "15 units",
-      tone: "text-emerald-600",
-    },
-    {
-      vehicle: "2022 Ford Explorer",
-      daysOnMarket: 21,
-      demand: "Above Avg",
-      inventory: "24 units",
-      tone: "text-blue-600",
-    },
-    {
-      vehicle: "2020 Chevrolet Tahoe",
-      daysOnMarket: 19,
-      demand: "High",
-      inventory: "6 units",
-      tone: "text-green-600",
-    },
-    {
-      vehicle: "2018 Toyota Highlander",
-      daysOnMarket: 22,
-      demand: "Above Avg",
-      inventory: "31 units",
-      tone: "text-blue-600",
-    },
-  ];
+  const fastMovingTable: Array<{
+    vehicle: string;
+    daysOnMarket: number;
+    demand: string;
+    inventory: string;
+    tone: string;
+  }> = [];
 
   const handleCreateSearch = async () => {
     setCreateError(null);
@@ -248,21 +166,18 @@ export default function AcquisitionSearchPage() {
 
     setIsCreating(true);
     try {
-      const response = await fetch(
-        "https://i3hjth9ogf.execute-api.ap-south-1.amazonaws.com/configs/generate?save=true&process=true",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify(payload),
+      const response = await fetch("/api/configs/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Request failed");
+        const err = await response.json().catch(() => ({})) as { error?: string };
+        throw new Error(err?.error ?? "Request failed");
       }
 
       setCreateMessage("Search created successfully.");

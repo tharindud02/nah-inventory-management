@@ -1,6 +1,6 @@
 "use client";
 
-import { Phone, Mail, MapPin, Calendar, List } from "lucide-react";
+import { Phone, Mail, MapPin, Calendar, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ContactInfoItem } from "./ContactInfoItem";
 import { SourceInfoItem } from "./SourceInfoItem";
@@ -24,6 +24,8 @@ export interface SellerDetailsPanelProps {
   contactInfo: SellerContactInfo;
   sourceInfo: SourceInfo;
   actions: Array<{ id: string; label: string }>;
+  /** External URL to open Messenger (e.g. Facebook Marketplace listing). */
+  messengerHref?: string;
   onLogActivity?: () => void;
   onActionClick?: (actionId: string) => void;
   className?: string;
@@ -33,6 +35,7 @@ export function SellerDetailsPanel({
   contactInfo,
   sourceInfo,
   actions,
+  messengerHref,
   onLogActivity,
   onActionClick,
   className,
@@ -51,6 +54,17 @@ export function SellerDetailsPanel({
       </div>
 
       <div className="flex-1 space-y-6 overflow-y-auto p-4">
+        {messengerHref && (
+          <a
+            href={messengerHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
+          >
+            <MessageCircle className="h-4 w-4" aria-hidden />
+            Message on Messenger
+          </a>
+        )}
         <div className="space-y-4">
           {contactInfo.mobile && (
             <ContactInfoItem

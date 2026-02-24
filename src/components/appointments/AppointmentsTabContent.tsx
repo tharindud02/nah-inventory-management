@@ -50,14 +50,14 @@ export function AppointmentsTabContent({
       </div>
 
       <aside className="w-full space-y-6 lg:w-80 lg:shrink-0">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-xl border border-gray-200 bg-white p-4">
           <div className="mb-4 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-slate-500" aria-hidden />
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+            <Calendar className="h-5 w-5 text-gray-500" aria-hidden />
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-700">
               Upcoming Events
             </h3>
           </div>
-          <p className="mb-4 text-xs text-slate-500">
+          <p className="mb-4 text-xs text-gray-500">
             Specific to {vehicleName}
           </p>
           <div className="space-y-3">
@@ -77,7 +77,7 @@ export function AppointmentsTabContent({
         <AvailabilityOverview slots={availability} />
 
         <Button
-          className="w-full gap-2"
+          className="w-full gap-2 bg-gray-800 hover:bg-gray-900 text-white"
           onClick={onNewEvent}
         >
           <Plus className="h-4 w-4" aria-hidden />

@@ -47,6 +47,7 @@ export function normalizeListingItem(
     seller_contact_notes: seller.seller_contact_notes,
     seller_phone: seller.seller_phone,
     seller_email: seller.seller_email,
+    bookmarked: item.bookmarked === true,
   };
 }
 

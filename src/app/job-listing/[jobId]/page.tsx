@@ -17,13 +17,16 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Heart,
 } from "lucide-react";
 import type { ListingItem } from "@/types/listing";
 import {
   normalizeListingItem,
   getListingId,
 } from "@/lib/listing-utils";
+import { bookmarkListing } from "@/lib/api/listings";
 import type { ListingDetail } from "@/types/listing";
+import { toast } from "sonner";
 
 interface ImageSliderProps {
   images: string[];
@@ -280,6 +283,8 @@ export default function JobListingPage() {
   const [listings, setListings] = useState<ListingDetail[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
+  const [bookmarkingId, setBookmarkingId] = useState<string | null>(null);
 
   const fetchListings = async () => {
     if (!jobId) return;
@@ -295,18 +300,15 @@ export default function JobListingPage() {
     }
 
     try {
-      const response = await fetch(
-        `https://i3hjth9ogf.execute-api.ap-south-1.amazonaws.com/listings/job/${jobId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+      const response = await fetch(`/api/listings/job/${encodeURIComponent(jobId)}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+      });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Failed to fetch listings");
+        const err = await response.json().catch(() => ({})) as { error?: string };
+        throw new Error(err?.error ?? "Failed to fetch listings");
       }
 
       const raw = await response.json();
@@ -321,6 +323,15 @@ export default function JobListingPage() {
         normalizeListingItem(item, getListingId(item)),
       );
       setListings(normalized);
+
+      const initialBookmarked = new Set<string>();
+      for (const listing of normalized) {
+        const id = listing.product_id ?? listing.SK;
+        if (id != null && listing.bookmarked) {
+          initialBookmarked.add(String(id));
+        }
+      }
+      setBookmarkedIds(initialBookmarked);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load listings");
     } finally {
@@ -332,6 +343,50 @@ export default function JobListingPage() {
     router.push(
       `/acquisition/vehicle/listing/${jobId}/${encodeURIComponent(listing.SK)}`,
     );
+  };
+
+  const getBookmarkId = (listing: ListingDetail): string | null => {
+    const id = listing.product_id ?? listing.SK;
+    return id != null ? String(id) : null;
+  };
+
+  const handleBookmark = async (listing: ListingDetail) => {
+    const id = getBookmarkId(listing);
+    if (!id) {
+      toast.error("Cannot bookmark: listing has no identifier.");
+      return;
+    }
+
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      toast.error("Please sign in to save favorites.");
+      return;
+    }
+
+    setBookmarkingId(id);
+    const wasBookmarked = bookmarkedIds.has(id);
+
+    setBookmarkedIds((prev) => {
+      const next = new Set(prev);
+      if (wasBookmarked) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+    try {
+      await bookmarkListing(id, accessToken);
+      toast.success(wasBookmarked ? "Removed from favorites" : "Saved to favorites");
+    } catch (err) {
+      setBookmarkedIds((prev) => {
+        const next = new Set(prev);
+        if (wasBookmarked) next.add(id);
+        else next.delete(id);
+        return next;
+      });
+      toast.error(err instanceof Error ? err.message : "Failed to save favorite");
+    } finally {
+      setBookmarkingId(null);
+    }
   };
 
   useEffect(() => {
@@ -393,16 +448,41 @@ export default function JobListingPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {listings.map((listing, idx) => (
+                {listings.map((listing, idx) => {
+                  const bookmarkId = getBookmarkId(listing);
+                  const isBookmarked = bookmarkId ? bookmarkedIds.has(bookmarkId) : false;
+                  const isBookmarking = bookmarkId === bookmarkingId;
+
+                  return (
                   <Card
                     key={listing.SK || `listing-${idx}`}
                     className="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 pt-0 pb-4"
                   >
-                    {/* Listing Images */}
-                    <ImageSlider
-                      images={listing.images || []}
-                      title={listing.title || "Listing"}
-                    />
+                    {/* Listing Images with Favorite overlay */}
+                    <div className="relative">
+                      <ImageSlider
+                        images={listing.images || []}
+                        title={listing.title || "Listing"}
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBookmark(listing);
+                        }}
+                        disabled={!bookmarkId || isBookmarking}
+                        className="absolute top-2 right-2 p-2 rounded-lg bg-white/90 hover:bg-white shadow-md transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                        aria-label={isBookmarked ? "Remove from favorites" : "Save to favorites"}
+                      >
+                        <Heart
+                          className={`w-5 h-5 transition-colors ${
+                            isBookmarked
+                              ? "fill-red-500 text-red-500"
+                              : "text-gray-600"
+                          }`}
+                        />
+                      </button>
+                    </div>
 
                     <CardContent className="px-4 py-0">
                       {/* Title and Menu */}
@@ -446,7 +526,8 @@ export default function JobListingPage() {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                );
+                })}
               </div>
             )}
           </div>

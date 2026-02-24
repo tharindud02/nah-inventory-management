@@ -10,6 +10,8 @@ export interface SellerContactTabContentProps {
   contactName: string;
   contactInitials: string;
   contactStatus?: "online" | "offline";
+  /** External URL to open Messenger / Marketplace listing (e.g. Facebook Marketplace item). */
+  messengerHref?: string;
   messages: ChatMessage[];
   aiSuggestions: Array<{
     id: string;
@@ -35,6 +37,7 @@ export function SellerContactTabContent({
   contactName,
   contactInitials,
   contactStatus = "online",
+  messengerHref,
   messages,
   aiSuggestions,
   contactInfo,
@@ -73,6 +76,7 @@ export function SellerContactTabContent({
         contactInfo={contactInfo}
         sourceInfo={sourceInfo}
         actions={actions}
+        messengerHref={messengerHref}
         onLogActivity={onLogActivity}
         onActionClick={onActionClick}
         className="lg:col-start-2 xl:col-start-3"

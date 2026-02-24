@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -98,7 +98,7 @@ const HeroStatCard = ({
       <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
         {label}
       </p>
-      <p className="text-3xl font-bold text-gray-900 mt-2">{value ?? "—"}</p>
+      <p className="text-3xl font-bold text-gray-900 mt-2">{value ?? ""}</p>
       {sublabel && (
         <span
           className={`inline-flex mt-2 px-2.5 py-1 rounded-full text-xs font-semibold ${accentMap[accent]}`}
@@ -130,15 +130,15 @@ const MetricBadge = ({
   </div>
 );
 
-export default function VINDeepDivePage() {
+function VINDeepDivePageContent() {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [vinData, setVinData] = useState<VINData | null>(null);
   const [vin, setVin] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [buildSheetModalOpen, setBuildSheetModalOpen] = useState(false);
   const [vehicleSpecs, setVehicleSpecs] = useState<VehicleSpecs | null>(null);
-  const marketDataFetchedRef = useRef(false);
   const [aamvaReport, setAamvaReport] = useState<any>(null);
   const [marketComps, setMarketComps] = useState<any[]>([]);
   const [soldCompsScrollState, setSoldCompsScrollState] = useState<
@@ -213,131 +213,6 @@ export default function VINDeepDivePage() {
     }
   }, [currentImageIndex, carImages]);
 
-  const fetchAamvaReport = useCallback(async (vinParam: string) => {
-    try {
-      const response = await fetch("/api/vindata/aamva-access-report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vin: vinParam }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(
-          (errorData && (errorData.error || errorData.details)) ||
-            `Failed to fetch AAMVA report: ${response.status}`,
-        );
-      }
-
-      const result = await response.json();
-      if (result?.success && result.data) {
-        setAamvaReport(result.data);
-        sessionStorage.setItem("aamvaReport", JSON.stringify(result.data));
-        return result.data;
-      }
-
-      throw new Error("AAMVA report response missing data");
-    } catch (error) {
-      return null;
-    }
-  }, []);
-
-  const fetchMmr = useCallback(
-    async (vinParam: string, miles?: number, zip?: string) => {
-      try {
-        const response = await fetch("/api/vindata/mmr", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vin: vinParam, miles, zip }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => null);
-          throw new Error(
-            (errorData && (errorData.error || errorData.details)) ||
-              `Failed to fetch MMR: ${response.status}`,
-          );
-        }
-
-        const result = await response.json();
-        if (result?.success && result.data) {
-          setMmr(result.data);
-          sessionStorage.setItem("mmr", JSON.stringify(result.data));
-          return result.data;
-        }
-
-        throw new Error("MMR response missing data");
-      } catch (error) {
-        return null;
-      }
-    },
-    [],
-  );
-
-  const fetchDemandScore = useCallback(
-    async (vinParam: string, year?: number, make?: string, model?: string) => {
-      try {
-        const response = await fetch("/api/vindata/demand-score", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vin: vinParam, year, make, model }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => null);
-          throw new Error(
-            (errorData && (errorData.error || errorData.details)) ||
-              `Failed to fetch demand score: ${response.status}`,
-          );
-        }
-
-        const result = await response.json();
-        if (result?.success && result.data) {
-          setDemandScore(result.data);
-          sessionStorage.setItem("demandScore", JSON.stringify(result.data));
-          return result.data;
-        }
-
-        throw new Error("Demand score response missing data");
-      } catch (error) {
-        return null;
-      }
-    },
-    [],
-  );
-
-  const fetchValuation = useCallback(
-    async (vinParam: string, miles?: number, zip?: string) => {
-      try {
-        const response = await fetch("/api/vindata/valuation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vin: vinParam, miles, zip }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => null);
-          throw new Error(
-            (errorData && (errorData.error || errorData.details)) ||
-              `Failed to fetch valuation: ${response.status}`,
-          );
-        }
-
-        const result = await response.json();
-        if (result?.success && result.data) {
-          setValuation(result.data);
-          sessionStorage.setItem("valuation", JSON.stringify(result.data));
-          return result.data;
-        }
-
-        throw new Error("Valuation response missing data");
-      } catch (error) {
-        return null;
-      }
-    },
-    [],
-  );
-
   // Scroll detection handlers
   const handleSoldCompsScroll = useCallback(
     (e: React.UIEvent<HTMLDivElement>) => {
@@ -393,135 +268,29 @@ export default function VINDeepDivePage() {
     }
   };
 
-  const fetchMarketComps = useCallback(
-    async (vinParam: string, year?: number, make?: string, model?: string) => {
-      try {
-        const response = await fetch("/api/vindata/market-comps", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vin: vinParam, year, make, model }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => null);
-          throw new Error(
-            (errorData && (errorData.error || errorData.details)) ||
-              `Failed to fetch market comps: ${response.status}`,
-          );
-        }
-
-        const result = await response.json();
-        if (result?.success && result.data?.listings) {
-          setMarketComps(result.data.listings);
-          sessionStorage.setItem(
-            "marketComps",
-            JSON.stringify(result.data.listings),
-          );
-          return result.data.listings;
-        }
-
-        throw new Error("Market comps response missing data");
-      } catch (error) {
-        return [];
-      }
-    },
-    [],
-  );
-
-  const fetchSoldComps = useCallback(
-    async (vinParam: string, year?: number, make?: string, model?: string) => {
-      try {
-        const response = await fetch("/api/vindata/sold-comps", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vin: vinParam, year, make, model }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => null);
-          throw new Error(
-            (errorData && (errorData.error || errorData.details)) ||
-              `Failed to fetch sold comps: ${response.status}`,
-          );
-        }
-
-        const result = await response.json();
-        if (result?.success && result.data?.listings) {
-          setSoldComps(result.data.listings);
-          sessionStorage.setItem(
-            "soldComps",
-            JSON.stringify(result.data.listings),
-          );
-          return result.data.listings;
-        }
-
-        throw new Error("Sold comps response missing data");
-      } catch (error) {
-        return [];
-      }
-    },
-    [],
-  );
-
-  const fetchAndStoreVehicleSpecs = useCallback(async (vinParam: string) => {
-    try {
-      const response = await fetch("/api/cars/vehicle-specs/neovin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vin: vinParam }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(
-          (errorData && (errorData.error || errorData.details)) ||
-            `Failed to fetch vehicle specs: ${response.status}`,
-        );
-      }
-
-      const result = await response.json();
-      if (result?.success && result.data) {
-        setVehicleSpecs(result.data);
-        sessionStorage.setItem("vehicleSpecs", JSON.stringify(result.data));
-        return result.data as VehicleSpecs;
-      }
-
-      throw new Error("Vehicle specs response missing data");
-    } catch (error) {
-      toast.warning(
-        error instanceof Error
-          ? error.message
-          : "Unable to refresh build sheet data for this VIN.",
-      );
-      return null;
-    }
-  }, []);
-
   useEffect(() => {
-    // Retrieve VIN data from sessionStorage
+    const applyVinData = (
+      rawData: Record<string, unknown>,
+      vinValue: string,
+      fromInventory: boolean,
+    ) => {
+      const transformedData = transformVinData(rawData, vinValue);
+      setVinData(transformedData);
+      setVin(vinValue);
+      setIsFromInventory(fromInventory);
+    };
+
     const storedVinData = sessionStorage.getItem("vinData");
     const storedVin = sessionStorage.getItem("vin");
     const storedVehicleSpecs = sessionStorage.getItem("vehicleSpecs");
     const storedCarImage = sessionStorage.getItem("carImage");
     const storedMedia = sessionStorage.getItem("carMedia");
-
-    console.log("Session data check:", {
-      storedVinData: !!storedVinData,
-      storedVin: storedVin,
-      storedVehicleSpecs: !!storedVehicleSpecs,
-      storedCarImage: !!storedCarImage,
-      storedMedia: !!storedMedia,
-    });
-
-    // Check if this is from inventory (has media data)
     const fromInventory = !!storedMedia;
     setIsFromInventory(fromInventory);
 
-    // Only set car image if it's from inventory
     if (storedCarImage && fromInventory) {
       setCarImage(storedCarImage);
     } else {
-      // Clear any previous images for VIN search
       setCarImage(null);
       setCarImages([]);
       setCurrentImageIndex(0);
@@ -529,62 +298,49 @@ export default function VINDeepDivePage() {
 
     if (storedVinData && storedVin) {
       try {
-        const rawData = JSON.parse(storedVinData);
-        console.log("Raw VIN data:", rawData);
-        // Transform MarketCheck API data to expected format
-        const transformedData = transformVinData(rawData, storedVin);
-        console.log("Transformed VIN data:", transformedData);
-        setVinData(transformedData);
-        setVin(storedVin);
-
+        const rawData = JSON.parse(storedVinData) as Record<string, unknown>;
+        applyVinData(rawData, storedVin, fromInventory);
         if (storedVehicleSpecs) {
           try {
             setVehicleSpecs(JSON.parse(storedVehicleSpecs));
-          } catch (specError) {
+          } catch {
             setVehicleSpecs(null);
-            if (storedVin) {
-              fetchAndStoreVehicleSpecs(storedVin);
-            }
           }
-        } else if (storedVin) {
-          fetchAndStoreVehicleSpecs(storedVin);
-        }
-
-        // Fetch additional market data only if not already fetched
-        if (!marketDataFetchedRef.current) {
-          fetchMarketData(storedVin, transformedData);
-          marketDataFetchedRef.current = true;
         }
       } catch (error) {
         console.error("Error processing VIN data:", error);
-        toast.error("Error loading vehicle data. Please try again.");
+        applyVinData({}, storedVin ?? "", false);
       }
     } else {
-      toast.info("No vehicle data found. Please analyze a VIN first.");
-      if (storedVin) {
-        fetchAndStoreVehicleSpecs(storedVin);
-      }
+      const listingId = searchParams.get("listingId");
+      const vinParam = searchParams.get("vin");
+      const vinFromUrl =
+        vinParam?.length === 17
+          ? vinParam
+          : listingId?.includes("-")
+            ? listingId.split("-")[0]
+            : listingId ?? "";
+      const extractedVin = vinFromUrl.length === 17 ? vinFromUrl : "";
+      applyVinData(
+        extractedVin ? { vin: extractedVin } : {},
+        extractedVin,
+        false,
+      );
+      setMarketComps([]);
+      setSoldComps([]);
+      setMmr(null);
+      setValuation(null);
+      setDemandScore(null);
+      setAamvaReport(null);
     }
 
     setIsLoading(false);
-  }, [fetchAndStoreVehicleSpecs]);
-
-  // Debug carImage state
-  useEffect(() => {
-    console.log("carImage state changed:", carImage);
-  }, [carImage]);
+  }, [searchParams]);
 
   useEffect(() => {
-    if (
-      buildSheetModalOpen &&
-      vin &&
-      (!vehicleSpecs || !vehicleSpecs.installedOptionsDetails?.length)
-    ) {
-      fetchAndStoreVehicleSpecs(vin);
-    }
-  }, [buildSheetModalOpen, vin, vehicleSpecs, fetchAndStoreVehicleSpecs]);
+    const storedVinData = sessionStorage.getItem("vinData");
+    if (!storedVinData) return;
 
-  useEffect(() => {
     const storedAamvaReport = sessionStorage.getItem("aamvaReport");
     const storedMarketComps = sessionStorage.getItem("marketComps");
     const storedSoldComps = sessionStorage.getItem("soldComps");
@@ -616,278 +372,80 @@ export default function VINDeepDivePage() {
         setValuation(JSON.parse(storedValuation));
       } catch (e) {}
     }
-    if (vin) {
-      fetchAamvaReport(vin);
-      fetchValuation(vin, vinData?.odometer);
-      fetchMmr(vin, vinData?.odometer);
-      fetchDemandScore(vin, vinData?.year, vinData?.make, vinData?.model);
-      fetchMarketComps(vin, vinData?.year, vinData?.make, vinData?.model);
-      fetchSoldComps(vin, vinData?.year, vinData?.make, vinData?.model);
+    if (storedAamvaReport) {
+      try {
+        setAamvaReport(JSON.parse(storedAamvaReport));
+      } catch (e) {}
     }
-  }, [
-    vin,
-    vinData,
-    fetchAamvaReport,
-    fetchValuation,
-    fetchMmr,
-    fetchDemandScore,
-    fetchMarketComps,
-    fetchSoldComps,
-  ]);
-
-  // Fetch market data from various MarketCheck APIs
-  const fetchMarketData = async (vin: string, currentData: VINData) => {
-    // Prevent multiple simultaneous calls
-    if (marketDataFetchedRef.current) return;
-
-    let loadingToastId: string | number | undefined;
-    try {
-      // Show loading toast with ID so we can dismiss it properly
-      loadingToastId = toast.loading(
-        "Analyzing vehicle and fetching market data...",
-      );
-
-      const requests = [
-        // Market Days Supply
-        fetch("/api/vindata/market-days-supply", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vin }),
-        }),
-
-        // Estimated Market Value
-        fetch("/api/vindata/estimated-market-value", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            vin,
-            miles: currentData.odometer,
-            zip: "90210",
-          }),
-        }),
-
-        // Inventory Stats (avg days to sell, sold 90d, active local)
-        fetch("/api/vindata/inventory-stats", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vin }),
-        }),
-
-        // Consumer Interest
-        fetch("/api/vindata/consumer-interest", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            year: currentData.year,
-            make: currentData.make,
-            model: currentData.model,
-          }),
-        }),
-      ];
-
-      const responses = await Promise.allSettled(requests);
-
-      const marketDataUpdates: Partial<VINData["market_data"]> = {};
-
-      // Process Market Days Supply
-      if (responses[0].status === "fulfilled") {
-        const result = await responses[0].value.json();
-        if (result.success && result.data) {
-          // Extract the actual market days supply value - check for multiple possible field names
-          const daysSupplyData =
-            result.data.days_supply ||
-            result.data.mds ||
-            result.data.market_days_supply ||
-            result.data;
-          if (typeof daysSupplyData === "object" && daysSupplyData !== null) {
-            marketDataUpdates.market_days_supply =
-              daysSupplyData.current ||
-              daysSupplyData.mean ||
-              daysSupplyData.median ||
-              daysSupplyData.value ||
-              null;
-          } else if (typeof daysSupplyData === "number") {
-            marketDataUpdates.market_days_supply = daysSupplyData;
-          }
-        }
-      }
-
-      // Process Estimated Market Value
-      if (responses[1].status === "fulfilled") {
-        const result = await responses[1].value.json();
-        if (result.success && result.data) {
-          // Extract the market value from multiple possible field structures
-          const priceData =
-            result.data.market_value?.estimated_value ||
-            result.data.marketcheck_price ||
-            result.data.predicted_price ||
-            result.data.price;
-          if (typeof priceData === "number") {
-            marketDataUpdates.estimated_market_value = priceData;
-          } else if (typeof priceData === "object" && priceData !== null) {
-            marketDataUpdates.estimated_market_value =
-              priceData.estimated_value ||
-              priceData.mean ||
-              priceData.median ||
-              priceData.value ||
-              null;
-          }
-        }
-      }
-
-      // Process Inventory Stats
-      if (responses[2].status === "fulfilled") {
-        const result = await responses[2].value.json();
-        if (result.success && result.data) {
-          const stats = result.data.stats || result.data; // Handle both nested and flat structures
-
-          // Extract avg days to sell from stats object
-          if (stats.average_days_on_market || stats.avg_days_to_sell) {
-            const avgDays =
-              stats.average_days_on_market || stats.avg_days_to_sell;
-            if (typeof avgDays === "object" && avgDays !== null) {
-              marketDataUpdates.avg_days_to_sell =
-                avgDays.mean || avgDays.median || null;
-            } else if (typeof avgDays === "number") {
-              marketDataUpdates.avg_days_to_sell = avgDays;
-            }
-          }
-
-          // Use demo data defaults if no specific data available
-          marketDataUpdates.sold_90d = stats.sold_yesterday
-            ? stats.sold_yesterday * 90
-            : 499; // Estimate 90-day sales
-          marketDataUpdates.active_local =
-            stats.total_inventory || stats.active_local || 156;
-        }
-      }
-
-      // Process Consumer Interest
-      if (responses[3].status === "fulfilled") {
-        const result = await responses[3].value.json();
-        if (result.success && result.data) {
-          // Consumer interest score from the consumer_interest object
-          const interestData =
-            result.data.consumer_interest?.overall_score ||
-            result.data.sales_volume ||
-            result.data.volume ||
-            result.data.rank ||
-            result.data.popularity_score;
-          if (typeof interestData === "object" && interestData !== null) {
-            marketDataUpdates.consumer_interest =
-              interestData.mean ||
-              interestData.median ||
-              interestData.value ||
-              null;
-          } else if (typeof interestData === "number") {
-            marketDataUpdates.consumer_interest = interestData;
-          } else if (Array.isArray(result.data) && result.data.length > 0) {
-            // If data is an array of popular cars, use the first item's ranking or volume
-            const firstItem = result.data[0];
-            marketDataUpdates.consumer_interest =
-              firstItem.sales_volume ||
-              firstItem.rank ||
-              firstItem.volume ||
-              null;
-          }
-        }
-      }
-
-      // Derive Retail Turn Rate from Market Days Supply
-      // Retail Turn Rate = 1 / Market Days Supply * 100 (approximate monthly turn rate)
-      if (
-        marketDataUpdates.market_days_supply &&
-        typeof marketDataUpdates.market_days_supply === "number"
-      ) {
-        // Convert to monthly turn rate (30 days)
-        marketDataUpdates.retail_turn_rate =
-          Math.round((30 / marketDataUpdates.market_days_supply) * 100) / 100;
-      }
-
-      // Update VIN data with market information
-      setVinData((prev) =>
-        prev
-          ? {
-              ...prev,
-              market_data: {
-                ...prev.market_data,
-                ...marketDataUpdates,
-              },
-            }
-          : null,
-      );
-
-      if (loadingToastId !== undefined) {
-        toast.dismiss(loadingToastId);
-      }
-      toast.success("VIN analysis complete!");
-    } catch (error) {
-      if (loadingToastId !== undefined) {
-        toast.dismiss(loadingToastId);
-      }
-      toast.error("Some market data could not be loaded");
-    }
-  };
+  }, []);
 
   // Helper function to safely format market data values
-  const formatMarketValue = (value: any): string => {
+  const formatMarketValue = (value: unknown): string => {
     if (value === null || value === undefined || typeof value === "object") {
-      return "N/A";
+      return "";
     }
     if (typeof value === "number") {
       return `$${value.toLocaleString()}`;
     }
-    return "N/A";
+    return "";
   };
 
-  const formatPercentage = (value: any): string => {
+  const formatPercentage = (value: unknown): string => {
     if (value === null || value === undefined || typeof value === "object") {
-      return "N/A";
+      return "";
     }
     if (typeof value === "number") {
       return `${value}%`;
     }
-    return "N/A";
+    return "";
   };
 
-  const formatNumber = (value: any): string => {
+  const formatNumber = (value: unknown): string => {
     if (value === null || value === undefined || typeof value === "object") {
-      return "N/A";
+      return "";
     }
     if (typeof value === "number") {
       return value.toLocaleString();
     }
-    return "N/A";
+    return "";
   };
 
   // Transform MarketCheck API response to frontend format
-  const transformVinData = (rawData: any, vin: string): VINData => {
+  const transformVinData = (rawData: Record<string, unknown>, vin: string): VINData => {
     try {
-      // Check if it's inventory car format (from inventory page)
-      if (rawData.year && rawData.make && rawData.model && rawData.price) {
+      const year = (rawData.year ?? (rawData.build as { year?: number })?.year) as number | undefined;
+      const make = (rawData.make ?? (rawData.build as { make?: string })?.make) as string | undefined;
+      const model = (rawData.model ?? (rawData.build as { model?: string })?.model) as string | undefined;
+      const price = rawData.price as number | undefined;
+      const mileage = (rawData.mileage ?? rawData.miles) as number | undefined;
+      const daysOnLot = (rawData.daysOnLot ?? rawData.dom) as number | undefined;
+      const media = rawData.media as { photo_links?: string[]; photo_links_cached?: string[] } | undefined;
+
+      // Inventory format (from API or inventory page)
+      if (year && make && model && (price ?? price === 0)) {
         return {
           vin: vin,
-          make: rawData.make || "N/A",
-          model: rawData.model || "N/A",
-          year: rawData.year || null,
-          trim: rawData.trim || "Base",
-          body: "N/A",
-          engine: "N/A",
-          transmission: "N/A",
-          drivetrain: "N/A",
-          fuel_type: "N/A",
-          odometer: rawData.mileage || null,
-          exterior_color: "N/A",
-          interior_color: "N/A",
+          make: make || "",
+          model: model || "",
+          year: year || null,
+          trim: (rawData.trim as string) || "",
+          body: "",
+          engine: "",
+          transmission: "",
+          drivetrain: "",
+          fuel_type: "",
+          odometer: mileage ?? null,
+          exterior_color: "",
+          interior_color: "",
           options: [],
           media: {
-            photo_links: rawData.media?.photo_links || [],
-            photo_links_cached: rawData.media?.photo_links_cached || [],
+            photo_links: media?.photo_links ?? [],
+            photo_links_cached: media?.photo_links_cached ?? [],
           },
           market_data: {
-            estimated_market_value: rawData.price || null,
+            estimated_market_value: price ?? null,
             retail_turn_rate: undefined,
-            avg_days_to_sell: rawData.daysOnLot || null,
+            avg_days_to_sell: daysOnLot ?? null,
             market_days_supply: undefined,
             active_local: undefined,
             consumer_interest: undefined,
@@ -911,29 +469,28 @@ export default function VINDeepDivePage() {
 
       return {
         vin: vin,
-        make: summary.make || general.make || "N/A",
-        model: summary.model || general.model || "N/A",
+        make: summary.make || general.make || "",
+        model: summary.model || general.model || "",
         year: summary.year || general["Model Year"] || null,
-        trim: general.Trim || "Base",
-        body: general["Body Class"] || "N/A",
+        trim: general.Trim || "",
+        body: general["Body Class"] || "",
         engine:
           `${engine["Engine Number of Cylinders"]}-Cylinder ${engine["Fuel Type - Primary"] || ""}`.trim() ||
-          "N/A",
+          "",
         transmission:
           `${mechanical["Transmission Speeds"]}-Speed ${mechanical["Transmission Style"]}` ||
-          "N/A",
-        drivetrain: mechanical["Drive Type"] || "N/A",
-        fuel_type: engine["Fuel Type - Primary"] || "N/A",
+          "",
+        drivetrain: mechanical["Drive Type"] || "",
+        fuel_type: engine["Fuel Type - Primary"] || "",
         odometer: odometer,
-        exterior_color: "N/A", // Not provided by MarketCheck API
-        interior_color: "N/A", // Not provided by MarketCheck API
-        options: [], // Could be extracted from trim levels if needed
+        exterior_color: "",
+        interior_color: "",
+        options: [],
         media: {
           photo_links: rawData.media?.photo_links || [],
           photo_links_cached: rawData.media?.photo_links_cached || [],
         },
         market_data: {
-          // MarketCheck API doesn't provide market data, so these remain undefined
           estimated_market_value: undefined,
           retail_turn_rate: undefined,
           avg_days_to_sell: undefined,
@@ -943,11 +500,10 @@ export default function VINDeepDivePage() {
         },
       };
     } catch (error) {
-      // Return minimal data if transformation fails
       return {
         vin: vin,
-        make: "N/A",
-        model: "N/A",
+        make: "",
+        model: "",
         year: undefined,
         media: {
           photo_links: [],
@@ -967,8 +523,8 @@ export default function VINDeepDivePage() {
       demandLabel: demandScore?.demand_label
         ? typeof demandScore.demand_label === "string"
           ? demandScore.demand_label
-          : "No Demand Data"
-        : "No Demand Data",
+          : ""
+        : "",
       demandTone: demandScore?.demand_tone
         ? typeof demandScore.demand_tone === "string"
           ? demandScore.demand_tone
@@ -1014,69 +570,97 @@ export default function VINDeepDivePage() {
     },
   };
 
-  const activeListings = marketComps?.length
-    ? marketComps.map((listing: any) => ({
-        year: listing.year || vinData?.year || 2020,
-        make: listing.make || vinData?.make || "FORD",
-        model: listing.model || vinData?.model || "F-150",
-        trim: listing.trim || "Limited",
-        miles: listing.miles || 0,
-        price: listing.price || 0,
-        vdpUrl: listing.vdp_url || "#",
-        dom: listing.days_on_market || 0,
-        seller: listing.seller_name || "Dealer",
-        certified: listing.certified || false,
-        gradient: "from-blue-400 to-blue-600",
-      }))
-    : aamvaReport?.titleInformation?.length
-      ? aamvaReport.titleInformation.map((t: any) => ({
-          year: aamvaReport.summary?.year ?? 2020,
-          make: aamvaReport.summary?.make ?? "FORD",
-          model: aamvaReport.summary?.model ?? "F-150",
-          trim: "Limited",
-          miles:
-            typeof t.reportedOdometer === "number"
-              ? t.reportedOdometer
-              : parseInt(t.reportedOdometer) || 0,
-          price: vinData?.market_data?.estimated_market_value ?? 141200,
-          vdpUrl: "#",
-          dom: 12,
-          seller: "Local Dealer",
-          certified: false,
-          gradient: "from-gray-400 to-gray-600",
-        }))
-      : [];
+  type CompListing = {
+    year?: number;
+    make: string;
+    model: string;
+    trim: string;
+    miles: number;
+    price: number;
+    vdpUrl: string;
+    dom: number;
+    distance?: string | number;
+    soldDate?: string;
+    seller: string;
+    certified: boolean;
+    gradient: string;
+    image?: string;
+  };
+
+  const normalizeCompListing = (
+    raw: Record<string, unknown>,
+    isSold: boolean,
+  ): CompListing => {
+    const build = raw.build as { year?: number; make?: string; model?: string; trim?: string } | undefined;
+    const media = raw.media as { photo_links?: string[] } | undefined;
+    return {
+      year: (raw.year ?? build?.year) as number | undefined,
+      make: String(raw.make ?? build?.make ?? ""),
+      model: String(raw.model ?? build?.model ?? ""),
+      trim: String(raw.trim ?? build?.trim ?? ""),
+      miles: Number(raw.miles ?? raw.mileage ?? 0) || 0,
+      price: Number(raw.price ?? (isSold ? raw.sale_price : undefined) ?? 0) || 0,
+      vdpUrl: String(raw.vdp_url ?? ""),
+      dom: Number(raw.dom ?? raw.days_on_market ?? 0) || 0,
+      distance: raw.distance != null ? String(raw.distance) : undefined,
+      soldDate: raw.sale_date != null ? String(raw.sale_date) : undefined,
+      seller: String(raw.seller_name ?? ""),
+      certified: Boolean(raw.certified ?? false),
+      gradient: "from-blue-400 to-blue-600",
+      image: media?.photo_links?.[0],
+    };
+  };
+
+  const toCompArray = (data: unknown): unknown[] => {
+    if (Array.isArray(data)) return data;
+    if (data && typeof data === "object" && "listings" in data) {
+      return (data as { listings: unknown[] }).listings ?? [];
+    }
+    if (data && typeof data === "object" && "comparables" in data) {
+      return (data as { comparables: unknown[] }).comparables ?? [];
+    }
+    if (data && typeof data === "object" && "sold_comparables" in data) {
+      return (data as { sold_comparables: unknown[] }).sold_comparables ?? [];
+    }
+    return [];
+  };
+
+  const activeListings: CompListing[] = toCompArray(marketComps).map(
+    (l: unknown) => normalizeCompListing(l as Record<string, unknown>, false),
+  );
+
+  const normalizedSoldComps: CompListing[] = toCompArray(soldComps).map(
+    (l: unknown) => normalizeCompListing(l as Record<string, unknown>, true),
+  );
+
+  const scatterMarketPoints = [
+    ...normalizedSoldComps.slice(0, 20).map((c) => ({ miles: c.miles, price: c.price })),
+    ...activeListings.slice(0, 20).map((l) => ({ miles: l.miles, price: l.price })),
+  ].filter((p) => p.miles > 0 || p.price > 0);
+
+  const scatterTarget = {
+    miles: vinData?.odometer ?? 0,
+    price: vinData?.market_data?.estimated_market_value ?? 0,
+  };
 
   const scatterData = {
-    target: {
-      miles: vinData?.odometer ?? 0,
-      price: vinData?.market_data?.estimated_market_value ?? 0,
-    },
-    market: soldComps?.length
-      ? soldComps.slice(0, 20).map((c: any) => ({
-          miles: c.miles ?? 0,
-          price: c.price ?? 0,
-        }))
-      : activeListings?.length
-        ? activeListings.slice(0, 20).map((l: any) => ({
-            miles: l.miles ?? 0,
-            price: l.price ?? 0,
-          }))
-        : [],
+    target: scatterTarget,
+    market: scatterMarketPoints,
   };
+
 
   const priceValues = [
     scatterData.target.price,
-    ...(scatterData.market?.map((point: any) => point.price) ?? []),
-  ];
+    ...(scatterData.market?.map((p) => p.price) ?? []),
+  ].filter((v) => typeof v === "number" && !Number.isNaN(v));
   const mileageValues = [
     scatterData.target.miles,
-    ...(scatterData.market?.map((point: any) => point.miles) ?? []),
-  ];
-  const minPrice = Math.min(...priceValues);
-  const maxPrice = Math.max(...priceValues);
-  const minMiles = Math.min(...mileageValues);
-  const maxMiles = Math.max(...mileageValues);
+    ...(scatterData.market?.map((p) => p.miles) ?? []),
+  ].filter((v) => typeof v === "number" && !Number.isNaN(v));
+  const minPrice = priceValues.length ? Math.min(...priceValues) : 0;
+  const maxPrice = priceValues.length ? Math.max(...priceValues) : 1;
+  const minMiles = mileageValues.length ? Math.min(...mileageValues) : 0;
+  const maxMiles = mileageValues.length ? Math.max(...mileageValues) : 1;
 
   const getScatterPosition = (miles: number, price: number) => {
     const xPercent =
@@ -1093,23 +677,23 @@ export default function VINDeepDivePage() {
     };
   };
 
-  // Prepare data for recharts ScatterChart
+  const showScatterTarget =
+    (scatterTarget.miles > 0 || scatterTarget.price > 0) &&
+    (vinData?.odometer != null || vinData?.market_data?.estimated_market_value != null);
+
   const scatterChartData = [
-    ...scatterData.market.map((point: any) => ({
-      ...point,
-      type: "Market",
-    })),
-    {
-      ...scatterData.target,
-      type: "Target",
-    },
+    ...scatterData.market.map((point) => ({ ...point, type: "Market" })),
+    ...(showScatterTarget
+      ? [{ ...scatterData.target, type: "Target" }]
+      : []),
   ];
 
   const formatCurrency = (
     value: number | undefined | null,
     options: Intl.NumberFormatOptions = {},
   ) => {
-    if (typeof value !== "number" || isNaN(value)) return "$0";
+    if (value === null || value === undefined || typeof value !== "number" || isNaN(value))
+      return "";
     return `$${value.toLocaleString(undefined, {
       maximumFractionDigits: 0,
       ...options,
@@ -1117,7 +701,8 @@ export default function VINDeepDivePage() {
   };
 
   const formatCompactCurrency = (value: number | undefined | null) => {
-    if (typeof value !== "number" || isNaN(value)) return "$0K";
+    if (value === null || value === undefined || typeof value !== "number" || isNaN(value))
+      return "";
     return `$${(value / 1000).toFixed(1)}K`;
   };
 
@@ -1196,7 +781,7 @@ export default function VINDeepDivePage() {
               ]}
             />
             <div className="text-lg font-medium text-gray-700">
-              VIN: {vin || "Loading..."}
+              VIN: {isLoading ? "Loading..." : vin ?? ""}
             </div>
           </div>
         </div>
@@ -1258,8 +843,8 @@ export default function VINDeepDivePage() {
                     </h1>
                     <p className="text-sm text-gray-500 mt-1">
                       {vinData.trim || "Executive Package"} •{" "}
-                      {vinData.odometer?.toLocaleString() || "—"} mi • VIN{" "}
-                      {vinData.vin || "N/A"}
+                      {vinData.odometer?.toLocaleString() ?? ""} mi • VIN{" "}
+                      {vinData.vin || ""}
                     </p>
                   </div>
                   <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6">
@@ -1334,12 +919,12 @@ export default function VINDeepDivePage() {
                   <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
                     <HeroStatCard
                       label="Days On Market"
-                      value={vinData.market_data?.avg_days_to_sell || "—"}
+                      value={vinData.market_data?.avg_days_to_sell ?? ""}
                       accent="green"
                     />
                     <HeroStatCard
                       label="Market Days Supply"
-                      value={vinData.market_data?.market_days_supply || "—"}
+                      value={vinData.market_data?.market_days_supply ?? ""}
                       accent="orange"
                     />
                     <HeroStatCard
@@ -1347,7 +932,7 @@ export default function VINDeepDivePage() {
                       value={
                         vinData.market_data?.consumer_interest
                           ? vinData.market_data.consumer_interest.toString()
-                          : "—"
+                          : ""
                       }
                       sublabel="Demand Score"
                       accent="teal"
@@ -1373,12 +958,12 @@ export default function VINDeepDivePage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     <HeroStatCard
                       label="Days On Market"
-                      value={vinData.market_data?.avg_days_to_sell || "—"}
+                      value={vinData.market_data?.avg_days_to_sell ?? ""}
                       accent="green"
                     />
                     <HeroStatCard
                       label="Market Days Supply"
-                      value={vinData.market_data?.market_days_supply || "—"}
+                      value={vinData.market_data?.market_days_supply ?? ""}
                       accent="orange"
                     />
                     <HeroStatCard
@@ -1386,14 +971,14 @@ export default function VINDeepDivePage() {
                       value={
                         vinData.market_data?.consumer_interest
                           ? vinData.market_data.consumer_interest.toString()
-                          : "—"
+                          : ""
                       }
                       sublabel="Demand Score"
                       accent="teal"
                     />
                     <HeroStatCard
                       label="Sold (90d)"
-                      value={vinData.market_data?.sold_90d?.toString() || "—"}
+                      value={vinData.market_data?.sold_90d?.toString() ?? ""}
                       accent="blue"
                     />
                   </div>
@@ -1542,22 +1127,38 @@ export default function VINDeepDivePage() {
                     </CardTitle>
                   </div>
                   <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
-                    7 comps found (90d)
+                    {normalizedSoldComps.length} comps found (90d)
                   </span>
                 </CardHeader>
                 <CardContent>
                   <div className="relative">
+                    {normalizedSoldComps.length > 0 && (
+                      <>
                     <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-b from-gray-100 to-transparent z-10 pointer-events-none"></div>
                     <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-white to-transparent z-10 pointer-events-none flex items-end justify-center pb-2">
                       <div className="text-xs text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200">
                         {getScrollIndicator(soldCompsScrollState)}
                       </div>
                     </div>
+                    </>
+                    )}
                     <div className="overflow-hidden rounded-xl border border-gray-100">
                       <div
                         className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
                         onScroll={handleSoldCompsScroll}
                       >
+                        {normalizedSoldComps.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                            <BarChart3 className="w-12 h-12 text-gray-300 mb-3" />
+                            <p className="text-sm font-medium text-gray-500">
+                              No sold comparables
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              Select a vehicle from Inventory to load market data
+                            </p>
+                          </div>
+                        ) : (
+                          <>
                         <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                           <span className="col-span-1">Img</span>
                           <span className="col-span-5">
@@ -1567,33 +1168,43 @@ export default function VINDeepDivePage() {
                           <span className="col-span-2 text-right">Price</span>
                           <span className="col-span-2 text-right">Sold</span>
                         </div>
-                        {(activeListings || []).map(
-                          (comp: any, idx: number) => (
+                        {normalizedSoldComps.map((comp, idx) => (
                             <div
-                              key={`${comp.make}-${comp.miles}-${idx}`}
+                              key={`sold-${comp.make}-${comp.miles}-${idx}`}
                               className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
                             >
                               <div className="col-span-1 flex items-center">
-                                <span
-                                  className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
-                                ></span>
+                                {comp.image ? (
+                                  <img
+                                    src={comp.image}
+                                    alt=""
+                                    className="h-8 w-8 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <span
+                                    className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
+                                  />
+                                )}
                               </div>
                               <div className="col-span-5">
                                 <p className="font-semibold text-gray-900">
-                                  {comp.year} {comp.make} {comp.model}
+                                  {[comp.year, comp.make, comp.model]
+                                    .filter(Boolean)
+                                    .join(" ")}
                                 </p>
                               </div>
                               <div className="col-span-2 text-right text-gray-600">
                                 {comp.miles.toLocaleString()}
                               </div>
                               <div className="col-span-2 text-right font-semibold text-gray-900">
-                                {comp.price}
+                                {formatCurrency(comp.price)}
                               </div>
                               <div className="col-span-2 text-right text-gray-500">
-                                {comp.soldDate}
+                                {comp.soldDate ?? ""}
                               </div>
                             </div>
-                          ),
+                          ))}
+                          </>
                         )}
                       </div>
                     </div>
@@ -1616,6 +1227,18 @@ export default function VINDeepDivePage() {
                   </button>
                 </CardHeader>
                 <CardContent>
+                  {scatterData.market.length === 0 && !showScatterTarget ? (
+                    <div className="flex flex-col items-center justify-center py-16 px-4 text-center h-64">
+                      <BarChart3 className="w-12 h-12 text-gray-300 mb-3" />
+                      <p className="text-sm font-medium text-gray-500">
+                        No scatter data
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Select a vehicle from Inventory to load market data
+                      </p>
+                    </div>
+                  ) : (
+                  <>
                   <ResponsiveContainer width="100%" height={256}>
                     <ScatterChart
                       margin={{
@@ -1678,23 +1301,27 @@ export default function VINDeepDivePage() {
                         data={scatterData.market}
                         fill="#d1d5db"
                       />
-                      <Scatter
-                        name="Target Vehicle"
-                        data={[scatterData.target]}
-                        fill="#2563eb"
-                      />
+                      {showScatterTarget && (
+                        <Scatter
+                          name="Target Vehicle"
+                          data={[scatterData.target]}
+                          fill="#2563eb"
+                        />
+                      )}
                     </ScatterChart>
                   </ResponsiveContainer>
                   <div className="flex items-center justify-center gap-6 text-xs font-semibold text-gray-500 mt-2">
-                    <div className="flex items-center gap-2">
-                      <span className="h-3 w-3 rounded-full bg-blue-600"></span>
-                      Target Vehicle
+                      <div className="flex items-center gap-2">
+                        <span className="h-3 w-3 rounded-full bg-blue-600"></span>
+                        Target Vehicle
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="h-3 w-3 rounded-full bg-gray-300"></span>
+                        Market Listings
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="h-3 w-3 rounded-full bg-gray-300"></span>
-                      Market Listings
-                    </div>
-                  </div>
+                  </>
+                  )}
                 </CardContent>
               </Card>
             </section>
@@ -1716,17 +1343,33 @@ export default function VINDeepDivePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="relative">
+                    {activeListings.length > 0 && (
+                      <>
                     <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-b from-gray-100 to-transparent z-10 pointer-events-none"></div>
                     <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-white to-transparent z-10 pointer-events-none flex items-end justify-center pb-2">
                       <div className="text-xs text-gray-400 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200">
                         {getScrollIndicator(activeListingsScrollState)}
                       </div>
                     </div>
+                    </>
+                    )}
                     <div className="overflow-hidden rounded-2xl border border-gray-100">
                       <div
                         className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
                         onScroll={handleActiveListingsScroll}
                       >
+                        {activeListings.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                            <BarChart3 className="w-12 h-12 text-gray-300 mb-3" />
+                            <p className="text-sm font-medium text-gray-500">
+                              No active listings
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              Select a vehicle from Inventory to load market data
+                            </p>
+                          </div>
+                        ) : (
+                          <>
                         <div className="grid grid-cols-12 bg-gray-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                           <span className="col-span-1">Img</span>
                           <span className="col-span-4">
@@ -1739,20 +1382,29 @@ export default function VINDeepDivePage() {
                           </span>
                           <span className="col-span-1 text-right">DOM</span>
                         </div>
-                        {(soldComps.length ? soldComps : activeListings).map(
-                          (comp: any, idx: number) => (
+                        {activeListings.map((comp, idx) => (
                             <div
-                              key={`${comp.make}-${comp.miles}-${idx}`}
+                              key={`active-${comp.make}-${comp.miles}-${idx}`}
                               className="grid grid-cols-12 items-center px-4 py-3 text-sm border-t border-gray-100"
                             >
                               <div className="col-span-1 flex items-center">
-                                <span
-                                  className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
-                                ></span>
+                                {comp.image ? (
+                                  <img
+                                    src={comp.image}
+                                    alt=""
+                                    className="h-8 w-8 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <span
+                                    className={`h-8 w-8 rounded-full bg-linear-to-b ${comp.gradient} shadow-inner`}
+                                  />
+                                )}
                               </div>
                               <div className="col-span-4">
                                 <p className="font-semibold text-gray-900">
-                                  {comp.year} {comp.make} {comp.model}
+                                  {[comp.year, comp.make, comp.model]
+                                    .filter(Boolean)
+                                    .join(" ")}
                                 </p>
                               </div>
                               <div className="col-span-2 text-right text-gray-600">
@@ -1762,13 +1414,14 @@ export default function VINDeepDivePage() {
                                 {formatCurrency(comp.price)}
                               </div>
                               <div className="col-span-2 text-right text-gray-500">
-                                {comp.distance || "N/A"}
+                                {comp.distance ?? ""}
                               </div>
                               <div className="col-span-1 text-right text-gray-500">
-                                {comp.dom || comp.days_on_market || "N/A"}
+                                {comp.dom ? String(comp.dom) : ""}
                               </div>
                             </div>
-                          ),
+                          ))}
+                          </>
                         )}
                       </div>
                     </div>
@@ -1804,5 +1457,13 @@ export default function VINDeepDivePage() {
         />
       </Layout>
     </ProtectedRoute>
+  );
+}
+
+export default function VINDeepDivePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VINDeepDivePageContent />
+    </Suspense>
   );
 }

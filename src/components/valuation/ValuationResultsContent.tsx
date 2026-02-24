@@ -48,6 +48,7 @@ export interface ValuationResultsData {
     bars: Array<{ label: string; value: number; max?: number; rating: string }>;
   };
   comparables: ComparableRow[];
+  comparablesNumFound?: number;
   marketPosition: {
     sold: DataPoint[];
     subject?: DataPoint;
@@ -65,8 +66,31 @@ export function ValuationResultsContent({
   onViewInspection,
   onExportComparables,
 }: ValuationResultsContentProps) {
-  const { metrics, mmr, retail, condition, comparables, marketPosition } =
+  const { metrics, mmr, retail, condition, comparables, comparablesNumFound, marketPosition } =
     data;
+
+  const m: ValuationResultsData["metrics"] = metrics ?? ({} as ValuationResultsData["metrics"]);
+  const safeNum = (v: number | undefined | null) =>
+    v === undefined || v === null ? 0 : v;
+  const safeStr = (v: string | undefined | null) =>
+    v === undefined || v === null || v === "" ? "N/A" : v;
+  const hasData = (v: number | undefined | null) =>
+    v !== undefined && v !== null && v >= 0;
+
+  const dom = m.daysOnMarket ?? 0;
+  const avgDom = m.avgMarketDom ?? 0;
+  const domSublabel =
+    hasData(dom) && dom > 0 ? `Listed ${dom}d ago` : "—";
+  const avgDomDiff =
+    hasData(dom) && hasData(avgDom) && avgDom > 0 ? avgDom - dom : null;
+  const avgDomSublabel =
+    avgDomDiff !== null
+      ? avgDomDiff > 0
+        ? `${avgDomDiff}d below avg`
+        : avgDomDiff < 0
+          ? `${Math.abs(avgDomDiff)}d above avg`
+          : "At market avg"
+      : "—";
 
   return (
     <div className="space-y-6">
@@ -74,40 +98,39 @@ export function ValuationResultsContent({
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <ValuationMetricCard
           label="Days on Market"
-          value={metrics.daysOnMarket}
+          value={safeNum(m.daysOnMarket)}
           unit="days"
-          sublabel="Listed 2 weeks ago"
+          sublabel={domSublabel}
         />
         <ValuationMetricCard
           label="Avg Market DOM"
-          value={metrics.avgMarketDom}
+          value={safeNum(m.avgMarketDom)}
           unit="days"
-          sublabel="18d below avg"
-          sublabelAccent="green"
+          sublabel={avgDomSublabel}
+          sublabelAccent={avgDomDiff != null && avgDomDiff > 0 ? "green" : "default"}
         />
         <ValuationMetricCard
           label="Active Local"
-          value={metrics.activeLocal}
+          value={safeNum(m.activeLocal)}
           unit="units"
-          sublabel="Within 50 mile radius"
+          sublabel={hasData(m.activeLocal) ? "Within 50 mile radius" : "—"}
         />
         <ValuationMetricCard
           label="Sold 90D (Local)"
-          value={metrics.sold90dLocal}
+          value={safeNum(m.sold90dLocal)}
           unit="units"
-          sublabel="High Turn Volume"
-          sublabelAccent="green"
+          sublabel="—"
         />
         <ValuationMetricCard
           label="Market Days Supply"
-          value={metrics.marketDaysSupply}
+          value={safeNum(m.marketDaysSupply)}
           unit="days"
-          sublabel="Strong demand signals"
+          sublabel="—"
         />
         <ValuationMetricCard
           label="Consumer Interest"
-          value={metrics.consumerInterest}
-          sublabel={metrics.consumerInterestPercentile}
+          value={safeStr(m.consumerInterest)}
+          sublabel={m.consumerInterestPercentile ?? "—"}
           icon={Zap}
         />
       </div>
@@ -128,12 +151,13 @@ export function ValuationResultsContent({
       {/* Condition, Comparables, Market Position */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ConditionCard
-          score={condition.score}
-          bars={condition.bars}
+          score={condition?.score}
+          bars={condition?.bars}
           onViewReport={onViewInspection}
         />
         <RecentSoldComparablesTable
           rows={comparables}
+          numFound={comparablesNumFound}
           onExport={onExportComparables}
         />
         <MarketPositionChart

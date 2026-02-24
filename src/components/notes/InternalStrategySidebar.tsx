@@ -59,28 +59,28 @@ export function InternalStrategySidebar({
     <aside
       ref={sidebarRef}
       className={cn(
-        "relative flex w-full flex-col rounded-xl border border-slate-200 bg-white lg:w-80 lg:shrink-0",
+        "relative flex w-full flex-col rounded-xl border border-gray-200 bg-white lg:w-80 lg:shrink-0",
         className,
       )}
     >
       <div className="flex-1 space-y-6 overflow-y-auto p-6">
         <div>
           <div className="mb-1 flex items-center gap-2">
-            <Users className="h-5 w-5 text-slate-500" aria-hidden />
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+            <Users className="h-5 w-5 text-gray-500" aria-hidden />
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-700">
               Internal Strategy
             </h3>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-gray-500">
             Shared planning and negotiation guardrails.
           </p>
         </div>
 
         <section>
-          <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
             Negotiation Goals
           </h4>
-          <ol className="list-inside list-decimal space-y-2 text-sm text-slate-700">
+          <ol className="list-inside list-decimal space-y-2 text-sm text-gray-700">
             {negotiationGoals.map((goal, i) => (
               <li key={i} className="pl-1">
                 {goal}
@@ -91,7 +91,7 @@ export function InternalStrategySidebar({
 
         <section className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
               Max Bid Limit
             </label>
             <Input
@@ -102,7 +102,7 @@ export function InternalStrategySidebar({
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
               Recon Budget
             </label>
             <Input
@@ -114,31 +114,31 @@ export function InternalStrategySidebar({
           </div>
           <div>
             <div className="mb-1.5 flex items-center gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Total All In Cost Budget
               </label>
               <button
                 type="button"
-                className="text-slate-400 hover:text-slate-600"
+                className="text-gray-400 hover:text-gray-600"
                 aria-label="More info"
               >
                 <Info className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex h-9 items-center rounded-md border border-slate-200 bg-slate-50 px-3 font-mono text-sm text-slate-700">
+            <div className="flex h-9 items-center rounded-md border border-gray-200 bg-gray-50 px-3 font-mono text-sm text-gray-700">
               {totalAllInCost}
             </div>
           </div>
         </section>
 
         <section>
-          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">
             Exit Strategy
           </label>
           <select
             value={exit}
             onChange={(e) => setExit(e.target.value)}
-            className="h-9 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="h-9 w-full rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-200"
           >
             <option value="retail-ready">Retail Ready (Priority)</option>
             <option value="wholesale">Wholesale</option>
@@ -147,7 +147,7 @@ export function InternalStrategySidebar({
         </section>
 
         <section>
-          <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
             Priority Flags
           </h4>
           <div className="space-y-3">
@@ -166,9 +166,9 @@ export function InternalStrategySidebar({
         </section>
       </div>
 
-      <div className="border-t border-slate-200 p-4">
+      <div className="border-t border-gray-200 p-4">
         <Button
-          className="w-full bg-slate-800 hover:bg-slate-900"
+          className="w-full bg-gray-800 hover:bg-gray-900 text-white"
           onClick={() =>
             onSave?.({
               maxBidLimit: maxBid,

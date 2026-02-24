@@ -118,10 +118,10 @@ export function NoteFormModal({
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-gray-200 text-gray-600 hover:bg-gray-50">
               Cancel
             </Button>
-            <Button type="submit" disabled={!content.trim()}>
+            <Button type="submit" disabled={!content.trim()} className="bg-gray-800 hover:bg-gray-900 text-white disabled:opacity-50">
               {note ? "Update Note" : "Add Note"}
             </Button>
           </DialogFooter>

@@ -13,6 +13,7 @@ export interface VehicleDetailHeaderProps {
   trim?: string;
   mileage: string;
   targetOffer: string;
+  showTargetOffer?: boolean;
   onMoveToNegotiate?: () => void;
   backHref?: string;
 }
@@ -25,6 +26,7 @@ export function VehicleDetailHeader({
   trim,
   mileage,
   targetOffer,
+  showTargetOffer = true,
   onMoveToNegotiate,
   backHref = "/acquisition-search",
 }: VehicleDetailHeaderProps) {
@@ -48,7 +50,7 @@ export function VehicleDetailHeader({
               "rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide",
               statusVariant === "vinMissing"
                 ? "bg-amber-100 text-amber-800"
-                : "bg-blue-100 text-blue-700",
+                : "bg-emerald-100 text-emerald-700",
             )}
           >
             {status}
@@ -59,15 +61,17 @@ export function VehicleDetailHeader({
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="text-right">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Target Offer
-            </p>
-            <p className="text-xl font-bold text-emerald-600">{targetOffer}</p>
-          </div>
+          {showTargetOffer && (
+            <div className="text-right">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Target Offer
+              </p>
+              <p className="text-xl font-bold text-emerald-600">{targetOffer}</p>
+            </div>
+          )}
           <Button
             onClick={onMoveToNegotiate}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-gray-800 hover:bg-gray-900 text-white"
           >
             <Diamond className="h-4 w-4" aria-hidden />
             Move to Negotiate

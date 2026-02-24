@@ -23,99 +23,36 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-// Mock data for the tables
-const overSuggestedPriceData = [
-  {
-    id: 1,
-    vin: "1N4AL3AP9JC123456",
-    year: 2021,
-    make: "Nissan",
-    model: "Altima",
-    trim: "SV",
-    mileage: 45230,
-    ourPrice: 18995,
-    suggestedPrice: 16995,
-    overPriceBy: 2000,
-    daysInStock: 45,
-    status: "active",
-  },
-  {
-    id: 2,
-    vin: "2T3BF4DV9KW123456",
-    year: 2019,
-    make: "Toyota",
-    model: "RAV4",
-    trim: "XLE",
-    mileage: 62100,
-    ourPrice: 24995,
-    suggestedPrice: 22995,
-    overPriceBy: 2000,
-    daysInStock: 62,
-    status: "active",
-  },
-  {
-    id: 3,
-    vin: "1G1YZ23J9NF123456",
-    year: 2022,
-    make: "Chevrolet",
-    model: "Malibu",
-    trim: "LT",
-    mileage: 28500,
-    ourPrice: 21995,
-    suggestedPrice: 19995,
-    overPriceBy: 2000,
-    daysInStock: 28,
-    status: "active",
-  },
-];
+const overSuggestedPriceData: Array<{
+  id: number;
+  vin: string;
+  year: number;
+  make: string;
+  model: string;
+  trim: string;
+  mileage: number;
+  ourPrice: number;
+  suggestedPrice: number;
+  overPriceBy: number;
+  daysInStock: number;
+  status: string;
+}> = [];
 
-const marketUpdatesData = [
-  {
-    id: 1,
-    vin: "1N4AL3AP9JC123456",
-    year: 2021,
-    make: "Nissan",
-    model: "Altima",
-    trim: "SV",
-    mileage: 45230,
-    currentPrice: 18995,
-    newMarketPrice: 17995,
-    priceChange: -1000,
-    priceChangePercent: -5.3,
-    lastUpdated: "2 hours ago",
-    trend: "down",
-  },
-  {
-    id: 2,
-    vin: "2T3BF4DV9KW123456",
-    year: 2019,
-    make: "Toyota",
-    model: "RAV4",
-    trim: "XLE",
-    mileage: 62100,
-    currentPrice: 24995,
-    newMarketPrice: 25995,
-    priceChange: 1000,
-    priceChangePercent: 4.0,
-    lastUpdated: "4 hours ago",
-    trend: "up",
-  },
-  {
-    id: 3,
-    vin: "1G1YZ23J9NF123456",
-    year: 2022,
-    make: "Chevrolet",
-    model: "Malibu",
-    trim: "LT",
-    mileage: 28500,
-    currentPrice: 21995,
-    newMarketPrice: 21495,
-    priceChange: -500,
-    priceChangePercent: -2.3,
-    lastUpdated: "1 hour ago",
-    trend: "down",
-  },
-];
+const marketUpdatesData: Array<{
+  id: number;
+  vin: string;
+  year: number;
+  make: string;
+  model: string;
+  trim: string;
+  mileage: number;
+  currentPrice: number;
+  newMarketPrice: number;
+  priceChange: number;
+  priceChangePercent: number;
+  lastUpdated: string;
+  trend: string;
+}> = [];
 
 export default function InventoryAlertsPage() {
   const [searchTerm, setSearchTerm] = useState("");

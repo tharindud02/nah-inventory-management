@@ -1,14 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Sidebar } from "@/components/Sidebar";
 import { VehicleDetailHeader } from "@/components/acquisition/VehicleDetailHeader";
 import { VehicleDetailTabs } from "@/components/acquisition/VehicleDetailTabs";
 import { DetailsTabContent } from "@/components/details/DetailsTabContent";
+import { ValuationTabContent } from "@/components/valuation/ValuationTabContent";
+import { CostAnalysisTabContent } from "@/components/cost-analysis/CostAnalysisTabContent";
+import { SellerContactTabContent } from "@/components/seller-contact/SellerContactTabContent";
 import { AppointmentsTabContent } from "@/components/appointments/AppointmentsTabContent";
 import { NotesTabContent } from "@/components/notes/NotesTabContent";
+import type { ValuationResultsData } from "@/components/valuation/ValuationResultsContent";
 import type { VehicleDetailTabId } from "@/components/acquisition/VehicleDetailTabs";
 import type { ConfigItem } from "@/components/details/ConfigurationCard";
 import type { ListingItem, ListingDetail } from "@/types/listing";
@@ -16,120 +21,29 @@ import type { CalendarEvent } from "@/components/appointments/AppointmentsCalend
 import type { DealNote } from "@/components/notes/DealNotesSection";
 import type { PriorityFlag } from "@/components/notes/InternalStrategySidebar";
 import { normalizeListingItem } from "@/lib/listing-utils";
-
-const MOCK_EVENTS: CalendarEvent[] = [
-  {
-    id: "1",
-    date: new Date(),
-    title: "Vehicle Inspection",
-    variant: "inspection",
-  },
-  {
-    id: "2",
-    date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    title: "Test Drive",
-    variant: "test-drive",
-  },
-  {
-    id: "3",
-    date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-    title: "Final Signing",
-    variant: "signing",
-  },
-];
-
-const MOCK_UPCOMING = [
-  {
-    title: "Vehicle Inspection",
-    relativeLabel: "TODAY",
-    date: new Date().toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }),
-    timeRange: "09:00 AM - 10:30 AM",
-    attendee: "Seller",
-  },
-  {
-    title: "Test Drive",
-    relativeLabel: "NEXT WEEK",
-    date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(
-      "en-US",
-      { month: "short", day: "numeric", year: "numeric" },
-    ),
-    timeRange: "02:00 PM - 03:00 PM",
-  },
-  {
-    title: "Final Signing",
-    relativeLabel: "IN 2 WEEKS",
-    date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString(
-      "en-US",
-      { month: "short", day: "numeric", year: "numeric" },
-    ),
-    timeRange: "04:30 PM - 05:30 PM",
-  },
-];
-
-const MOCK_AVAILABILITY = [
-  { label: "Morning Slots", available: 4, total: 8 },
-  { label: "Afternoon Slots", available: 1, total: 6 },
-];
-
-const MOCK_NOTES: DealNote[] = [
-  {
-    id: "1",
-    authorName: "Acquisition Team",
-    authorInitials: "AT",
-    role: "ACQUISITION",
-    roleVariant: "acquisition",
-    timestamp: "Today, 10:45 AM",
-    content:
-      "Initial contact made with seller. Vehicle appears to be in good condition based on photos. Need to schedule inspection to verify mechanical condition.",
-    showActions: true,
-  },
-  {
-    id: "2",
-    authorName: "Service Team",
-    authorInitials: "ST",
-    role: "SERVICE",
-    roleVariant: "service",
-    timestamp: "Yesterday, 4:20 PM",
-    content:
-      "Reviewing listing details. No reported accidents. Service history appears complete. Recommend inspection before finalizing offer.",
-    showActions: false,
-  },
-  {
-    id: "3",
-    authorName: "Manager",
-    authorInitials: "MG",
-    role: "MANAGER",
-    roleVariant: "manager",
-    timestamp: "2 days ago, 2:15 PM",
-    content:
-      "Market comps support current asking price. Proceed with inspection and negotiate based on findings.",
-    showActions: false,
-  },
-];
-
-const MOCK_NEGOTIATION_GOALS = [
-  "Schedule inspection within 48 hours to assess condition.",
-  "Negotiate price based on inspection findings and market comparables.",
-  "Aim for quick closing if vehicle meets quality standards.",
-];
-
-const MOCK_PRIORITY_FLAGS: PriorityFlag[] = [
-  { id: "high-demand", label: "High Demand Inventory", checked: true },
-  { id: "manager-review", label: "Requires Manager Review", checked: false },
-  { id: "fast-turn", label: "Fast Turn Potential", checked: true },
-];
+import { transformVindataToValuationResults } from "@/lib/vindata-transform";
+import {
+  EMPTY_EVENTS,
+  EMPTY_UPCOMING,
+  EMPTY_AVAILABILITY,
+  EMPTY_NOTES,
+  EMPTY_NEGOTIATION_GOALS,
+  EMPTY_PRIORITY_FLAGS,
+  EMPTY_AI_SUGGESTIONS,
+  EMPTY_SELLER_CONTACT,
+  EMPTY_SOURCE_INFO,
+  EMPTY_SELLER_ACTIONS,
+  EMPTY_CHAT_MESSAGES,
+} from "@/lib/sample-page-data";
 
 function buildConfiguration(listing: ListingDetail): ConfigItem[] {
-  const items: ConfigItem[] = [];
-  if (listing.make) items.push({ label: "Make", value: listing.make });
-  if (listing.model) items.push({ label: "Model", value: listing.model });
-  if (listing.color) items.push({ label: "Exterior Color", value: listing.color });
-  if (listing.condition) items.push({ label: "Condition", value: listing.condition });
-  return items;
+  return [
+    { label: "Engine", value: "—" },
+    { label: "Transmission", value: "—" },
+    { label: "Exterior Color", value: listing.color ?? "—" },
+    { label: "Interior Color", value: "—" },
+    { label: "Fuel Economy", value: "—" },
+  ];
 }
 
 export default function ListingDetailsPage() {
@@ -139,6 +53,8 @@ export default function ListingDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<VehicleDetailTabId>("details");
+  const [valuationData, setValuationData] =
+    useState<ValuationResultsData | null>(null);
 
   const jobId = params.jobId;
   const listingSk = params.listingSk ? decodeURIComponent(params.listingSk) : "";
@@ -161,14 +77,12 @@ export default function ListingDetailsPage() {
         return;
       }
 
-      const baseUrl =
-        "https://i3hjth9ogf.execute-api.ap-south-1.amazonaws.com";
       const headers = { Authorization: `Bearer ${accessToken}` };
 
       try {
         let item: ListingItem | null = null;
 
-        const res = await fetch(`${baseUrl}/listings/${listingSk}`, {
+        const res = await fetch(`/api/listings/${encodeURIComponent(listingSk)}`, {
           headers,
         });
 
@@ -184,7 +98,7 @@ export default function ListingDetailsPage() {
         }
 
         if (!item) {
-          const jobRes = await fetch(`${baseUrl}/listings/job/${jobId}`, {
+          const jobRes = await fetch(`/api/listings/job/${encodeURIComponent(jobId)}`, {
             headers,
           });
           if (!jobRes.ok) throw new Error("Failed to fetch listing details");
@@ -214,6 +128,48 @@ export default function ListingDetailsPage() {
     fetchListing();
   }, [jobId, listingSk]);
 
+  const handleFetchValuation = useCallback(
+    async (vinToFetch: string) => {
+      const miles = listing?.mileage
+        ? Number(listing.mileage)
+        : undefined;
+      const zip = "";
+
+      try {
+        const valuationRes = await fetch("/api/vindata/valuation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vin: vinToFetch, miles, zip }),
+        });
+        const valuationJson = await valuationRes.json().catch(() => null);
+
+        if (!valuationRes.ok || !valuationJson?.success) {
+          const err = valuationJson?.error ?? "Failed to fetch VIN valuation";
+          throw new Error(err);
+        }
+
+        const result = transformVindataToValuationResults({
+          vin: vinToFetch,
+          generateReport: null,
+          valuation: { data: valuationJson?.data?.valuation },
+          marketComps: { data: valuationJson?.data?.marketComps },
+          soldComps: { data: valuationJson?.data?.soldComps },
+          listingPrice: listing?.final_price ?? undefined,
+          listingMileage: miles,
+        });
+
+        setValuationData(result);
+        toast.success("Valuation & build sheet data loaded");
+      } catch (err) {
+        const msg =
+          err instanceof Error ? err.message : "Failed to fetch valuation";
+        toast.error(msg);
+        throw err;
+      }
+    },
+    [listing?.final_price, listing?.mileage],
+  );
+
   const vehicleName = listing?.title ?? "Listing";
   const hasVin = Boolean(listing?.vin || listing?.vin_number);
   const vin = listing?.vin ?? listing?.vin_number ?? "";
@@ -224,14 +180,17 @@ export default function ListingDetailsPage() {
   const images = listing?.images ?? [];
   const configuration = listing ? buildConfiguration(listing) : [];
 
+  const domActive = (listing as { dom_active?: number })?.dom_active;
   const marketOverview = listing?.final_price
     ? {
         currentPrice: `$${listing.final_price.toLocaleString()}`,
-        daysOnMarket: "14 Days",
-        marketCondition: "Good",
-        estRecon: "$1,250",
-        mmrApi: "$38,200",
-        mcApi: "$40,100",
+        previousPrice: undefined,
+        priceDrop: undefined,
+        daysOnMarket: domActive != null ? `${domActive} Days` : "—",
+        marketCondition: "—",
+        estRecon: "",
+        mmrApi: "",
+        mcApi: "",
       }
     : undefined;
 
@@ -317,9 +276,9 @@ export default function ListingDetailsPage() {
             {!isLoading && !error && listing && activeTab === "appointments" && (
               <AppointmentsTabContent
                 vehicleName={vehicleName}
-                events={MOCK_EVENTS}
-                upcomingEvents={MOCK_UPCOMING}
-                availability={MOCK_AVAILABILITY}
+                events={EMPTY_EVENTS}
+                upcomingEvents={EMPTY_UPCOMING}
+                availability={EMPTY_AVAILABILITY}
                 onNewEvent={() => {}}
                 onSyncCalendar={() => {}}
               />
@@ -327,17 +286,13 @@ export default function ListingDetailsPage() {
 
             {!isLoading && !error && listing && activeTab === "notes" && (
               <NotesTabContent
-                notes={MOCK_NOTES}
-                negotiationGoals={MOCK_NEGOTIATION_GOALS}
-                maxBidLimit={price !== "N/A" ? price : "$0"}
-                reconBudget="$1,200"
-                totalAllInCost={
-                  price !== "N/A"
-                    ? `$${(listing.final_price ?? 0) + 1200}`
-                    : "$0"
-                }
-                exitStrategy="retail-ready"
-                priorityFlags={MOCK_PRIORITY_FLAGS}
+                notes={EMPTY_NOTES}
+                negotiationGoals={EMPTY_NEGOTIATION_GOALS}
+                maxBidLimit={price !== "N/A" ? price : "—"}
+                reconBudget="—"
+                totalAllInCost={price !== "N/A" ? price : "—"}
+                exitStrategy="—"
+                priorityFlags={EMPTY_PRIORITY_FLAGS}
                 onAddNote={() => {}}
                 onTagMember={() => {}}
                 onSaveStrategy={() => {}}
@@ -347,13 +302,59 @@ export default function ListingDetailsPage() {
             {!isLoading &&
               !error &&
               listing &&
-              activeTab !== "details" &&
-              activeTab !== "appointments" &&
-              activeTab !== "notes" && (
-                <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
-                  {activeTab} content coming soon
-                </div>
+              activeTab === "valuation" && (
+                <ValuationTabContent
+                  defaultVin={hasVin ? vin : undefined}
+                  valuationData={valuationData}
+                  onFetchValuation={handleFetchValuation}
+                />
               )}
+
+            {!isLoading && !error && listing && activeTab === "cost-analysis" && (
+              <div className="pb-24">
+                <CostAnalysisTabContent
+                  purchasePrice={listing.final_price ?? 0}
+                  buyerFee={0}
+                  shipping={0}
+                  otherFees={0}
+                  targetSalePrice={listing.final_price ? Math.round(listing.final_price * 1.05) : 0}
+                  turnTime={0}
+                  marketAverage={0}
+                  marketHigh={0}
+                  marketLow={0}
+                  velocity={0}
+                  projectedTurn={0}
+                  sourcingIntel="—"
+                />
+              </div>
+            )}
+
+            {!isLoading && !error && listing && activeTab === "seller" && (
+              <SellerContactTabContent
+                contactName="—"
+                contactInitials="—"
+                contactStatus="offline"
+                messengerHref={
+                  listing.product_id
+                    ? `https://www.facebook.com/marketplace/item/${listing.product_id}`
+                    : undefined
+                }
+                messages={EMPTY_CHAT_MESSAGES}
+                aiSuggestions={EMPTY_AI_SUGGESTIONS}
+                contactInfo={{
+                  mobile: listing.seller_phone ?? EMPTY_SELLER_CONTACT.mobile,
+                  email: listing.seller_email ?? EMPTY_SELLER_CONTACT.email,
+                  location: listing.location ?? EMPTY_SELLER_CONTACT.location,
+                }}
+                sourceInfo={EMPTY_SOURCE_INFO}
+                actions={EMPTY_SELLER_ACTIONS}
+                aiAnalyzingText="—"
+                onSendMessage={() => {}}
+                onSuggestionClick={() => {}}
+                onLogActivity={() => {}}
+                onActionClick={() => {}}
+              />
+            )}
           </main>
         </div>
       </div>
