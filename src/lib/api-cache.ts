@@ -91,10 +91,6 @@ class APICache {
     });
 
     keysToDelete.forEach((key) => this.cache.delete(key));
-
-    if (keysToDelete.length > 0) {
-      console.log(`Cleaned up ${keysToDelete.length} expired cache entries`);
-    }
   }
 }
 

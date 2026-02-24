@@ -1,0 +1,17 @@
+# Copy to netlify-env-import.txt, fill in real values, then run:
+#   netlify env:import netlify-env-import.txt
+# Or add these in Netlify Dashboard: Site → Site configuration → Environment variables
+
+# Cognito
+NEXT_PUBLIC_COGNITO_USER_POOL_ID=
+NEXT_PUBLIC_COGNITO_CLIENT_ID=
+NEXT_PUBLIC_AWS_REGION=ap-south-1
+NEXT_PUBLIC_COGNITO_CLIENT_SECRET=
+
+# MarketCheck (required for VIN Intel)
+NEXT_PUBLIC_MARKETCHECK_API_KEY=
+NEXT_PUBLIC_MARKETCHECK_BASE_URL=https://api.marketcheck.com
+NEXT_PUBLIC_DEALER_ID=11018373
+
+# Production: use real API, not demo data
+DEMO_MODE=false

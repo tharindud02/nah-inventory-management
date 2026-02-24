@@ -1,0 +1,100 @@
+{
+  "success": true,
+  "data": {
+    "stats": {
+      "total_inventory": 156,
+      "new_listings_today": 12,
+      "sold_yesterday": 8,
+      "average_days_on_market": 34,
+      "average_price": 28500,
+      "total_value": 4446000
+    },
+    "by_category": [
+      {
+        "category": "Sedan",
+        "count": 45,
+        "percentage": 28.8,
+        "average_price": 24500,
+        "average_days": 32
+      },
+      {
+        "category": "SUV",
+        "count": 68,
+        "percentage": 43.6,
+        "average_price": 32500,
+        "average_days": 28
+      },
+      {
+        "category": "Truck",
+        "count": 28,
+        "percentage": 17.9,
+        "average_price": 38500,
+        "average_days": 41
+      },
+      {
+        "category": "Coupe",
+        "count": 15,
+        "percentage": 9.6,
+        "average_price": 26500,
+        "average_days": 45
+      }
+    ],
+    "price_distribution": {
+      "under_20000": 15,
+      "20000_30000": 62,
+      "30000_40000": 52,
+      "40000_50000": 22,
+      "over_50000": 5
+    },
+    "age_distribution": [
+      {
+        "age_range": "0-2 years",
+        "count": 48,
+        "percentage": 30.8
+      },
+      {
+        "age_range": "3-5 years",
+        "count": 62,
+        "percentage": 39.7
+      },
+      {
+        "age_range": "6-8 years",
+        "count": 31,
+        "percentage": 19.9
+      },
+      {
+        "age_range": "9+ years",
+        "count": 15,
+        "percentage": 9.6
+      }
+    ],
+    "top_makes": [
+      {
+        "make": "Toyota",
+        "count": 35,
+        "percentage": 22.4
+      },
+      {
+        "make": "Honda",
+        "count": 28,
+        "percentage": 17.9
+      },
+      {
+        "make": "Ford",
+        "count": 22,
+        "percentage": 14.1
+      },
+      {
+        "make": "Chevrolet",
+        "count": 18,
+        "percentage": 11.5
+      },
+      {
+        "make": "Nissan",
+        "count": 15,
+        "percentage": 9.6
+      }
+    ],
+    "last_updated": "2024-01-15T12:30:00Z"
+  }
+}

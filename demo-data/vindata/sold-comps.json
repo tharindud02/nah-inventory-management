@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "data": {
+    "num_found": 0,
+    "listings": []
+  },
+  "_metadata": {
+    "captured_at": "2026-01-30T04:18:07.510Z",
+    "vin": "WA1BBAFY7P2183119",
+    "source": "real_api_response"
+  }
+}

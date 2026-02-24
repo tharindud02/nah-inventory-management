@@ -1,0 +1,53 @@
+{
+  "success": true,
+  "data": {
+    "vin": "1HGCM82633A123456",
+    "days_supply": {
+      "current": 42,
+      "national_average": 55,
+      "regional_average": 48,
+      "category_average": 50,
+      "trend": "decreasing",
+      "trend_days": -5
+    },
+    "inventory_levels": {
+      "total_inventory": 1250,
+      "new_listings_today": 28,
+      "sold_yesterday": 35,
+      "active_listings": 1187
+    },
+    "market_health": {
+      "buyer_seller_ratio": 1.25,
+      "market_temperature": "hot",
+      "price_pressure": "upward"
+    },
+    "forecast": {
+      "projected_30_days": 38,
+      "projected_60_days": 45,
+      "confidence": 0.82
+    },
+    "regional_breakdown": [
+      {
+        "region": "West Coast",
+        "days_supply": 38,
+        "inventory": 450
+      },
+      {
+        "region": "Midwest",
+        "days_supply": 58,
+        "inventory": 320
+      },
+      {
+        "region": "Northeast",
+        "days_supply": 45,
+        "inventory": 280
+      },
+      {
+        "region": "South",
+        "days_supply": 52,
+        "inventory": 200
+      }
+    ],
+    "last_updated": "2024-01-15T12:00:00Z"
+  }
+}

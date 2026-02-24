@@ -76,7 +76,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       setUser(formattedUser);
     } catch (error) {
-      console.error("Error refreshing user:", error);
       setUser(null);
     } finally {
       setIsLoading(false);

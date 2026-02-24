@@ -1,0 +1,66 @@
+{
+  "success": true,
+  "data": {
+    "report_id": "VR-2024-0115-98765",
+    "vin": "1HGCM82633A123456",
+    "generated_at": "2024-01-15T14:00:00Z",
+    "report_url": "https://reports.example.com/VR-2024-0115-98765",
+    "expires_at": "2024-04-15T14:00:00Z",
+    "summary": {
+      "overall_score": 85,
+      "value_score": 88,
+      "history_score": 90,
+      "market_score": 82,
+      "recommendation": "BUY"
+    },
+    "vehicle_details": {
+      "year": 2023,
+      "make": "Honda",
+      "model": "Accord",
+      "trim": "EX",
+      "body_style": "Sedan",
+      "engine": "1.5L Turbo I4",
+      "transmission": "CVT",
+      "drivetrain": "FWD",
+      "exterior_color": "Silver",
+      "interior_color": "Black",
+      "mileage": 15000,
+      "vin": "1HGCM82633A123456"
+    },
+    "valuation_summary": {
+      "estimated_value": 19200,
+      "confidence_range": {
+        "low": 17800,
+        "high": 20600
+      },
+      "mmr_average": 17500,
+      "market_comps_average": 19050
+    },
+    "history_summary": {
+      "title_status": "Clean",
+      "accidents": 0,
+      "owners": 1,
+      "service_records": 2,
+      "last_service": "2023-12-01"
+    },
+    "market_insights": {
+      "demand_score": 78,
+      "days_supply": 42,
+      "price_trend": "Stable",
+      "market_temperature": "Hot"
+    },
+    "key_highlights": [
+      "Clean title with no accident history",
+      "Low mileage for vehicle age",
+      "Regular maintenance documented",
+      "High demand in current market",
+      "Priced competitively"
+    ],
+    "recommendations": [
+      "Vehicle represents good value",
+      "Consider for inventory acquisition",
+      "Market conditions favorable for resale",
+      "Low risk investment"
+    ]
+  }
+}

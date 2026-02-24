@@ -1,0 +1,79 @@
+{
+  "success": true,
+  "data": {
+    "vin": "1HGCM82633A123456",
+    "access_report": {
+      "report_id": "AR-2024-0115-12345",
+      "generated_at": "2024-01-15T13:00:00Z",
+      "status": "completed",
+      "score": 85,
+      "risk_level": "low"
+    },
+    "vehicle_history": {
+      "title_status": "clean",
+      "accident_count": 0,
+      "damage_records": [],
+      "theft_records": [],
+      "lien_records": [
+        {
+          "type": "lien",
+          "date": "2023-01-15",
+          "amount": 18000,
+          "lender": "Demo Bank"
+        }
+      ],
+      "ownership_history": [
+        {
+          "type": "registration",
+          "date": "2023-01-15",
+          "owner_type": "individual",
+          "state": "CA"
+        }
+      ]
+    },
+    "odometer_readings": [
+      {
+        "date": "2023-01-15",
+        "reading": 5000,
+        "source": "registration",
+        "type": "actual"
+      },
+      {
+        "date": "2024-01-01",
+        "reading": 15000,
+        "source": "service",
+        "type": "actual"
+      }
+    ],
+    "service_records": [
+      {
+        "date": "2023-07-15",
+        "type": "oil_change",
+        "provider": "Quick Lube",
+        "mileage": 10000
+      },
+      {
+        "date": "2023-12-01",
+        "type": "tire_rotation",
+        "provider": "Tire Shop",
+        "mileage": 14000
+      }
+    ],
+    "market_data": {
+      "wholesale_value": 17500,
+      "retail_value": 20500,
+      "trade_in_value": 16500,
+      "loan_value": 17000,
+      "currency": "USD"
+    },
+    "recommendations": {
+      "buy_confidence": "high",
+      "inspection_needed": false,
+      "negotiation_points": [
+        "Vehicle has clean history",
+        "Regular maintenance documented",
+        "Low mileage for age"
+      ]
+    }
+  }
+}
