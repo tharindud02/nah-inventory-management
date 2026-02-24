@@ -177,13 +177,25 @@ export interface TransformVindataInput {
   mmr?: { data?: MmrData } | null;
   listingPrice?: number | null;
   listingMileage?: number | null;
+  listingDaysOnMarket?: number | null;
   listingDate?: string | null;
 }
 
 export function transformVindataToValuationResults(
   input: TransformVindataInput,
 ): ValuationResultsData {
-  const { vin, generateReport, valuation, marketComps, soldComps, mmr, listingPrice, listingMileage, listingDate } = input;
+  const {
+    vin,
+    generateReport,
+    valuation,
+    marketComps,
+    soldComps,
+    mmr,
+    listingPrice,
+    listingMileage,
+    listingDaysOnMarket,
+    listingDate,
+  } = input;
 
   const reportData = generateReport?.data as GenerateReportData | undefined;
   const vehicleDetails = reportData?.vehicle_details ?? {};
@@ -222,6 +234,13 @@ export function transformVindataToValuationResults(
     (typeof mInsights?.demand_score === "number" ? mInsights.demand_score : null) ?? null;
 
   const daysOnMarket = (() => {
+    if (
+      typeof listingDaysOnMarket === "number" &&
+      Number.isFinite(listingDaysOnMarket) &&
+      listingDaysOnMarket >= 0
+    ) {
+      return Math.round(listingDaysOnMarket);
+    }
     if (listingDate) {
       const listingDateObj = new Date(listingDate);
       const today = new Date();
@@ -338,6 +357,15 @@ export function normalizeMarketCheckDecodeResponse(
   raw: Record<string, unknown>,
   vin: string,
 ): Record<string, unknown> {
+  const extractColorName = (value: unknown): string | undefined => {
+    if (typeof value === "string") return value.trim() || undefined;
+    if (value && typeof value === "object") {
+      const name = (value as { name?: unknown }).name;
+      return typeof name === "string" ? name.trim() || undefined : undefined;
+    }
+    return undefined;
+  };
+
   const year = typeof raw.year === "number" ? raw.year : undefined;
   const make = typeof raw.make === "string" ? raw.make.trim() : undefined;
   const model = typeof raw.model === "string" ? raw.model.trim() : undefined;
@@ -347,6 +375,11 @@ export function normalizeMarketCheckDecodeResponse(
     typeof raw.transmission === "string" ? raw.transmission.trim() : undefined;
   const drivetrain =
     typeof raw.drivetrain === "string" ? raw.drivetrain.trim() : undefined;
+  const exteriorColor = extractColorName(raw.exterior_color);
+  const interiorColor = extractColorName(raw.interior_color);
+  const cityMpg = typeof raw.city_mpg === "number" ? raw.city_mpg : undefined;
+  const highwayMpg =
+    typeof raw.highway_mpg === "number" ? raw.highway_mpg : undefined;
 
   return {
     ...raw,
@@ -365,6 +398,10 @@ export function normalizeMarketCheckDecodeResponse(
       engine,
       transmission,
       drivetrain,
+      exterior_color: exteriorColor,
+      interior_color: interiorColor,
+      city_mpg: cityMpg,
+      highway_mpg: highwayMpg,
     },
   };
 }

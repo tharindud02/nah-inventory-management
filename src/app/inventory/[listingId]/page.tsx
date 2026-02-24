@@ -22,12 +22,16 @@ import type { DealNote } from "@/components/notes/DealNotesSection";
 import type { ValuationResultsData } from "@/components/valuation/ValuationResultsContent";
 import {
   buildConfigurationFromMarketCheck,
+  buildConfigurationFromNeoVIN,
   buildMarketOverviewFromMarketCheck,
+  mergeConfigurationWithFallback,
   buildValuationFromMarketCheck,
   buildVinDataFromListing,
+  buildVinDataFromNeoVIN,
   type MarketCheckCarListing,
   type VinDataFromListing,
 } from "@/lib/marketcheck-listing-transform";
+import { extractVinFromListingId } from "@/lib/listing-utils";
 import { fetchListingCached, clearListingCache } from "@/lib/listing-fetch-cache";
 import {
   EMPTY_EVENTS,
@@ -60,6 +64,17 @@ export default function InventoryVehicleDetailPage() {
   const [configuration, setConfiguration] = useState<ConfigItem[]>([]);
   const [listingData, setListingData] = useState<MarketCheckCarListing | null>(null);
 
+  const hasMissingConfiguration = (items: ConfigItem[]): boolean =>
+    items.some((item) => !item.value || item.value.trim() === "" || item.value.trim() === "—");
+
+  const fetchNeoVinConfiguration = async (vinToFetch: string): Promise<ConfigItem[] | null> => {
+    const res = await fetch(`/api/marketcheck/neovin/${encodeURIComponent(vinToFetch)}`);
+    if (!res.ok) return null;
+    const neovin = (await res.json()) as Record<string, unknown>;
+    const config = buildConfigurationFromNeoVIN(neovin);
+    return config.length > 0 ? config : null;
+  };
+
   useEffect(() => {
     if (typeof window === "undefined" || !listingId) {
       setInitialized(true);
@@ -78,15 +93,62 @@ export default function InventoryVehicleDetailPage() {
         // ignore
       }
     }
-    fetchListingCached(listingId).then((listing) => {
-      const data = buildVinDataFromListing(listingId, listing);
-      setVinData(data);
+    const runFetch = async () => {
+      const listing = await fetchListingCached(listingId);
       if (listing) {
+        const data = buildVinDataFromListing(listingId, listing);
+        setVinData(data);
         setListingData(listing);
-        setConfiguration(buildConfigurationFromMarketCheck(listing));
+        const listingConfig = buildConfigurationFromMarketCheck(listing);
+        if ((listing.vin ?? "").trim() && hasMissingConfiguration(listingConfig)) {
+          const fallbackConfig = await fetchNeoVinConfiguration(listing.vin ?? "");
+          setConfiguration(
+            fallbackConfig
+              ? mergeConfigurationWithFallback(listingConfig, fallbackConfig)
+              : listingConfig,
+          );
+        } else {
+          setConfiguration(listingConfig);
+        }
+        setInitialized(true);
+        return;
+      }
+      const vin =
+        (typeof window !== "undefined" && sessionStorage.getItem("vin")) ||
+        extractVinFromListingId(listingId);
+      if (vin) {
+        try {
+          const res = await fetch(`/api/marketcheck/neovin/${encodeURIComponent(vin)}`);
+          const neovin = res.ok ? await res.json() : null;
+          const sessionRaw = typeof window !== "undefined" ? sessionStorage.getItem("vinData") : null;
+          let override: { price?: number; mileage?: number; daysOnLot?: number; photo_links?: string[] } | undefined;
+          if (sessionRaw) {
+            try {
+              const parsed = JSON.parse(sessionRaw) as VinDataFromListing;
+              if (parsed.id === listingId) {
+                override = {
+                  price: parsed.price,
+                  mileage: parsed.mileage,
+                  daysOnLot: parsed.daysOnLot,
+                  photo_links: parsed.media?.photo_links,
+                };
+              }
+            } catch {
+              // ignore
+            }
+          }
+          const data = buildVinDataFromNeoVIN(listingId, neovin, override);
+          if (data) {
+            setVinData(data);
+            setConfiguration(buildConfigurationFromNeoVIN(neovin));
+          }
+        } catch {
+          // NeoVIN fetch failed
+        }
       }
       setInitialized(true);
-    });
+    };
+    runFetch();
   }, [listingId]);
 
   useEffect(() => {
@@ -96,10 +158,28 @@ export default function InventoryVehicleDetailPage() {
       if (cancelled) return;
       if (data) {
         setListingData(data);
-        setConfiguration(buildConfigurationFromMarketCheck(data));
+        const listingConfig = buildConfigurationFromMarketCheck(data);
+        const vinFromListing = (data.vin ?? "").trim();
+        if (vinFromListing && hasMissingConfiguration(listingConfig)) {
+          fetchNeoVinConfiguration(vinFromListing)
+            .then((fallbackConfig) => {
+              if (cancelled) return;
+              setConfiguration(
+                fallbackConfig
+                  ? mergeConfigurationWithFallback(listingConfig, fallbackConfig)
+                  : listingConfig,
+              );
+            })
+            .catch(() => {
+              if (cancelled) return;
+              setConfiguration(listingConfig);
+            });
+        } else {
+          setConfiguration(listingConfig);
+        }
       } else {
         setListingData(null);
-        setConfiguration([]);
+        // Keep existing configuration (e.g. from NeoVIN fallback); only clear if we had listing before
       }
     });
     return () => {

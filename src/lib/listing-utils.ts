@@ -1,5 +1,21 @@
 import type { ListingItem, ListingDetail } from "@/types/listing";
 
+/** Valid 17-char VIN pattern (alphanumeric, no I/O/Q). */
+const VIN_PATTERN = /^[A-HJ-NPR-Z0-9]{17}$/i;
+
+/**
+ * Extracts VIN from listingId when it may be "VIN-HASH" or raw VIN.
+ * Returns the VIN if valid, otherwise empty string.
+ */
+export function extractVinFromListingId(listingId: string): string {
+  if (!listingId?.trim()) return "";
+  const s = listingId.trim();
+  if (VIN_PATTERN.test(s)) return s.toUpperCase();
+  const beforeDash = s.split("-")[0]?.trim() ?? "";
+  if (VIN_PATTERN.test(beforeDash)) return beforeDash.toUpperCase();
+  return "";
+}
+
 /**
  * Normalizes a raw API listing item into a flat ListingDetail.
  * Uses vehicle_details.id as SK when identifiers.SK is absent.

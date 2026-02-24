@@ -6,6 +6,26 @@ import type {
 import type { ComparableRow } from "@/components/valuation/RecentSoldComparablesTable";
 import type { DataPoint } from "@/components/valuation/MarketPositionChart";
 
+/** NeoVIN Decoder API response (subset). @see https://docs.marketcheck.com/docs/api/cars/vehicle-specs/neovin */
+export interface NeoVINResponse {
+  vin?: string;
+  year?: number;
+  make?: string;
+  model?: string;
+  trim?: string;
+  transmission?: string;
+  transmission_description?: string;
+  engine?: string;
+  fuel_type?: string;
+  city_mpg?: number;
+  highway_mpg?: number;
+  exterior_color?: { name?: string; code?: string };
+  interior_color?: { name?: string; code?: string };
+  body_type?: string;
+  drivetrain?: string;
+  powertrain_type?: string;
+}
+
 /** MarketCheck Car Listing Details API response (subset we use). */
 export interface MarketCheckCarListing {
   id?: string;
@@ -40,6 +60,10 @@ export interface MarketCheckCarListing {
 }
 
 const EMPTY = "—";
+
+function isMissingConfigValue(value: string): boolean {
+  return !value || value.trim() === "" || value.trim() === EMPTY;
+}
 
 /** Derive engine string from build.engine, options, or fallbacks. */
 function findEngine(listing: MarketCheckCarListing): string {
@@ -139,6 +163,84 @@ export function buildVinDataFromListing(
     daysOnLot: listing.dom_active ?? listing.dom ?? 0,
     media: { photo_links: listing.media?.photo_links ?? [] },
   };
+}
+
+/** Builds VinDataFromListing from NeoVIN response. Use when listing API fails but VIN is available. */
+export function buildVinDataFromNeoVIN(
+  listingId: string,
+  neovin: NeoVINResponse | null,
+  override?: { price?: number; mileage?: number; daysOnLot?: number; photo_links?: string[] },
+): VinDataFromListing | null {
+  if (!neovin) return null;
+  const year = neovin.year ?? 0;
+  const make = neovin.make ?? "Unknown";
+  const model = neovin.model ?? "Vehicle";
+
+  return {
+    id: listingId,
+    vin: neovin.vin ?? "",
+    year,
+    make,
+    model,
+    trim: neovin.trim,
+    price: override?.price ?? 0,
+    mileage: override?.mileage ?? 0,
+    daysOnLot: override?.daysOnLot ?? 0,
+    media: { photo_links: override?.photo_links ?? [] },
+  };
+}
+
+/** Builds config items from NeoVIN response. Use when listing API fails but VIN is available. */
+export function buildConfigurationFromNeoVIN(
+  neovin: NeoVINResponse | null,
+): ConfigItem[] {
+  if (!neovin) return [];
+  const engine = neovin.engine ?? neovin.powertrain_type ?? EMPTY;
+  const transmission = neovin.transmission ?? neovin.transmission_description ?? EMPTY;
+  const exteriorColor =
+    (typeof neovin.exterior_color === "object"
+      ? neovin.exterior_color?.name
+      : neovin.exterior_color) ?? EMPTY;
+  const interiorColor =
+    (typeof neovin.interior_color === "object"
+      ? neovin.interior_color?.name
+      : neovin.interior_color) ?? EMPTY;
+  const city = neovin.city_mpg;
+  const hwy = neovin.highway_mpg;
+  const fuelEconomy =
+    city != null && hwy != null
+      ? `${city} City / ${hwy} Hwy`
+      : city != null
+        ? `${city} City`
+        : hwy != null
+          ? `${hwy} Hwy`
+          : EMPTY;
+
+  return [
+    { label: "Engine", value: engine },
+    { label: "Transmission", value: transmission },
+    { label: "Exterior Color", value: exteriorColor },
+    { label: "Interior Color", value: interiorColor },
+    { label: "Fuel Economy", value: fuelEconomy },
+  ];
+}
+
+/** Fills missing primary config values with NeoVIN fallback values by label. */
+export function mergeConfigurationWithFallback(
+  primary: ConfigItem[],
+  fallback: ConfigItem[],
+): ConfigItem[] {
+  if (!primary.length) return fallback;
+  if (!fallback.length) return primary;
+
+  const fallbackByLabel = new Map(fallback.map((item) => [item.label, item.value]));
+  return primary.map((item) => {
+    if (!isMissingConfigValue(item.value)) return item;
+    const replacement = fallbackByLabel.get(item.label);
+    return replacement && !isMissingConfigValue(replacement)
+      ? { ...item, value: replacement }
+      : item;
+  });
 }
 
 export interface MarketOverviewData {
