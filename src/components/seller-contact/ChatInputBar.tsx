@@ -14,6 +14,8 @@ export interface ChatInputBarProps {
   acceptFiles?: string;
   maxFileSizeBytes?: number;
   maxFiles?: number;
+  /** Disable send while posting to API. */
+  isSending?: boolean;
   className?: string;
 }
 
@@ -31,6 +33,7 @@ export function ChatInputBar({
   acceptFiles = "image/*,.pdf,.doc,.docx,.xls,.xlsx",
   maxFileSizeBytes = 10 * 1024 * 1024,
   maxFiles = 5,
+  isSending = false,
   className,
 }: ChatInputBarProps) {
   const [message, setMessage] = useState("");
@@ -75,7 +78,7 @@ export function ChatInputBar({
     }
   };
 
-  const canSend = message.trim() || attachments.length > 0;
+  const canSend = (message.trim() || attachments.length > 0) && !isSending;
 
   return (
     <div
@@ -165,7 +168,11 @@ export function ChatInputBar({
             className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
             aria-label="Send message"
           >
-            <Send className="h-4 w-4" />
+            {isSending ? (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </form>

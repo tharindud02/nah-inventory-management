@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getMarketcheckConfig } from "@/lib/marketcheck-server";
 import { handleDemoMode } from "@/lib/demo-mode";
+import { fetchManheimMmrByVin } from "@/lib/manheim-mmr";
 
 interface ValuationBody {
   vin?: string;
@@ -109,13 +110,26 @@ export async function POST(request: NextRequest) {
   soldCompsUrl.searchParams.set("state", state);
 
   try {
-    const [valuation, neovin, sales, mds, marketCompsPrimary, soldCompsPrimary] = await Promise.all([
+    const [
+      valuation,
+      neovin,
+      sales,
+      mds,
+      marketCompsPrimary,
+      soldCompsPrimary,
+      manheimMmr,
+    ] = await Promise.all([
       fetchJson(valuationUrl.toString()),
       fetchJson(neovinUrl.toString()),
       fetchJson(salesUrl.toString()),
       fetchJson(mdsUrl.toString()),
       fetchJson(marketCompsUrl.toString()),
       fetchJson(soldCompsUrl.toString()),
+      fetchManheimMmrByVin(vin, {
+        odometer: miles,
+        zip,
+        include: "ci,retail,forecast",
+      }),
     ]);
 
     if (!valuation) {
@@ -191,6 +205,7 @@ export async function POST(request: NextRequest) {
         sales: sales ?? {},
         mds: mds ?? {},
         neovin: neovin ?? {},
+        mmr: manheimMmr ? { data: manheimMmr.mmrData } : null,
       },
     });
   } catch (err) {

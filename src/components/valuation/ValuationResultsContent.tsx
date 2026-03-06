@@ -22,6 +22,15 @@ export interface MMRData {
   typical_range?: { min?: number; max?: number };
   avg_odo?: number;
   avg_condition?: string;
+  request_context?: {
+    vin?: string;
+    zip?: string;
+    odometer?: number;
+    region?: string;
+    color?: string;
+    grade?: number;
+    build_options?: boolean;
+  };
 }
 
 export interface ValuationResultsData {
@@ -136,7 +145,7 @@ export function ValuationResultsContent({
       </div>
 
       {/* MMR and Retail */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
         <MMRSection mmrData={mmr} />
         <RetailValuationSection
           currentAsking={retail.currentAsking}

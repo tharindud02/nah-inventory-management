@@ -11,7 +11,6 @@ import { AppointmentsTabContent } from "@/components/appointments/AppointmentsTa
 import { EventFormModal } from "@/components/appointments/EventFormModal";
 import { NotesTabContent } from "@/components/notes/NotesTabContent";
 import { NoteFormModal } from "@/components/notes/NoteFormModal";
-import { SellerContactTabContent } from "@/components/seller-contact/SellerContactTabContent";
 import { ValuationTabContent } from "@/components/valuation/ValuationTabContent";
 import { DetailsTabContent } from "@/components/details/DetailsTabContent";
 import { CostAnalysisTabContent } from "@/components/cost-analysis/CostAnalysisTabContent";
@@ -31,17 +30,19 @@ import {
   type MarketCheckCarListing,
   type VinDataFromListing,
 } from "@/lib/marketcheck-listing-transform";
+import { transformVindataToValuationResults } from "@/lib/vindata-transform";
 import { extractVinFromListingId } from "@/lib/listing-utils";
-import { fetchListingCached, clearListingCache } from "@/lib/listing-fetch-cache";
+import {
+  fetchListingCached,
+  clearListingCache,
+} from "@/lib/listing-fetch-cache";
 import {
   EMPTY_EVENTS,
   EMPTY_AVAILABILITY,
   EMPTY_NOTES,
   EMPTY_NEGOTIATION_GOALS,
   EMPTY_PRIORITY_FLAGS,
-  EMPTY_CHAT_MESSAGES,
   EMPTY_AI_SUGGESTIONS,
-  EMPTY_SELLER_CONTACT,
   EMPTY_SOURCE_INFO,
   EMPTY_SELLER_ACTIONS,
 } from "@/lib/sample-page-data";
@@ -54,21 +55,33 @@ export default function InventoryVehicleDetailPage() {
   const [activeTab, setActiveTab] = useState<VehicleDetailTabId>("details");
   const [events, setEvents] = useState<CalendarEvent[]>(EMPTY_EVENTS);
   const [eventFormOpen, setEventFormOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null,
+  );
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [notes, setNotes] = useState<DealNote[]>(EMPTY_NOTES);
   const [noteFormOpen, setNoteFormOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<DealNote | null>(null);
-  const [valuationData, setValuationData] = useState<ValuationResultsData | null>(null);
+  const [valuationData, setValuationData] =
+    useState<ValuationResultsData | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [configuration, setConfiguration] = useState<ConfigItem[]>([]);
-  const [listingData, setListingData] = useState<MarketCheckCarListing | null>(null);
+  const [listingData, setListingData] = useState<MarketCheckCarListing | null>(
+    null,
+  );
 
   const hasMissingConfiguration = (items: ConfigItem[]): boolean =>
-    items.some((item) => !item.value || item.value.trim() === "" || item.value.trim() === "—");
+    items.some(
+      (item) =>
+        !item.value || item.value.trim() === "" || item.value.trim() === "—",
+    );
 
-  const fetchNeoVinConfiguration = async (vinToFetch: string): Promise<ConfigItem[] | null> => {
-    const res = await fetch(`/api/marketcheck/neovin/${encodeURIComponent(vinToFetch)}`);
+  const fetchNeoVinConfiguration = async (
+    vinToFetch: string,
+  ): Promise<ConfigItem[] | null> => {
+    const res = await fetch(
+      `/api/marketcheck/neovin/${encodeURIComponent(vinToFetch)}`,
+    );
     if (!res.ok) return null;
     const neovin = (await res.json()) as Record<string, unknown>;
     const config = buildConfigurationFromNeoVIN(neovin);
@@ -100,8 +113,13 @@ export default function InventoryVehicleDetailPage() {
         setVinData(data);
         setListingData(listing);
         const listingConfig = buildConfigurationFromMarketCheck(listing);
-        if ((listing.vin ?? "").trim() && hasMissingConfiguration(listingConfig)) {
-          const fallbackConfig = await fetchNeoVinConfiguration(listing.vin ?? "");
+        if (
+          (listing.vin ?? "").trim() &&
+          hasMissingConfiguration(listingConfig)
+        ) {
+          const fallbackConfig = await fetchNeoVinConfiguration(
+            listing.vin ?? "",
+          );
           setConfiguration(
             fallbackConfig
               ? mergeConfigurationWithFallback(listingConfig, fallbackConfig)
@@ -118,10 +136,22 @@ export default function InventoryVehicleDetailPage() {
         extractVinFromListingId(listingId);
       if (vin) {
         try {
-          const res = await fetch(`/api/marketcheck/neovin/${encodeURIComponent(vin)}`);
+          const res = await fetch(
+            `/api/marketcheck/neovin/${encodeURIComponent(vin)}`,
+          );
           const neovin = res.ok ? await res.json() : null;
-          const sessionRaw = typeof window !== "undefined" ? sessionStorage.getItem("vinData") : null;
-          let override: { price?: number; mileage?: number; daysOnLot?: number; photo_links?: string[] } | undefined;
+          const sessionRaw =
+            typeof window !== "undefined"
+              ? sessionStorage.getItem("vinData")
+              : null;
+          let override:
+            | {
+                price?: number;
+                mileage?: number;
+                daysOnLot?: number;
+                photo_links?: string[];
+              }
+            | undefined;
           if (sessionRaw) {
             try {
               const parsed = JSON.parse(sessionRaw) as VinDataFromListing;
@@ -166,7 +196,10 @@ export default function InventoryVehicleDetailPage() {
               if (cancelled) return;
               setConfiguration(
                 fallbackConfig
-                  ? mergeConfigurationWithFallback(listingConfig, fallbackConfig)
+                  ? mergeConfigurationWithFallback(
+                      listingConfig,
+                      fallbackConfig,
+                    )
                   : listingConfig,
               );
             })
@@ -209,58 +242,127 @@ export default function InventoryVehicleDetailPage() {
 
     const listing = await fetchListingCached(listingId);
 
-    const [sales, search, mds, recents] = await Promise.all([
-      fetch(`/api/marketcheck/sales?vin=${encodeURIComponent(vinToFetch)}`).then(
-        (r) => (r.ok ? r.json() : null),
-      ),
-      fetch(`/api/marketcheck/search?vin=${encodeURIComponent(vinToFetch)}`).then(
-        (r) => (r.ok ? r.json() : null),
-      ),
-      fetch(`/api/marketcheck/mds?vin=${encodeURIComponent(vinToFetch)}`).then(
-        (r) => (r.ok ? r.json() : null),
-      ),
-      (async () => {
-        const zip = listing?.dealer?.zip?.trim();
-        const state = listing?.dealer?.state?.trim();
-        const baseParams = new URLSearchParams({
+    // Attempt to use consolidated VIN-data valuation endpoint which includes Manheim MMR.
+    try {
+      const miles =
+        typeof listing?.miles === "number"
+          ? listing.miles
+          : typeof vinData?.mileage === "number"
+            ? vinData.mileage
+            : undefined;
+      const zip = listing?.dealer?.zip?.trim() ?? "";
+
+      const res = await fetch("/api/vindata/valuation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vin: vinToFetch, miles, zip }),
+      });
+
+      const json = await res.json().catch(() => null);
+      if (res.ok && json?.success) {
+        const valuationJson = json;
+        const listings = (valuationJson?.data?.marketComps?.listings ?? []) as unknown[];
+        const exactListing = listings.find(
+          (l: any) =>
+            typeof l?.vin === "string" &&
+            l.vin.toUpperCase() === vinToFetch.toUpperCase(),
+        );
+        const listingMileage =
+          typeof exactListing?.miles === "number" ? exactListing.miles : miles;
+        const listingPrice =
+          typeof exactListing?.price === "number" ? exactListing.price : undefined;
+        const listingDaysOnMarket =
+          typeof exactListing?.dom_active === "number"
+            ? exactListing.dom_active
+            : typeof exactListing?.dom === "number"
+              ? exactListing.dom
+              : undefined;
+
+        const transformed = transformVindataToValuationResults({
           vin: vinToFetch,
-          rows: "50",
-          ...(zip && { zip }),
-          ...(state && !zip && { state }),
+          generateReport: { data: valuationJson?.data?.generateReport ?? {} },
+          valuation: { data: valuationJson?.data?.valuation ?? {} },
+          marketComps: { data: valuationJson?.data?.marketComps ?? {} },
+          soldComps: { data: valuationJson?.data?.soldComps ?? {} },
+          mmr: valuationJson?.data?.mmr ?? null,
+          listingPrice,
+          listingMileage,
+          listingZip: zip,
+          listingDaysOnMarket,
         });
-        if (!zip && !state) baseParams.set("state", "CA");
 
-        const allListings: Array<{ price?: number; miles?: number; last_seen_at?: number; last_seen_at_date?: string }> = [];
-        let numFound = 0;
-        let start = 0;
+        setValuationData(transformed);
+        toast.success("Valuation data fetched");
+        return;
+      }
+    } catch (err) {
+      // fallthrough to MarketCheck-only fallback
+      console.error("vindata valuation failed:", err);
+    }
 
-        do {
-          const q = new URLSearchParams(baseParams);
-          q.set("start", String(start));
-          const r = await fetch(`/api/marketcheck/recents?${q.toString()}`);
-          const json = r.ok ? await r.json() : null;
-          if (!json?.listings?.length) break;
-          numFound = json.num_found ?? numFound;
-          allListings.push(...json.listings);
-          start += json.listings.length;
-        } while (allListings.length < (numFound || Infinity) && start < 1000);
+    // Fallback: build valuation from MarketCheck endpoints (existing behavior)
+    try {
+      const [sales, search, mds, recents] = await Promise.all([
+        fetch(
+          `/api/marketcheck/sales?vin=${encodeURIComponent(vinToFetch)}`,
+        ).then((r) => (r.ok ? r.json() : null)),
+        fetch(
+          `/api/marketcheck/search?vin=${encodeURIComponent(vinToFetch)}`,
+        ).then((r) => (r.ok ? r.json() : null)),
+        fetch(`/api/marketcheck/mds?vin=${encodeURIComponent(vinToFetch)}`).then(
+          (r) => (r.ok ? r.json() : null),
+        ),
+        (async () => {
+          const zip = listing?.dealer?.zip?.trim();
+          const state = listing?.dealer?.state?.trim();
+          const baseParams = new URLSearchParams({
+            vin: vinToFetch,
+            rows: "50",
+            ...(zip && { zip }),
+            ...(state && !zip && { state }),
+          });
+          if (!zip && !state) baseParams.set("state", "CA");
 
-        return {
-          num_found: numFound || allListings.length,
-          listings: allListings,
-        };
-      })(),
-    ]);
+          const allListings: Array<{
+            price?: number;
+            miles?: number;
+            last_seen_at?: number;
+            last_seen_at_date?: string;
+          }> = [];
+          let numFound = 0;
+          let start = 0;
 
-    const data = buildValuationFromMarketCheck(
-      listing,
-      sales,
-      search,
-      mds,
-      recents,
-    );
-    setValuationData(data);
-    toast.success("Valuation data fetched");
+          do {
+            const q = new URLSearchParams(baseParams);
+            q.set("start", String(start));
+            const r = await fetch(`/api/marketcheck/recents?${q.toString()}`);
+            const json = r.ok ? await r.json() : null;
+            if (!json?.listings?.length) break;
+            numFound = json.num_found ?? numFound;
+            allListings.push(...json.listings);
+            start += json.listings.length;
+          } while (allListings.length < (numFound || Infinity) && start < 1000);
+
+          return {
+            num_found: numFound || allListings.length,
+            listings: allListings,
+          };
+        })(),
+      ]);
+
+      const data = buildValuationFromMarketCheck(
+        listing,
+        sales,
+        search,
+        mds,
+        recents,
+      );
+      setValuationData(data);
+      toast.success("Valuation data fetched (fallback)");
+    } catch (err) {
+      console.error("fallback valuation failed:", err);
+      toast.error("Failed to fetch valuation");
+    }
   };
 
   const handleNewEvent = () => {
@@ -287,7 +389,9 @@ export default function InventoryVehicleDetailPage() {
     if (eventData.id) {
       setEvents((prev) =>
         prev.map((e) =>
-          e.id === eventData.id ? { ...eventData, id: e.id } as CalendarEvent : e,
+          e.id === eventData.id
+            ? ({ ...eventData, id: e.id } as CalendarEvent)
+            : e,
         ),
       );
       toast.success("Event updated");
@@ -322,7 +426,7 @@ export default function InventoryVehicleDetailPage() {
     if (noteData.id) {
       setNotes((prev) =>
         prev.map((n) =>
-          n.id === noteData.id ? { ...noteData, id: n.id } as DealNote : n,
+          n.id === noteData.id ? ({ ...noteData, id: n.id } as DealNote) : n,
         ),
       );
       toast.success("Note updated");
@@ -533,24 +637,6 @@ export default function InventoryVehicleDetailPage() {
                   onSave={handleNoteSave}
                 />
               </>
-            )}
-
-            {activeTab === "seller" && (
-              <SellerContactTabContent
-                contactName="Inventory"
-                contactInitials="IN"
-                contactStatus="offline"
-                messages={EMPTY_CHAT_MESSAGES}
-                aiSuggestions={EMPTY_AI_SUGGESTIONS}
-                contactInfo={EMPTY_SELLER_CONTACT}
-                sourceInfo={EMPTY_SOURCE_INFO}
-                actions={EMPTY_SELLER_ACTIONS}
-                aiAnalyzingText=""
-                onSendMessage={() => {}}
-                onSuggestionClick={() => {}}
-                onLogActivity={() => {}}
-                onActionClick={() => {}}
-              />
             )}
 
             {activeTab === "cost-analysis" && vinData && (

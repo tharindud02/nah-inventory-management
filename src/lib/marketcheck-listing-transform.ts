@@ -169,7 +169,12 @@ export function buildVinDataFromListing(
 export function buildVinDataFromNeoVIN(
   listingId: string,
   neovin: NeoVINResponse | null,
-  override?: { price?: number; mileage?: number; daysOnLot?: number; photo_links?: string[] },
+  override?: {
+    price?: number;
+    mileage?: number;
+    daysOnLot?: number;
+    photo_links?: string[];
+  },
 ): VinDataFromListing | null {
   if (!neovin) return null;
   const year = neovin.year ?? 0;
@@ -196,7 +201,8 @@ export function buildConfigurationFromNeoVIN(
 ): ConfigItem[] {
   if (!neovin) return [];
   const engine = neovin.engine ?? neovin.powertrain_type ?? EMPTY;
-  const transmission = neovin.transmission ?? neovin.transmission_description ?? EMPTY;
+  const transmission =
+    neovin.transmission ?? neovin.transmission_description ?? EMPTY;
   const exteriorColor =
     (typeof neovin.exterior_color === "object"
       ? neovin.exterior_color?.name
@@ -233,7 +239,9 @@ export function mergeConfigurationWithFallback(
   if (!primary.length) return fallback;
   if (!fallback.length) return primary;
 
-  const fallbackByLabel = new Map(fallback.map((item) => [item.label, item.value]));
+  const fallbackByLabel = new Map(
+    fallback.map((item) => [item.label, item.value]),
+  );
   return primary.map((item) => {
     if (!isMissingConfigValue(item.value)) return item;
     const replacement = fallbackByLabel.get(item.label);
@@ -352,7 +360,8 @@ export function buildComparablesFromRecents(
   return listings.map((l) => ({
     date: formatSoldDate(l.last_seen_at_date ?? l.last_seen_at),
     miles: l.miles ?? 0,
-    price: l.price != null && l.price > 0 ? `$${l.price.toLocaleString()}` : "—",
+    price:
+      l.price != null && l.price > 0 ? `$${l.price.toLocaleString()}` : "—",
   }));
 }
 

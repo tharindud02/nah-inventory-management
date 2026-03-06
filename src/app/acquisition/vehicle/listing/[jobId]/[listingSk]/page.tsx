@@ -33,8 +33,8 @@ import {
   EMPTY_SELLER_CONTACT,
   EMPTY_SOURCE_INFO,
   EMPTY_SELLER_ACTIONS,
-  EMPTY_CHAT_MESSAGES,
 } from "@/lib/sample-page-data";
+import { useSellerContact } from "@/hooks/useSellerContact";
 
 function buildConfiguration(listing: ListingDetail): ConfigItem[] {
   return [
@@ -58,6 +58,19 @@ export default function ListingDetailsPage() {
 
   const jobId = params.jobId;
   const listingSk = params.listingSk ? decodeURIComponent(params.listingSk) : "";
+
+  const sellerContact = useSellerContact({
+    listingId: listingSk,
+    sellerContact: {
+      sellerPhone: listing?.seller_phone ?? null,
+      sellerEmail: listing?.seller_email ?? null,
+      messengerHref: listing?.product_id
+        ? `https://www.facebook.com/marketplace/item/${listing.product_id}`
+        : null,
+      forceShowSamples: true,
+    },
+    enabled: !isLoading && !error && !!listing && activeTab === "seller",
+  });
 
   useEffect(() => {
     if (!listingSk) {
@@ -154,8 +167,10 @@ export default function ListingDetailsPage() {
           valuation: { data: valuationJson?.data?.valuation },
           marketComps: { data: valuationJson?.data?.marketComps },
           soldComps: { data: valuationJson?.data?.soldComps },
+          mmr: valuationJson?.data?.mmr ?? null,
           listingPrice: listing?.final_price ?? undefined,
           listingMileage: miles,
+          listingZip: zip,
         });
 
         setValuationData(result);
@@ -339,7 +354,7 @@ export default function ListingDetailsPage() {
                     ? `https://www.facebook.com/marketplace/item/${listing.product_id}`
                     : undefined
                 }
-                messages={EMPTY_CHAT_MESSAGES}
+                messages={sellerContact.messages}
                 aiSuggestions={EMPTY_AI_SUGGESTIONS}
                 contactInfo={{
                   mobile: listing.seller_phone ?? EMPTY_SELLER_CONTACT.mobile,
@@ -348,8 +363,12 @@ export default function ListingDetailsPage() {
                 }}
                 sourceInfo={EMPTY_SOURCE_INFO}
                 actions={EMPTY_SELLER_ACTIONS}
-                aiAnalyzingText="—"
-                onSendMessage={() => {}}
+                isLoading={sellerContact.isLoading}
+                channelAvailability={sellerContact.channelAvailability}
+                selectedChannel={sellerContact.selectedChannel}
+                onChannelSelect={sellerContact.setSelectedChannel}
+                isSending={sellerContact.isSending}
+                onSendMessage={(msg) => sellerContact.onSendMessage(msg)}
                 onSuggestionClick={() => {}}
                 onLogActivity={() => {}}
                 onActionClick={() => {}}

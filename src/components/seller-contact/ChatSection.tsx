@@ -32,6 +32,10 @@ export interface ChatSectionProps {
   onCall?: () => void;
   onMenuClick?: () => void;
   onAttach?: () => void;
+  /** Disable send while posting to API. */
+  isSending?: boolean;
+  /** Show loading state in message area. */
+  isLoading?: boolean;
   className?: string;
 }
 
@@ -45,6 +49,8 @@ export function ChatSection({
   onCall,
   onMenuClick,
   onAttach,
+  isSending = false,
+  isLoading = false,
   className,
 }: ChatSectionProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -69,23 +75,32 @@ export function ChatSection({
       />
       <div className="max-h-[400px] flex-1 overflow-y-auto">
         <div className="space-y-2 px-4 py-4">
-          <ChatTimestampSeparator label="Yesterday" />
-          {messages.map((msg) => (
-            <ChatMessageBubble
-              key={msg.id}
-              message={msg.message}
-              timestamp={msg.timestamp}
-              isOutgoing={msg.isOutgoing}
-              attachments={msg.attachments}
-            />
-          ))}
-          <div ref={messagesEndRef} />
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              <ChatTimestampSeparator label="Today" />
+              {messages.map((msg) => (
+                <ChatMessageBubble
+                  key={msg.id}
+                  message={msg.message}
+                  timestamp={msg.timestamp}
+                  isOutgoing={msg.isOutgoing}
+                  attachments={msg.attachments}
+                />
+              ))}
+              <div ref={messagesEndRef} />
+            </>
+          )}
         </div>
       </div>
       <ChatInputBar
         aiAnalyzingText={aiAnalyzingText}
         onSend={onSendMessage}
         onAttach={onAttach}
+        isSending={isSending}
       />
     </div>
   );

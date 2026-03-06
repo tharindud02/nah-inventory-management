@@ -77,8 +77,27 @@ interface SoldCompsData {
 interface MmrData {
   base_mmr?: number;
   adjusted_mmr?: number;
+  adjustments?: {
+    odometer?: number;
+    region?: number;
+    cr_score?: number;
+    color?: number;
+  };
+  typical_range?: {
+    min?: number;
+    max?: number;
+  };
   avg_odo?: number;
   avg_condition?: string;
+  request_context?: {
+    vin?: string;
+    zip?: string;
+    odometer?: number;
+    region?: string;
+    color?: string;
+    grade?: number;
+    build_options?: boolean;
+  };
   mmr_values?: {
     auction?: { average?: number };
     retail?: { average?: number };
@@ -100,7 +119,9 @@ function parseComparableRows(
   const fromSold = sold?.sold_comparables ?? sold?.listings ?? [];
   for (const item of fromSold) {
     const miles =
-      (item as { mileage?: number }).mileage ?? (item as { miles?: number }).miles ?? 0;
+      (item as { mileage?: number }).mileage ??
+      (item as { miles?: number }).miles ??
+      0;
     const priceVal =
       (item as { sale_price?: number }).sale_price ??
       (item as { price?: number }).price ??
@@ -110,7 +131,13 @@ function parseComparableRows(
       (item as { sold_at?: string }).sold_at ??
       "";
     rows.push({
-      date: date ? new Date(date).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" }) : "—",
+      date: date
+        ? new Date(date).toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "2-digit",
+          })
+        : "—",
       miles: Number(miles),
       price: formatPrice(priceVal),
     });
@@ -121,14 +148,22 @@ function parseComparableRows(
   const fromActive = active?.comparables ?? active?.listings ?? [];
   for (const item of fromActive) {
     const miles =
-      (item as { mileage?: number }).mileage ?? (item as { miles?: number }).miles ?? 0;
+      (item as { mileage?: number }).mileage ??
+      (item as { miles?: number }).miles ??
+      0;
     const priceVal = (item as { price?: number }).price ?? 0;
     const date =
       (item as { listing_date?: string }).listing_date ??
       (item as { sale_date?: string }).sale_date ??
       "";
     rows.push({
-      date: date ? new Date(date).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" }) : "—",
+      date: date
+        ? new Date(date).toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "2-digit",
+          })
+        : "—",
       miles: Number(miles),
       price: formatPrice(priceVal),
     });
@@ -148,7 +183,10 @@ function parseMarketPosition(
   const items = soldItems.length > 0 ? soldItems : activeItems;
 
   const points: DataPoint[] = items.slice(0, 12).map((item) => {
-    const miles = (item as { mileage?: number }).mileage ?? (item as { miles?: number }).miles ?? 0;
+    const miles =
+      (item as { mileage?: number }).mileage ??
+      (item as { miles?: number }).miles ??
+      0;
     const price =
       (item as { sale_price?: number }).sale_price ??
       (item as { price?: number }).price ??
@@ -170,13 +208,14 @@ function parseMarketPosition(
 
 export interface TransformVindataInput {
   vin: string;
-  generateReport?: { data?: GenerateReportData } | null;
+  generateReport?: { data?: GenerateReportData | Record<string, unknown> } | null;
   valuation?: { data?: ValuationApiData } | null;
   marketComps?: { data?: MarketCompsData } | null;
   soldComps?: { data?: SoldCompsData } | null;
   mmr?: { data?: MmrData } | null;
   listingPrice?: number | null;
   listingMileage?: number | null;
+  listingZip?: string | null;
   listingDaysOnMarket?: number | null;
   listingDate?: string | null;
 }
@@ -193,6 +232,7 @@ export function transformVindataToValuationResults(
     mmr,
     listingPrice,
     listingMileage,
+    listingZip,
     listingDaysOnMarket,
     listingDate,
   } = input;
@@ -207,15 +247,25 @@ export function transformVindataToValuationResults(
   const vSummary = reportData?.valuation_summary;
   const marketPrice =
     valuationData?.marketcheck_price ??
-    (typeof vSummary?.market_comps_average === "number" ? vSummary.market_comps_average : 0) ??
+    (typeof vSummary?.market_comps_average === "number"
+      ? vSummary.market_comps_average
+      : 0) ??
     0;
+  // Prefer real Manheim MMR payload when available, then fallback to legacy sources.
+  // Treat adjusted_mmr === 0 as not-provided (so base_mmr will be preferred).
   const mmrAvg =
-    (typeof vSummary?.mmr_average === "number" ? vSummary.mmr_average : null) ??
-    mmrData?.adjusted_mmr ??
+    (typeof mmrData?.adjusted_mmr === "number" && mmrData.adjusted_mmr > 0
+      ? mmrData.adjusted_mmr
+      : undefined) ??
     mmrData?.base_mmr ??
-    (mmrData?.mmr_values as { auction?: { average?: number } } | undefined)?.auction?.average ??
+    (mmrData?.mmr_values as { auction?: { average?: number } } | undefined)
+      ?.auction?.average ??
+    (typeof vSummary?.mmr_average === "number" ? vSummary.mmr_average : null) ??
     0;
-  const avgPrice = activeData?.market_stats?.average_price ?? soldData?.market_stats?.average_sale_price ?? marketPrice;
+  const avgPrice =
+    activeData?.market_stats?.average_price ??
+    soldData?.market_stats?.average_sale_price ??
+    marketPrice;
   const subjectMiles = listingMileage ?? vehicleDetails?.mileage ?? 0;
   const subjectPrice = listingPrice ?? marketPrice;
 
@@ -229,9 +279,13 @@ export function transformVindataToValuationResults(
 
   const mInsights = reportData?.market_insights;
   const daysSupply =
-    (typeof mInsights?.days_supply === "number" ? mInsights.days_supply : null) ?? 0;
+    (typeof mInsights?.days_supply === "number"
+      ? mInsights.days_supply
+      : null) ?? 0;
   const demandScore =
-    (typeof mInsights?.demand_score === "number" ? mInsights.demand_score : null) ?? null;
+    (typeof mInsights?.demand_score === "number"
+      ? mInsights.demand_score
+      : null) ?? null;
 
   const daysOnMarket = (() => {
     if (
@@ -300,19 +354,32 @@ export function transformVindataToValuationResults(
     },
     mmr: {
       base_mmr: mmrData?.base_mmr ?? Number(mmrAvg),
-      adjusted_mmr: mmrData?.adjusted_mmr ?? mmrData?.base_mmr ?? Number(mmrAvg),
+      adjusted_mmr:
+        mmrData?.adjusted_mmr ?? mmrData?.base_mmr ?? Number(mmrAvg),
       adjustments: {
-        odometer: 0,
-        region: 0,
-        cr_score: 0,
-        color: 0,
+        odometer: mmrData?.adjustments?.odometer ?? 0,
+        region: mmrData?.adjustments?.region ?? 0,
+        cr_score: mmrData?.adjustments?.cr_score ?? 0,
+        color: mmrData?.adjustments?.color ?? 0,
       },
       typical_range: {
-        min: Number(mmrAvg) * 0.95,
-        max: Number(mmrAvg) * 1.05,
+        min: mmrData?.typical_range?.min ?? Number(mmrAvg) * 0.95,
+        max: mmrData?.typical_range?.max ?? Number(mmrAvg) * 1.05,
       },
-      avg_odo: mmrData?.avg_odo ?? subjectMiles ? Number(subjectMiles) : 25000,
+      avg_odo:
+        mmrData?.avg_odo ?? (subjectMiles ? Number(subjectMiles) : 25000),
       avg_condition: mmrData?.avg_condition ?? "4.5",
+      request_context: {
+        vin,
+        zip: mmrData?.request_context?.zip ?? listingZip ?? undefined,
+        odometer:
+          mmrData?.request_context?.odometer ??
+          (subjectMiles ? Number(subjectMiles) : undefined),
+        region: mmrData?.request_context?.region,
+        color: mmrData?.request_context?.color,
+        grade: mmrData?.request_context?.grade,
+        build_options: mmrData?.request_context?.build_options ?? true,
+      },
     },
     retail: {
       currentAsking: formatPrice(listingPrice ?? subjectPrice),
@@ -326,15 +393,25 @@ export function transformVindataToValuationResults(
           ? formatPrice(listingPrice - Number(mmrAvg))
           : "N/A",
       priceRank: "—",
-      competitivePositionPercent: avgPrice > 0 && listingPrice != null ? Math.round((listingPrice / avgPrice) * 100) : undefined,
+      competitivePositionPercent:
+        avgPrice > 0 && listingPrice != null
+          ? Math.round((listingPrice / avgPrice) * 100)
+          : undefined,
     },
     condition: {
       score: 0,
       bars: [],
     },
-    comparables: comparables.length > 0 ? comparables : [
-      { date: "—", miles: subjectMiles ? Number(subjectMiles) : 0, price: formatPrice(subjectPrice) },
-    ],
+    comparables:
+      comparables.length > 0
+        ? comparables
+        : [
+            {
+              date: "—",
+              miles: subjectMiles ? Number(subjectMiles) : 0,
+              price: formatPrice(subjectPrice),
+            },
+          ],
     marketPosition,
   };
 }
@@ -428,9 +505,11 @@ export function normalizeVinLookupResponse(
   odometerInformation?: { reportedOdometer?: number }[];
   [key: string]: unknown;
 } {
-  const obj = (raw && typeof raw === "object" && "data" in raw
-    ? (raw as { data?: unknown }).data
-    : raw) as Record<string, unknown> | null;
+  const obj = (
+    raw && typeof raw === "object" && "data" in raw
+      ? (raw as { data?: unknown }).data
+      : raw
+  ) as Record<string, unknown> | null;
 
   if (!obj || typeof obj !== "object") {
     return {
@@ -439,14 +518,28 @@ export function normalizeVinLookupResponse(
     };
   }
 
-  const vd = (obj.vehicle_details ?? obj.vehicleDetails) as Record<string, unknown> | undefined;
-  const summary = (obj.summary ?? obj.Summary) as Record<string, unknown> | undefined;
+  const vd = (obj.vehicle_details ?? obj.vehicleDetails) as
+    | Record<string, unknown>
+    | undefined;
+  const summary = (obj.summary ?? obj.Summary) as
+    | Record<string, unknown>
+    | undefined;
   const year = Number(obj.year ?? vd?.year ?? summary?.year) || undefined;
-  const make = String(obj.make ?? vd?.make ?? summary?.make ?? "").trim() || undefined;
-  const model = String(obj.model ?? vd?.model ?? summary?.model ?? "").trim() || undefined;
-  const trim = String(obj.trim ?? vd?.trim ?? summary?.trim ?? "").trim() || undefined;
-  const mileage = typeof vd?.mileage === "number" ? vd.mileage : typeof obj.mileage === "number" ? obj.mileage : undefined;
-  const odometer = (obj.odometerInformation ?? obj.odometer_information) as { reportedOdometer?: number }[] | undefined;
+  const make =
+    String(obj.make ?? vd?.make ?? summary?.make ?? "").trim() || undefined;
+  const model =
+    String(obj.model ?? vd?.model ?? summary?.model ?? "").trim() || undefined;
+  const trim =
+    String(obj.trim ?? vd?.trim ?? summary?.trim ?? "").trim() || undefined;
+  const mileage =
+    typeof vd?.mileage === "number"
+      ? vd.mileage
+      : typeof obj.mileage === "number"
+        ? obj.mileage
+        : undefined;
+  const odometer = (obj.odometerInformation ?? obj.odometer_information) as
+    | { reportedOdometer?: number }[]
+    | undefined;
 
   return {
     ...obj,

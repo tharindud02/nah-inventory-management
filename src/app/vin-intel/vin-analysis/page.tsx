@@ -177,15 +177,20 @@ export default function VINAnalysisPage() {
             setActualMileage(listingMileage);
           }
 
-          const genJson = { success: true, data: enrichedRawData };
+          const genJson = {
+            success: true,
+            data: enrichedRawData as Record<string, unknown>,
+          };
           const result = transformVindataToValuationResults({
             vin: storedVin,
             generateReport: genJson,
             valuation: { data: valuationJson?.data?.valuation },
             marketComps: { data: valuationJson?.data?.marketComps },
             soldComps: { data: valuationJson?.data?.soldComps },
+            mmr: valuationJson?.data?.mmr ?? null,
             listingPrice,
             listingMileage,
+            listingZip: "",
             listingDaysOnMarket,
           });
           setValuationData(result);
@@ -398,11 +403,6 @@ export default function VINAnalysisPage() {
                   projectedTurn={valuationData.metrics?.marketDaysSupply ?? 0}
                   sourcingIntel="VIN discovery — valuation from VIN lookup."
                 />
-              </div>
-            )}
-            {activeTab === "seller" && (
-              <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500">
-                No seller contact for VIN discovery. Add to acquisition to track.
               </div>
             )}
             {activeTab === "notes" && (

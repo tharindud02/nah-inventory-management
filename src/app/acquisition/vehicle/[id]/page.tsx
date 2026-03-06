@@ -20,7 +20,10 @@ import type { VehicleDetailTabId } from "@/components/acquisition/VehicleDetailT
 import type { CalendarEvent } from "@/components/appointments/AppointmentsCalendar";
 import type { DealNote } from "@/components/notes/DealNotesSection";
 import type { PriorityFlag } from "@/components/notes/InternalStrategySidebar";
-import type { ChatMessage, ChatAttachment } from "@/components/seller-contact/ChatSection";
+import type {
+  ChatMessage,
+  ChatAttachment,
+} from "@/components/seller-contact/ChatSection";
 import {
   EMPTY_EVENTS,
   EMPTY_UPCOMING,
@@ -55,24 +58,32 @@ function filesToAttachments(files: File[]): ChatAttachment[] {
     name: f.name,
     size: f.size,
     type: f.type,
-    previewUrl: f.type.startsWith("image/") ? URL.createObjectURL(f) : undefined,
+    previewUrl: f.type.startsWith("image/")
+      ? URL.createObjectURL(f)
+      : undefined,
   }));
 }
 
 export default function AcquisitionVehiclePage() {
   const params = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<VehicleDetailTabId>("details");
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(EMPTY_CHAT_MESSAGES);
+  const [chatMessages, setChatMessages] =
+    useState<ChatMessage[]>(EMPTY_CHAT_MESSAGES);
   const [events, setEvents] = useState<CalendarEvent[]>(EMPTY_EVENTS);
   const [eventFormOpen, setEventFormOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null,
+  );
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   const [notes, setNotes] = useState<DealNote[]>(EMPTY_NOTES);
   const [noteFormOpen, setNoteFormOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<DealNote | null>(null);
-  const [negotiationGoals, setNegotiationGoals] = useState<string[]>(EMPTY_NEGOTIATION_GOALS);
-  const [priorityFlags, setPriorityFlags] = useState<PriorityFlag[]>(EMPTY_PRIORITY_FLAGS);
+  const [negotiationGoals, setNegotiationGoals] = useState<string[]>(
+    EMPTY_NEGOTIATION_GOALS,
+  );
+  const [priorityFlags, setPriorityFlags] =
+    useState<PriorityFlag[]>(EMPTY_PRIORITY_FLAGS);
 
   const [loadedVin, setLoadedVin] = useState<string | null>(null);
   const [valuationData, setValuationData] =
@@ -86,7 +97,9 @@ export default function AcquisitionVehiclePage() {
       body: JSON.stringify({ vin: vinToFetch, miles: undefined, zip: "" }),
     });
     const text = await res.text();
-    const json = text.startsWith("{") ? (JSON.parse(text) as { success?: boolean; error?: string }) : {};
+    const json = text.startsWith("{")
+      ? (JSON.parse(text) as { success?: boolean; error?: string })
+      : {};
     if (!json.success) {
       throw new Error(json.error ?? "Failed to fetch valuation");
     }
@@ -120,7 +133,9 @@ export default function AcquisitionVehiclePage() {
       body: JSON.stringify({ vin: vinToLoad, miles: undefined, zip: "" }),
     });
     const text = await res.text();
-    const json = text.startsWith("{") ? (JSON.parse(text) as { success?: boolean; error?: string }) : {};
+    const json = text.startsWith("{")
+      ? (JSON.parse(text) as { success?: boolean; error?: string })
+      : {};
     if (!json.success) throw new Error(json.error ?? "Failed to load data");
     toast.success("Vehicle data loaded");
     setLoadedVin(vinToLoad);
@@ -149,7 +164,11 @@ export default function AcquisitionVehiclePage() {
   ) => {
     if (eventData.id) {
       setEvents((prev) =>
-        prev.map((e) => (e.id === eventData.id ? { ...eventData, id: e.id } as CalendarEvent : e)),
+        prev.map((e) =>
+          e.id === eventData.id
+            ? ({ ...eventData, id: e.id } as CalendarEvent)
+            : e,
+        ),
       );
       toast.success("Event updated successfully");
     } else {
@@ -180,12 +199,12 @@ export default function AcquisitionVehiclePage() {
     setNoteFormOpen(true);
   };
 
-  const handleNoteSave = (
-    noteData: Omit<DealNote, "id"> & { id?: string },
-  ) => {
+  const handleNoteSave = (noteData: Omit<DealNote, "id"> & { id?: string }) => {
     if (noteData.id) {
       setNotes((prev) =>
-        prev.map((n) => (n.id === noteData.id ? { ...noteData, id: n.id } as DealNote : n)),
+        prev.map((n) =>
+          n.id === noteData.id ? ({ ...noteData, id: n.id } as DealNote) : n,
+        ),
       );
       toast.success("Note updated successfully");
     } else {
@@ -235,7 +254,10 @@ export default function AcquisitionVehiclePage() {
       else if (daysDiff === 1) relativeLabel = "TOMORROW";
       else if (daysDiff <= 7) relativeLabel = `IN ${daysDiff} DAYS`;
       else if (daysDiff <= 14) relativeLabel = "NEXT WEEK";
-      else relativeLabel = ev.date.toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase();
+      else
+        relativeLabel = ev.date
+          .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+          .toUpperCase();
 
       return {
         title: ev.title,
@@ -269,10 +291,7 @@ export default function AcquisitionVehiclePage() {
             onMoveToNegotiate={() => {}}
           />
 
-          <VehicleDetailTabs
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
+          <VehicleDetailTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
           <main className="flex-1 p-6">
             {activeTab === "appointments" && (
