@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,12 +44,19 @@ function DealershipContent() {
   const [success, setSuccess] = useState("");
   const [invitedUsers, setInvitedUsers] = useState<InvitedUser[]>([]);
   const [dealershipId, setDealershipId] = useState<string>("");
+  const [dealershipName, setDealershipName] = useState<string>("");
+  const [dataLoading, setDataLoading] = useState(true);
   const { user } = useAuth();
   const router = useRouter();
+  const fetchedRef = useRef(false);
 
   useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+
     const fetchDealershipData = async () => {
       try {
+        setDataLoading(true);
         const accessToken = localStorage.getItem("accessToken");
         if (!accessToken) {
           throw new Error("Not authenticated");
@@ -67,21 +74,49 @@ function DealershipContent() {
 
         if (!response.ok) {
           console.warn("Failed to fetch dealership data:", data.error);
+          setDataLoading(false);
           return;
         }
 
-        // Extract dealership ID from the API response
-        // Adjust based on your actual API response structure
-        if (data.dealerId || data.id) {
-          setDealershipId(data.dealerId || data.id);
+        // Extract dealership info from the API response
+        const dealershipData = data.data;
+        if (dealershipData?.id) {
+          setDealershipId(dealershipData.id);
+          setDealershipName(dealershipData.name || "");
+
+          // Map dealers to InvitedUser format, excluding current user
+          const dealers = (dealershipData.dealers || [])
+            .filter(
+              (dealer: { email: string }) =>
+                dealer.email.toLowerCase() !== user?.email?.toLowerCase(),
+            )
+            .map(
+              (dealer: {
+                id: string;
+                name: string;
+                email: string;
+                status: string;
+                createdAt: string;
+              }) => ({
+                id: dealer.id,
+                name: dealer.name,
+                email: dealer.email,
+                status: dealer.status as "pending" | "active" | "invited",
+                invitedAt: dealer.createdAt,
+              }),
+            );
+
+          setInvitedUsers(dealers);
         }
       } catch (err) {
         console.error("Error fetching dealership data:", err);
+      } finally {
+        setDataLoading(false);
       }
     };
 
     fetchDealershipData();
-  }, []);
+  }, [user?.email]);
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,6 +208,15 @@ function DealershipContent() {
           </div>
         </div>
 
+        {/* Dealership Info */}
+        {dealershipName && (
+          <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm text-slate-600">
+              Dealership: <span className="font-semibold text-slate-900">{dealershipName}</span>
+            </p>
+          </div>
+        )}
+
         {/* Invite Form */}
         <Card>
           <CardHeader>
@@ -255,10 +299,14 @@ function DealershipContent() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {invitedUsers.length === 0 ? (
-              <div className="text-center py-8 text-slate-500">
+            {dataLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900" />
+              </div>
+            ) : invitedUsers.length === 0 ? (
+              <div className="text-center py-12 text-slate-500">
                 <Users className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-                <p>No team members yet</p>
+                <p className="font-medium text-slate-700">No team members yet</p>
                 <p className="text-sm">
                   Invite users to join your dealership
                 </p>

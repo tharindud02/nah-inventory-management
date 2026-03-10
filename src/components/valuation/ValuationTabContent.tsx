@@ -14,6 +14,9 @@ export interface ValuationTabContentProps {
   onSettingsClick?: () => void;
   onViewInspection?: () => void;
   onExportComparables?: () => void;
+  hideConditionAndComparables?: boolean;
+  marketAvgOnly?: boolean;
+  hideTypicalRange?: boolean;
 }
 
 export function ValuationTabContent({
@@ -23,6 +26,9 @@ export function ValuationTabContent({
   onSettingsClick,
   onViewInspection,
   onExportComparables,
+  hideConditionAndComparables = false,
+  marketAvgOnly = false,
+  hideTypicalRange = false,
 }: ValuationTabContentProps) {
   const hasAutoFetched = useRef(false);
   const [isAutoFetching, setIsAutoFetching] = useState(false);
@@ -53,6 +59,9 @@ export function ValuationTabContent({
         data={valuationData}
         onViewInspection={onViewInspection}
         onExportComparables={onExportComparables}
+        hideConditionAndComparables={hideConditionAndComparables}
+        marketAvgOnly={marketAvgOnly}
+        hideTypicalRange={hideTypicalRange}
       />
     );
   }

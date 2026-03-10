@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const response = await fetch(`${AWS_API_BASE_URL}/dealerships/`, {
+    const response = await fetch(`${AWS_API_BASE_URL}/dealerships`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -20,9 +20,14 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    console.log("AWS Response status:", response.status);
+
     const data = await response.json();
 
+    console.log("AWS Response data:", data);
+
     if (!response.ok) {
+      console.error("AWS API error:", data);
       return NextResponse.json(
         { error: data.message || "Failed to fetch dealership data" },
         { status: response.status },
@@ -30,9 +35,10 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(data);
-  } catch {
+  } catch (error) {
+    console.error("API route error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 },
     );
   }

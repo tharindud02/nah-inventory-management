@@ -43,6 +43,7 @@ interface MMRSectionProps {
   isLoading?: boolean;
   compact?: boolean;
   className?: string;
+  hideTypicalRange?: boolean;
 }
 
 interface LookupResponse {
@@ -349,6 +350,7 @@ export function MMRSection({
   isLoading = false,
   compact = false,
   className,
+  hideTypicalRange = false,
 }: MMRSectionProps) {
   const [liveMmrData, setLiveMmrData] = useState<MMRData | null>(null);
   const [regionOptions, setRegionOptions] = useState<string[]>(FALLBACK_REGION_OPTIONS);
@@ -644,20 +646,22 @@ export function MMRSection({
                 {avgOdo > 0 ? avgOdo.toLocaleString() : "—"}
               </p>
             </div>
-            <div className="py-4">
+            <div className={hideTypicalRange ? "py-4" : "py-4"}>
               <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                 Avg Grade
               </p>
               <p className="text-base font-bold leading-none text-slate-900">{avgCondition}</p>
             </div>
-            <div className="pt-4">
-              <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                Typical Range
-              </p>
-              <p className="text-sm font-semibold leading-snug text-slate-800">
-                {formatCurrency(rangeMin)} – {formatCurrency(gaugeMax)}
-              </p>
-            </div>
+            {!hideTypicalRange && (
+              <div className="pt-4">
+                <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                  Typical Range
+                </p>
+                <p className="text-sm font-semibold leading-snug text-slate-800">
+                  {formatCurrency(rangeMin)} – {formatCurrency(gaugeMax)}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

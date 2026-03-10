@@ -68,12 +68,18 @@ export interface ValuationResultsContentProps {
   data: ValuationResultsData;
   onViewInspection?: () => void;
   onExportComparables?: () => void;
+  hideConditionAndComparables?: boolean;
+  marketAvgOnly?: boolean;
+  hideTypicalRange?: boolean;
 }
 
 export function ValuationResultsContent({
   data,
   onViewInspection,
   onExportComparables,
+  hideConditionAndComparables = false,
+  marketAvgOnly = false,
+  hideTypicalRange = false,
 }: ValuationResultsContentProps) {
   const { metrics, mmr, retail, condition, comparables, comparablesNumFound, marketPosition } =
     data;
@@ -145,8 +151,8 @@ export function ValuationResultsContent({
       </div>
 
       {/* MMR and Retail */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
-        <MMRSection mmrData={mmr} />
+      <div className={marketAvgOnly ? "grid grid-cols-1 gap-6" : "grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]"}>
+        <MMRSection mmrData={mmr} hideTypicalRange={hideTypicalRange} />
         <RetailValuationSection
           currentAsking={retail.currentAsking}
           marketAvg={retail.marketAvg}
@@ -154,26 +160,29 @@ export function ValuationResultsContent({
           retailMargin={retail.retailMargin}
           priceRank={retail.priceRank}
           competitivePositionPercent={retail.competitivePositionPercent}
+          marketAvgOnly={marketAvgOnly}
         />
       </div>
 
-      {/* Condition, Comparables, Market Position */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <ConditionCard
-          score={condition?.score}
-          bars={condition?.bars}
-          onViewReport={onViewInspection}
-        />
-        <RecentSoldComparablesTable
-          rows={comparables}
-          numFound={comparablesNumFound}
-          onExport={onExportComparables}
-        />
-        <MarketPositionChart
-          data={marketPosition.sold}
-          subjectPoint={marketPosition.subject}
-        />
-      </div>
+      {/* Condition, Comparables, Market Position - hidden for VIN analysis */}
+      {!hideConditionAndComparables && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <ConditionCard
+            score={condition?.score}
+            bars={condition?.bars}
+            onViewReport={onViewInspection}
+          />
+          <RecentSoldComparablesTable
+            rows={comparables}
+            numFound={comparablesNumFound}
+            onExport={onExportComparables}
+          />
+          <MarketPositionChart
+            data={marketPosition.sold}
+            subjectPoint={marketPosition.subject}
+          />
+        </div>
+      )}
     </div>
   );
 }

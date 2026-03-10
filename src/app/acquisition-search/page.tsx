@@ -15,6 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
   Plus,
@@ -50,6 +52,10 @@ export default function AcquisitionSearchPage() {
   const [maxMileage, setMaxMileage] = useState(45);
   const [accidentPreference, setAccidentPreference] = useState("NONE");
   const [showMakeSuggestions, setShowMakeSuggestions] = useState(false);
+  const [sources, setSources] = useState({
+    facebook: true,
+    marketcheck: true,
+  });
 
   const allMakes = [
     "Toyota",
@@ -162,6 +168,10 @@ export default function AcquisitionSearchPage() {
       minYear: yearMin,
       maxYear: yearMax,
       accidentPreference,
+      sources: {
+        facebook: sources.facebook,
+        marketcheck: sources.marketcheck,
+      },
     };
 
     setIsCreating(true);
@@ -374,30 +384,64 @@ export default function AcquisitionSearchPage() {
             </div>
           </div>
 
-          {/* History Preference & Action */}
+          {/* History Preference, Data Sources & Action */}
           <div className="mb-4">
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div className="w-full">
-                <label className="block text-xs font-semibold tracking-[0.15em] text-slate-500 uppercase mb-3">
-                  History Preference (Accidents)
-                </label>
-                <div className="flex flex-wrap gap-4">
-                  <div className="inline-flex w-full max-w-md items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-2 py-1">
-                    {["NONE", "MINOR", "MODERATE"].map((option) => (
-                      <button
-                        key={option}
-                        type="button"
-                        onClick={() => setAccidentPreference(option)}
-                        className={cn(
-                          "flex-1 rounded-2xl px-4 py-2 text-sm font-semibold tracking-wide uppercase transition",
-                          accidentPreference === option
-                            ? "bg-white text-blue-600 shadow"
-                            : "text-slate-500",
-                        )}
-                      >
-                        {option}
-                      </button>
-                    ))}
+              <div className="w-full space-y-6">
+                {/* History Preference */}
+                <div>
+                  <label className="block text-xs font-semibold tracking-[0.15em] text-slate-500 uppercase mb-3">
+                    History Preference (Accidents)
+                  </label>
+                  <div className="flex flex-wrap gap-4">
+                    <div className="inline-flex w-full max-w-md items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-2 py-1">
+                      {["NONE", "MINOR", "MODERATE"].map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => setAccidentPreference(option)}
+                          className={cn(
+                            "flex-1 rounded-2xl px-4 py-2 text-sm font-semibold tracking-wide uppercase transition",
+                            accidentPreference === option
+                              ? "bg-white text-blue-600 shadow"
+                              : "text-slate-500",
+                          )}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Data Sources */}
+                <div>
+                  <label className="block text-xs font-semibold tracking-[0.15em] text-slate-500 uppercase mb-3">
+                    Data Sources
+                  </label>
+                  <div className="flex flex-wrap gap-6">
+                    <Checkbox
+                      id="facebook"
+                      checked={sources.facebook}
+                      onChange={(e) =>
+                        setSources((prev) => ({
+                          ...prev,
+                          facebook: e.target.checked,
+                        }))
+                      }
+                      label="Facebook Marketplace"
+                    />
+                    <Checkbox
+                      id="marketcheck"
+                      checked={sources.marketcheck}
+                      onChange={(e) =>
+                        setSources((prev) => ({
+                          ...prev,
+                          marketcheck: e.target.checked,
+                        }))
+                      }
+                      label="MarketCheck"
+                    />
                   </div>
                 </div>
               </div>

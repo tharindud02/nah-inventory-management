@@ -366,6 +366,9 @@ export default function VINAnalysisPage() {
                   <ValuationTabContent
                     defaultVin={vin}
                     valuationData={valuationData}
+                    hideConditionAndComparables={true}
+                    marketAvgOnly={true}
+                    hideTypicalRange={true}
                   />
                 ) : (
                   <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
