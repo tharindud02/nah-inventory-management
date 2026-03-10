@@ -8,6 +8,8 @@ export function middleware(request: NextRequest) {
   if (
     pathname.startsWith('/signin') ||
     pathname.startsWith('/signup') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/confirm-password') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||

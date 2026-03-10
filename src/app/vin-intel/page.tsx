@@ -4,10 +4,11 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/Layout";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import { Search, ArrowRight, CheckCircle } from "lucide-react";
+import { Search, ArrowRight, CheckCircle, Palette } from "lucide-react";
 import { toast } from "sonner";
 import type { VinHistoryItem } from "@/lib/api/vin-history";
 import { VinHistoryModal } from "@/components/vin-intel/VinHistoryModal";
@@ -22,6 +23,10 @@ export default function VINIntelPage() {
   const [historyLoading, setHistoryLoading] = useState(true);
   const [analysisModalOpen, setAnalysisModalOpen] = useState(false);
   const [buildSheetModalOpen, setBuildSheetModalOpen] = useState(false);
+  const [miles, setMiles] = useState("");
+  const [exteriorColor, setExteriorColor] = useState("");
+  const [interiorColor, setInteriorColor] = useState("");
+  const [showColorInputs, setShowColorInputs] = useState(false);
   const router = useRouter();
 
   const persistDataAndNavigate = useCallback(
@@ -172,6 +177,123 @@ export default function VINIntelPage() {
                   </>
                 )}
               </button>
+            </div>
+
+            {/* Miles and Colors Section */}
+            <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Palette className="h-4 w-4 text-gray-500" />
+                  <h3 className="font-medium text-gray-900">
+                    Analysis Parameters
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowColorInputs(!showColorInputs)}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  {showColorInputs ? "Hide" : "Edit"}
+                </button>
+              </div>
+
+              {showColorInputs && (
+                <div className="mt-4 space-y-4 border-t border-gray-200 pt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="miles" className="text-sm">
+                        Miles
+                      </Label>
+                      <Input
+                        id="miles"
+                        type="number"
+                        value={miles}
+                        onChange={(e) => setMiles(e.target.value)}
+                        placeholder="Enter miles"
+                        className="h-10"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="exterior" className="text-sm">
+                        Exterior Color
+                      </Label>
+                      <Input
+                        id="exterior"
+                        type="text"
+                        value={exteriorColor}
+                        onChange={(e) => setExteriorColor(e.target.value)}
+                        placeholder="e.g., Black, White, Silver"
+                        className="h-10"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="interior" className="text-sm">
+                        Interior Color
+                      </Label>
+                      <Input
+                        id="interior"
+                        type="text"
+                        value={interiorColor}
+                        onChange={(e) => setInteriorColor(e.target.value)}
+                        placeholder="e.g., Black, Tan, Gray"
+                        className="h-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setShowColorInputs(false);
+                        setMiles("");
+                        setExteriorColor("");
+                        setInteriorColor("");
+                      }}
+                    >
+                      Reset
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="bg-slate-900 hover:bg-slate-800"
+                      onClick={() => {
+                        setShowColorInputs(false);
+                        toast.success("Analysis parameters updated");
+                      }}
+                    >
+                      Apply Changes
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {!showColorInputs && (
+                <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <p className="text-gray-500">Miles</p>
+                    <p className="font-medium text-gray-900">
+                      {miles ? parseInt(miles).toLocaleString() : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Exterior</p>
+                    <p className="font-medium text-gray-900">
+                      {exteriorColor || "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-500">Interior</p>
+                    <p className="font-medium text-gray-900">
+                      {interiorColor || "—"}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Features */}

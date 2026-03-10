@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   const start = Number(searchParams.get("start") ?? 0);
   const rows = Number(searchParams.get("rows") ?? 20);
 
-  const url = `${MARKETCHECK_API_BASE}/dealerships/inventory?api_key=${config.apiKey}&dealer_id=${config.dealerId}&start=${start}&rows=${rows}&stats=price,dom&owned=true`;
+  const url = `${MARKETCHECK_API_BASE}/dealerships/inventory?api_key=${config.apiKey}&dealer_id=${config.dealerId}`;
 
   try {
     const res = await fetch(url, { headers: { Accept: "application/json" } });

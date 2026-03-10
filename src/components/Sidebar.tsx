@@ -9,6 +9,7 @@ import {
   Car,
   Settings,
   LogOut,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { label: "Inventory", href: "/inventory", icon: Package },
   { label: "Acquisition", href: "/acquisition-search", icon: Car },
   { label: "VIN Intel", href: "/vin-intel", icon: Search },
+  { label: "Dealership", href: "/dealership", icon: Building2 },
 ] as const;
 
 export function Sidebar({ children }: SidebarProps) {
