@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense, useRef } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,11 +48,10 @@ function DealershipContent() {
   const [dataLoading, setDataLoading] = useState(true);
   const { user } = useAuth();
   const router = useRouter();
-  const fetchedRef = useRef(false);
 
   useEffect(() => {
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
+    const controller = new AbortController();
+    const signal = controller.signal;
 
     const fetchDealershipData = async () => {
       try {
@@ -68,7 +67,10 @@ function DealershipContent() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
+          signal,
         });
+
+        if (signal.aborted) return;
 
         const data = await response.json();
 
@@ -78,13 +80,11 @@ function DealershipContent() {
           return;
         }
 
-        // Extract dealership info from the API response
         const dealershipData = data.data;
-        if (dealershipData?.id) {
+        if (dealershipData?.id && !signal.aborted) {
           setDealershipId(dealershipData.id);
           setDealershipName(dealershipData.name || "");
 
-          // Map dealers to InvitedUser format, excluding current user
           const dealers = (dealershipData.dealers || [])
             .filter(
               (dealer: { email: string }) =>
@@ -109,13 +109,15 @@ function DealershipContent() {
           setInvitedUsers(dealers);
         }
       } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
         console.error("Error fetching dealership data:", err);
       } finally {
-        setDataLoading(false);
+        if (!signal.aborted) setDataLoading(false);
       }
     };
 
     fetchDealershipData();
+    return () => controller.abort();
   }, [user?.email]);
 
   const handleInvite = async (e: React.FormEvent) => {

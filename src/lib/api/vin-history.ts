@@ -8,6 +8,7 @@ export interface VinHistoryItem {
   reportType?: "Validated Build Sheet" | "Market Value Report" | "Standard Analysis" | "Full Data Package";
   searchDate: string;
   createdAt?: string;
+  miles?: number;
 }
 
 export async function fetchVinHistory(

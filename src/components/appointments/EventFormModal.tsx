@@ -33,6 +33,8 @@ export function EventFormModal({
   const [date, setDate] = useState("");
   const [timeRange, setTimeRange] = useState("");
   const [attendee, setAttendee] = useState("");
+  const [attendeeEmail, setAttendeeEmail] = useState("");
+  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
 
   useEffect(() => {
@@ -45,6 +47,8 @@ export function EventFormModal({
       );
       setTimeRange(event.timeRange ?? "");
       setAttendee(event.attendee ?? "");
+      setAttendeeEmail(event.attendeeEmail ?? "");
+      setLocation(event.location ?? "");
       setDescription(event.description ?? "");
     } else if (selectedDate) {
       const d = selectedDate;
@@ -55,6 +59,8 @@ export function EventFormModal({
       setVariant("inspection");
       setTimeRange("");
       setAttendee("");
+      setAttendeeEmail("");
+      setLocation("");
       setDescription("");
     }
   }, [event, selectedDate, open]);
@@ -71,6 +77,8 @@ export function EventFormModal({
       date: eventDate,
       timeRange: timeRange || undefined,
       attendee: attendee || undefined,
+      attendeeEmail: attendeeEmail || undefined,
+      location: location || undefined,
       description: description || undefined,
     });
 
@@ -135,12 +143,33 @@ export function EventFormModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="attendee">Attendee</Label>
+            <Label htmlFor="location">Location</Label>
+            <Input
+              id="location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g., Zoom / Conference Room A"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="attendee">Attendee Name</Label>
             <Input
               id="attendee"
               value={attendee}
               onChange={(e) => setAttendee(e.target.value)}
-              placeholder="e.g., Seller Name"
+              placeholder="e.g., John Doe"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="attendeeEmail">Attendee Email</Label>
+            <Input
+              id="attendeeEmail"
+              type="email"
+              value={attendeeEmail}
+              onChange={(e) => setAttendeeEmail(e.target.value)}
+              placeholder="e.g., john@example.com"
             />
           </div>
 

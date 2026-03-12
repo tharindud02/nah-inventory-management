@@ -6,6 +6,9 @@ import { ValuationResultsContent } from "./ValuationResultsContent";
 import type { ValuationResultsData } from "./ValuationResultsContent";
 
 const VIN_LENGTH = 17;
+const DEDUPE_MS = 3000;
+
+const recentFetches = new Map<string, number>();
 
 export interface ValuationTabContentProps {
   defaultVin?: string;
@@ -14,9 +17,8 @@ export interface ValuationTabContentProps {
   onSettingsClick?: () => void;
   onViewInspection?: () => void;
   onExportComparables?: () => void;
-  hideConditionAndComparables?: boolean;
-  marketAvgOnly?: boolean;
-  hideTypicalRange?: boolean;
+  hideRetailValuation?: boolean;
+  hideDaysOnMarket?: boolean;
 }
 
 export function ValuationTabContent({
@@ -26,32 +28,43 @@ export function ValuationTabContent({
   onSettingsClick,
   onViewInspection,
   onExportComparables,
-  hideConditionAndComparables = false,
-  marketAvgOnly = false,
-  hideTypicalRange = false,
+  hideRetailValuation,
+  hideDaysOnMarket,
 }: ValuationTabContentProps) {
   const hasAutoFetched = useRef(false);
   const [isAutoFetching, setIsAutoFetching] = useState(false);
 
+  const onFetchRef = useRef(onFetchValuation);
+  onFetchRef.current = onFetchValuation;
+
   useEffect(() => {
     const trimmed = defaultVin?.replace(/\s/g, "") ?? "";
     if (
-      trimmed.length === VIN_LENGTH &&
-      !valuationData &&
-      onFetchValuation &&
-      !hasAutoFetched.current
+      trimmed.length !== VIN_LENGTH ||
+      valuationData ||
+      !onFetchRef.current ||
+      hasAutoFetched.current
     ) {
-      hasAutoFetched.current = true;
-      setIsAutoFetching(true);
-      onFetchValuation(trimmed)
-        .catch(() => {
-          hasAutoFetched.current = false;
-        })
-        .finally(() => {
-          setIsAutoFetching(false);
-        });
+      return;
     }
-  }, [defaultVin, valuationData, onFetchValuation]);
+
+    const now = Date.now();
+    const last = recentFetches.get(trimmed);
+    if (last != null && now - last < DEDUPE_MS) return;
+    recentFetches.set(trimmed, now);
+
+    hasAutoFetched.current = true;
+    setIsAutoFetching(true);
+
+    onFetchRef
+      .current!(trimmed)
+      .catch(() => {
+        hasAutoFetched.current = false;
+      })
+      .finally(() => {
+        setIsAutoFetching(false);
+      });
+  }, [defaultVin, valuationData]);
 
   if (valuationData) {
     return (
@@ -59,9 +72,8 @@ export function ValuationTabContent({
         data={valuationData}
         onViewInspection={onViewInspection}
         onExportComparables={onExportComparables}
-        hideConditionAndComparables={hideConditionAndComparables}
-        marketAvgOnly={marketAvgOnly}
-        hideTypicalRange={hideTypicalRange}
+        hideRetailValuation={hideRetailValuation}
+        hideDaysOnMarket={hideDaysOnMarket}
       />
     );
   }

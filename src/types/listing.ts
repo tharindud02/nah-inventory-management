@@ -99,7 +99,35 @@ export interface ListingItem {
 export interface ListingApiResponse {
   data: {
     items: ListingItem[];
+    nextCursor?: string | null;
   };
+}
+
+/** Flat job listing item from /listings/job/{jobId} API (new format). */
+export interface JobListingItem {
+  id?: string;
+  dealershipId?: string;
+  jobId?: string;
+  productId?: string;
+  url?: string;
+  vin?: string | null;
+  title?: string;
+  year?: number;
+  make?: string;
+  model?: string;
+  trim?: string;
+  mileage?: number | null;
+  price?: number;
+  currency?: string;
+  sellerType?: string;
+  location?: string;
+  images?: string[];
+  description?: string | null;
+  listedAt?: string;
+  lastSeenAt?: string;
+  source?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ListingDetail {

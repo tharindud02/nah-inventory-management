@@ -1,7 +1,17 @@
-import type { ListingItem, ListingDetail } from "@/types/listing";
+import type { ListingItem, ListingDetail, JobListingItem } from "@/types/listing";
 
 /** Valid 17-char VIN pattern (alphanumeric, no I/O/Q). */
 const VIN_PATTERN = /^[A-HJ-NPR-Z0-9]{17}$/i;
+
+export function isJobListingItem(item: unknown): item is JobListingItem {
+  const x = item as Record<string, unknown>;
+  return (
+    x != null &&
+    typeof x === "object" &&
+    (typeof x.productId === "string" || typeof x.id === "string") &&
+    Array.isArray(x.images)
+  );
+}
 
 /**
  * Extracts VIN from listingId when it may be "VIN-HASH" or raw VIN.
@@ -80,4 +90,62 @@ export function getListingId(item: ListingItem): string {
     vehicle.id ??
     ""
   );
+}
+
+/**
+ * Maps flat JobListingItem (new /listings/job/{jobId} response) to ListingDetail.
+ */
+export function mapJobListingItemToListingDetail(
+  item: JobListingItem,
+): ListingDetail {
+  const sk = item.productId ?? item.id ?? "";
+  const title =
+    item.title ??
+    (item.year && item.make && item.model
+      ? `${item.year} ${item.make} ${item.model}`.trim()
+      : undefined);
+
+  return {
+    SK: sk,
+    title,
+    images: item.images ?? [],
+    make: item.make,
+    model: item.model,
+    year: item.year,
+    location: item.location,
+    final_price: item.price,
+    currency: item.currency,
+    scraped_at: item.lastSeenAt ?? item.listedAt ?? item.createdAt,
+    product_id: item.productId ?? item.id,
+    vin: item.vin ?? undefined,
+    vin_number: item.vin ?? undefined,
+    mileage: item.mileage ?? undefined,
+    description: item.description ?? undefined,
+    bookmarked: false,
+  };
+}
+
+/**
+ * Normalizes a raw API item (either legacy ListingItem or flat JobListingItem) to ListingDetail.
+ */
+export function normalizeListingItemOrJobItem(
+  item: ListingItem | JobListingItem,
+  fallbackSk?: string,
+): ListingDetail {
+  if (isJobListingItem(item)) {
+    return mapJobListingItemToListingDetail(item);
+  }
+  return normalizeListingItem(item as ListingItem, fallbackSk);
+}
+
+/**
+ * Gets listing identifier for navigation. Works with both ListingItem and JobListingItem.
+ */
+export function getListingIdFromItem(
+  item: ListingItem | JobListingItem,
+): string {
+  if (isJobListingItem(item)) {
+    return item.productId ?? item.id ?? "";
+  }
+  return getListingId(item as ListingItem);
 }

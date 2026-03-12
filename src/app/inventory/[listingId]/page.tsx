@@ -251,7 +251,7 @@ export default function InventoryVehicleDetailPage() {
             ? vinData.mileage
             : undefined;
       const zip = listing?.dealer?.zip?.trim() ?? "";
-
+      
       const res = await fetch("/api/vindata/valuation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

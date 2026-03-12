@@ -44,6 +44,7 @@ interface MMRSectionProps {
   compact?: boolean;
   className?: string;
   hideTypicalRange?: boolean;
+  hideRetailValuation?: boolean;
 }
 
 interface LookupResponse {
@@ -102,6 +103,12 @@ const FALLBACK_COLOR_OPTIONS = [
   "Yellow",
   "Purple",
 ];
+
+const colorsRegionsCache: {
+  colors: string[] | null;
+  regions: string[] | null;
+  promise: Promise<{ colors: string[]; regions: string[] }> | null;
+} = { colors: null, regions: null, promise: null };
 const EMPTY_INDICATORS: IndicatorValues = {
   odometer: 0,
   region: 0,
@@ -201,17 +208,63 @@ function buildMmrQueryString(params: MmrFetchParams): string {
   return searchParams.toString();
 }
 
-async function fetchAdjustedMmr(params: MmrFetchParams): Promise<MMRData | null> {
+async function fetchAdjustedMmr(
+  params: MmrFetchParams,
+  signal?: AbortSignal,
+): Promise<MMRData | null> {
   const queryString = buildMmrQueryString(params);
   const response = await fetch(`/api/mmr/${params.vin}?${queryString}`, {
     method: "GET",
     cache: "no-store",
+    signal,
   });
+  if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
   const json = (await response.json().catch(() => null)) as MmrResponse | null;
   if (!response.ok || !json?.success || !json.data) {
     return null;
   }
   return json.data;
+}
+
+async function loadColorsAndRegions(): Promise<{
+  colors: string[];
+  regions: string[];
+}> {
+  if (colorsRegionsCache.colors && colorsRegionsCache.regions) {
+    return {
+      colors: colorsRegionsCache.colors,
+      regions: colorsRegionsCache.regions,
+    };
+  }
+  if (colorsRegionsCache.promise) {
+    return colorsRegionsCache.promise;
+  }
+  const load = async () => {
+    const [colorsRes, regionsRes] = await Promise.all([
+      fetch("/api/mmr/colors", { cache: "no-store" }),
+      fetch("/api/mmr/regions", { cache: "no-store" }),
+    ]);
+    const [colorsJson, regionsJson] = (await Promise.all([
+      colorsRes.json().catch(() => null),
+      regionsRes.json().catch(() => null),
+    ])) as [LookupResponse | null, LookupResponse | null];
+    if (colorsRes.ok && colorsJson?.data) {
+      colorsRegionsCache.colors = colorsJson.data;
+    }
+    if (regionsRes.ok && regionsJson?.data) {
+      colorsRegionsCache.regions = regionsJson.data;
+    }
+    return {
+      colors: colorsRegionsCache.colors ?? FALLBACK_COLOR_OPTIONS,
+      regions: colorsRegionsCache.regions ?? FALLBACK_REGION_OPTIONS,
+    };
+  };
+  colorsRegionsCache.promise = load();
+  try {
+    return await colorsRegionsCache.promise;
+  } finally {
+    colorsRegionsCache.promise = null;
+  }
 }
 
 function GaugeMeter({ value, min, max }: GaugeMeterProps) {
@@ -351,6 +404,7 @@ export function MMRSection({
   compact = false,
   className,
   hideTypicalRange = false,
+  hideRetailValuation = false,
 }: MMRSectionProps) {
   const [liveMmrData, setLiveMmrData] = useState<MMRData | null>(null);
   const [regionOptions, setRegionOptions] = useState<string[]>(FALLBACK_REGION_OPTIONS);
@@ -359,7 +413,7 @@ export function MMRSection({
   const [regionSelect, setRegionSelect] = useState("");
   const [gradeSelect, setGradeSelect] = useState("");
   const [colorSelect, setColorSelect] = useState("");
-  const [buildOptionsEnabled, setBuildOptionsEnabled] = useState(true);
+  const [buildOptionsEnabled, setBuildOptionsEnabled] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState<string | null>(null);
@@ -367,35 +421,19 @@ export function MMRSection({
 
   useEffect(() => {
     let cancelled = false;
-
-    const loadOptions = async () => {
-      try {
-        const [colorsRes, regionsRes] = await Promise.all([
-          fetch("/api/mmr/colors", { cache: "no-store" }),
-          fetch("/api/mmr/regions", { cache: "no-store" }),
-        ]);
-        const [colorsJson, regionsJson] = (await Promise.all([
-          colorsRes.json().catch(() => null),
-          regionsRes.json().catch(() => null),
-        ])) as [LookupResponse | null, LookupResponse | null];
-
-        if (cancelled) return;
-
-        if (colorsRes.ok && colorsJson?.data) {
-          setColorOptions(colorsJson.data);
+    loadColorsAndRegions()
+      .then(({ colors, regions }) => {
+        if (!cancelled) {
+          setColorOptions(colors);
+          setRegionOptions(regions);
         }
-        if (regionsRes.ok && regionsJson?.data) {
-          setRegionOptions(regionsJson.data);
-        }
-      } catch {
+      })
+      .catch(() => {
         if (!cancelled) {
           setColorOptions(FALLBACK_COLOR_OPTIONS);
           setRegionOptions(FALLBACK_REGION_OPTIONS);
         }
-      }
-    };
-
-    void loadOptions();
+      });
     return () => {
       cancelled = true;
     };
@@ -408,7 +446,7 @@ export function MMRSection({
       setRegionSelect("");
       setGradeSelect("");
       setColorSelect("");
-      setBuildOptionsEnabled(true);
+      setBuildOptionsEnabled(false);
       setHasInteracted(false);
       setRefreshError(null);
       setIndicatorValues(EMPTY_INDICATORS);
@@ -422,7 +460,7 @@ export function MMRSection({
     setRegionSelect(requestContext?.region ?? "");
     setGradeSelect(formatGradeForUi(requestContext?.grade, mmrData.avg_condition));
     setColorSelect(requestContext?.color ?? "");
-    setBuildOptionsEnabled(requestContext?.build_options ?? true);
+    setBuildOptionsEnabled(requestContext?.build_options ?? false);
     setHasInteracted(false);
     setRefreshError(null);
     setIndicatorValues(EMPTY_INDICATORS);
@@ -445,19 +483,23 @@ export function MMRSection({
     const odometer = parseOdometerInput(odometerInput);
     const grade = normalizeGradeForApi(gradeSelect);
     let cancelled = false;
+    const controller = new AbortController();
     const timeoutId = window.setTimeout(async () => {
       try {
         setIsRefreshing(true);
         setRefreshError(null);
-        const data = await fetchAdjustedMmr({
-          vin,
-          zip: mmrData.request_context?.zip,
-          odometer,
-          region: regionSelect || undefined,
-          color: colorSelect || undefined,
-          grade,
-          buildOptions: buildOptionsEnabled,
-        });
+        const data = await fetchAdjustedMmr(
+          {
+            vin,
+            zip: mmrData.request_context?.zip,
+            odometer,
+            region: regionSelect || undefined,
+            color: colorSelect || undefined,
+            grade,
+            buildOptions: buildOptionsEnabled,
+          },
+          controller.signal,
+        );
         if (!cancelled && data) {
           setLiveMmrData(data);
         }
@@ -465,20 +507,19 @@ export function MMRSection({
           setRefreshError("Failed to refresh adjusted MMR");
         }
       } catch (error) {
-        if (!cancelled) {
+        if (!cancelled && !(error instanceof DOMException && error.name === "AbortError")) {
           setRefreshError(
             error instanceof Error ? error.message : "Failed to refresh adjusted MMR",
           );
         }
       } finally {
-        if (!cancelled) {
-          setIsRefreshing(false);
-        }
+        if (!cancelled) setIsRefreshing(false);
       }
     }, 350);
 
     return () => {
       cancelled = true;
+      controller.abort();
       window.clearTimeout(timeoutId);
     };
   }, [buildOptionsEnabled, colorSelect, gradeSelect, hasInteracted, mmrData, odometerInput, regionSelect]);
@@ -498,66 +539,90 @@ export function MMRSection({
     const odometer = parseOdometerInput(odometerInput);
     const grade = normalizeGradeForApi(gradeSelect);
     let cancelled = false;
+    const controller = new AbortController();
+    const signal = controller.signal;
 
     const timeoutId = window.setTimeout(async () => {
-      const requests: Array<Promise<number>> = [
-        odometer !== undefined
-          ? fetchAdjustedMmr({
-              vin,
-              zip: mmrData.request_context?.zip,
-              odometer,
-              buildOptions: false,
-            }).then((data) => toNum(data?.adjusted_mmr, baseMmr) - baseMmr)
-          : Promise.resolve(0),
-        regionSelect
-          ? fetchAdjustedMmr({
-              vin,
-              zip: mmrData.request_context?.zip,
-              region: regionSelect,
-              buildOptions: false,
-            }).then((data) => toNum(data?.adjusted_mmr, baseMmr) - baseMmr)
-          : Promise.resolve(0),
-        grade !== undefined
-          ? fetchAdjustedMmr({
-              vin,
-              zip: mmrData.request_context?.zip,
-              grade,
-              buildOptions: false,
-            }).then((data) => toNum(data?.adjusted_mmr, baseMmr) - baseMmr)
-          : Promise.resolve(0),
-        colorSelect
-          ? fetchAdjustedMmr({
-              vin,
-              zip: mmrData.request_context?.zip,
-              color: colorSelect,
-              buildOptions: false,
-            }).then((data) => toNum(data?.adjusted_mmr, baseMmr) - baseMmr)
-          : Promise.resolve(0),
-        buildOptionsEnabled
-          ? fetchAdjustedMmr({
-              vin,
-              zip: mmrData.request_context?.zip,
-              buildOptions: true,
-            }).then((data) => toNum(data?.adjusted_mmr, baseMmr) - baseMmr)
-          : Promise.resolve(0),
-      ];
+      try {
+        const requests: Array<Promise<number>> = [
+          odometer !== undefined
+            ? fetchAdjustedMmr(
+                {
+                  vin,
+                  zip: mmrData.request_context?.zip,
+                  odometer,
+                  buildOptions: false,
+                },
+                signal,
+              ).then((data) => toNum(data?.adjusted_mmr, baseMmr) - baseMmr)
+            : Promise.resolve(0),
+          regionSelect
+            ? fetchAdjustedMmr(
+                {
+                  vin,
+                  zip: mmrData.request_context?.zip,
+                  region: regionSelect,
+                  buildOptions: false,
+                },
+                signal,
+              ).then((data) => toNum(data?.adjusted_mmr, baseMmr) - baseMmr)
+            : Promise.resolve(0),
+          grade !== undefined
+            ? fetchAdjustedMmr(
+                {
+                  vin,
+                  zip: mmrData.request_context?.zip,
+                  grade,
+                  buildOptions: false,
+                },
+                signal,
+              ).then((data) => toNum(data?.adjusted_mmr, baseMmr) - baseMmr)
+            : Promise.resolve(0),
+          colorSelect
+            ? fetchAdjustedMmr(
+                {
+                  vin,
+                  zip: mmrData.request_context?.zip,
+                  color: colorSelect,
+                  buildOptions: false,
+                },
+                signal,
+              ).then((data) => toNum(data?.adjusted_mmr, baseMmr) - baseMmr)
+            : Promise.resolve(0),
+          buildOptionsEnabled
+            ? fetchAdjustedMmr(
+                {
+                  vin,
+                  zip: mmrData.request_context?.zip,
+                  buildOptions: true,
+                },
+                signal,
+              ).then((data) => toNum(data?.adjusted_mmr, baseMmr) - baseMmr)
+            : Promise.resolve(0),
+        ];
 
-      const [odometerDelta, regionDelta, gradeDelta, colorDelta, buildDelta] =
-        await Promise.all(requests);
+        const [odometerDelta, regionDelta, gradeDelta, colorDelta, buildDelta] =
+          await Promise.all(requests);
 
-      if (!cancelled) {
-        setIndicatorValues({
-          odometer: odometerDelta,
-          region: regionDelta,
-          cr_score: gradeDelta,
-          color: colorDelta,
-          build_options: buildDelta,
-        });
+        if (!cancelled) {
+          setIndicatorValues({
+            odometer: odometerDelta,
+            region: regionDelta,
+            cr_score: gradeDelta,
+            color: colorDelta,
+            build_options: buildDelta,
+          });
+        }
+      } catch {
+        if (!cancelled) {
+          setIndicatorValues(EMPTY_INDICATORS);
+        }
       }
     }, 250);
 
     return () => {
       cancelled = true;
+      controller.abort();
       window.clearTimeout(timeoutId);
     };
   }, [buildOptionsEnabled, colorSelect, gradeSelect, mmrData, odometerInput, regionSelect]);
@@ -570,7 +635,7 @@ export function MMRSection({
     setRegionSelect(requestContext?.region ?? "");
     setGradeSelect(formatGradeForUi(requestContext?.grade, mmrData.avg_condition));
     setColorSelect(requestContext?.color ?? "");
-    setBuildOptionsEnabled(requestContext?.build_options ?? true);
+    setBuildOptionsEnabled(requestContext?.build_options ?? false);
     setHasInteracted(true);
   };
 
@@ -646,7 +711,7 @@ export function MMRSection({
                 {avgOdo > 0 ? avgOdo.toLocaleString() : "—"}
               </p>
             </div>
-            <div className={hideTypicalRange ? "py-4" : "py-4"}>
+            <div className="py-4">
               <p className="mb-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                 Avg Grade
               </p>

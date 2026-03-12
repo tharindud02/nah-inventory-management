@@ -12,6 +12,8 @@ export interface CalendarEvent {
   variant: "inspection" | "test-drive" | "signing";
   timeRange?: string;
   attendee?: string;
+  attendeeEmail?: string;
+  location?: string;
   description?: string;
 }
 

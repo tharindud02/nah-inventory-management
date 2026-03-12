@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Sidebar } from "@/components/Sidebar";
@@ -12,7 +12,10 @@ import type { ValuationResultsData } from "@/components/valuation/ValuationResul
 import { DetailsTabContent } from "@/components/details/DetailsTabContent";
 import type { ConfigItem } from "@/components/details/ConfigurationCard";
 import { CostAnalysisTabContent } from "@/components/cost-analysis/CostAnalysisTabContent";
-import { transformVindataToValuationResults } from "@/lib/vindata-transform";
+import {
+  transformAwsVinLookupToValuationResults,
+  type AwsVinLookupData,
+} from "@/lib/vindata-transform";
 import { toast } from "sonner";
 
 interface VINData {
@@ -44,42 +47,34 @@ interface RawVinReportData {
     city_mpg?: number;
     highway_mpg?: number;
   };
-  odometerInformation?: { reportedOdometer?: number }[];
 }
 
-interface ActiveListingSnapshot {
-  vin?: string;
-  price?: number;
-  miles?: number;
-  dom?: number;
-  dom_active?: number;
-  media?: { photo_links?: string[] };
-}
-
-function extractLatestOdometer(raw: RawVinReportData): number | null {
-  const readings = raw?.odometerInformation;
-  if (!readings?.length) return null;
-  const sorted = [...readings].sort(
-    (a, b) => (b.reportedOdometer ?? 0) - (a.reportedOdometer ?? 0),
-  );
-  return sorted[0]?.reportedOdometer ?? null;
-}
-
-function buildConfiguration(raw: RawVinReportData): ConfigItem[] {
-  const vd = raw?.vehicle_details;
+function buildConfigurationFromAwsLookup(data: AwsVinLookupData): ConfigItem[] {
+  const spec = data.spec ?? {};
   const empty = "—";
+  const cityMpg = spec.city_mpg;
+  const highwayMpg = spec.highway_mpg;
   return [
-    { label: "Engine", value: vd?.engine ?? empty },
-    { label: "Transmission", value: vd?.transmission ?? empty },
-    { label: "Exterior Color", value: vd?.exterior_color ?? empty },
-    { label: "Interior Color", value: vd?.interior_color ?? empty },
+    { label: "Engine", value: spec.engine ?? empty },
+    { label: "Transmission", value: spec.transmission ?? empty },
+    { label: "Body Type", value: spec.body_type ?? empty },
+    { label: "Drivetrain", value: spec.drivetrain ?? empty },
     {
       label: "Fuel Economy",
-      value: vd?.city_mpg != null && vd?.highway_mpg != null
-        ? `${vd.city_mpg} City / ${vd.highway_mpg} Hwy`
-        : empty,
+      value:
+        cityMpg != null && highwayMpg != null
+          ? `${cityMpg} City / ${highwayMpg} Hwy`
+          : empty,
     },
   ];
+}
+
+function extractImagesFromAwsLookup(data: AwsVinLookupData, vin: string): string[] {
+  const listings = data.activeLocal?.listings ?? [];
+  const subject = listings.find((l) => l.vin?.toUpperCase() === vin.toUpperCase());
+  const media = subject?.media;
+  const links = media?.photo_links ?? media?.photo_links_cached;
+  return Array.isArray(links) ? links : [];
 }
 
 function parsePrice(value: string | undefined): number {
@@ -100,150 +95,31 @@ export default function VINAnalysisPage() {
   const [activeTab, setActiveTab] = useState<VehicleDetailTabId>("valuation");
   const [actualMileage, setActualMileage] = useState<number | null>(null);
 
-  const loadAndTransform = useCallback(
-    async (storedVin: string, signal?: AbortSignal) => {
-      const storedVinData = sessionStorage.getItem("vinData");
-      if (!storedVinData) return;
-
-      const rawData = JSON.parse(storedVinData) as RawVinReportData;
-      const miles =
-        extractLatestOdometer(rawData) ??
-        rawData?.vehicle_details?.mileage ??
-        undefined;
-
-      const maxRetries = 2;
-      let lastError: Error | null = null;
-
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        if (signal?.aborted) {
-          throw new DOMException("Aborted", "AbortError");
-        }
-        try {
-          const valuationRes = await fetch("/api/vindata/valuation", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ vin: storedVin, miles, zip: "" }),
-            signal,
-          });
-          const valuationJson = await valuationRes.json().catch(() => null);
-          if (!valuationRes.ok || !valuationJson?.success) {
-            const err = valuationJson?.error ?? "Failed to fetch valuation";
-            const isRetryable =
-              valuationRes.status === 502 || valuationRes.status === 504;
-            if (isRetryable && attempt < maxRetries) {
-              lastError = new Error(err);
-              await new Promise((r) =>
-                setTimeout(r, 800 * (attempt + 1)),
-              );
-              continue;
-            }
-            throw new Error(err);
-          }
-
-          const mdsValue = valuationJson?.data?.mds?.mds;
-          const enrichedRawData: RawVinReportData & {
-            market_insights?: { days_supply?: number };
-          } = {
-            ...rawData,
-            market_insights:
-              typeof mdsValue === "number" ? { days_supply: mdsValue } : undefined,
-          };
-
-          const listings = (valuationJson?.data?.marketComps?.listings ??
-            []) as ActiveListingSnapshot[];
-          const exactListing = listings.find(
-            (listing) =>
-              typeof listing.vin === "string" &&
-              listing.vin.toUpperCase() === storedVin.toUpperCase(),
-          );
-
-          const photoLinks = Array.isArray(exactListing?.media?.photo_links)
-            ? exactListing.media.photo_links
-            : [];
-          setImages(photoLinks);
-
-          const listingMileage =
-            typeof exactListing?.miles === "number" ? exactListing.miles : miles;
-          const listingPrice =
-            typeof exactListing?.price === "number" ? exactListing.price : undefined;
-          const listingDaysOnMarket =
-            typeof exactListing?.dom_active === "number"
-              ? exactListing.dom_active
-              : typeof exactListing?.dom === "number"
-                ? exactListing.dom
-                : undefined;
-
-          if (typeof listingMileage === "number" && listingMileage > 0) {
-            setActualMileage(listingMileage);
-          }
-
-          const genJson = {
-            success: true,
-            data: enrichedRawData as Record<string, unknown>,
-          };
-          const result = transformVindataToValuationResults({
-            vin: storedVin,
-            generateReport: genJson,
-            valuation: { data: valuationJson?.data?.valuation },
-            marketComps: { data: valuationJson?.data?.marketComps },
-            soldComps: { data: valuationJson?.data?.soldComps },
-            mmr: valuationJson?.data?.mmr ?? null,
-            listingPrice,
-            listingMileage,
-            listingZip: "",
-            listingDaysOnMarket,
-          });
-          setValuationData(result);
-          setConfiguration(buildConfiguration(rawData));
-          return;
-        } catch (err) {
-          if (err instanceof DOMException && err.name === "AbortError") {
-            throw err;
-          }
-          lastError =
-            err instanceof Error ? err : new Error(String(err));
-          const msg = lastError.message.toLowerCase();
-          const isRetryable =
-            msg.includes("fetch") ||
-            msg.includes("timeout") ||
-            msg.includes("network") ||
-            msg.includes("aborted");
-          if (isRetryable && attempt < maxRetries) {
-            await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
-            continue;
-          }
-          throw lastError;
-        }
-      }
-      throw lastError ?? new Error("Failed to fetch valuation");
-    },
-    [],
-  );
-
   useEffect(() => {
-    const controller = new AbortController();
-    let active = true;
+    const storedVinData = sessionStorage.getItem("vinData");
+    const storedVin = sessionStorage.getItem("vin");
+    const storedLookupData = sessionStorage.getItem("vinLookupData");
+
+    if (!storedVinData || !storedVin) {
+      toast.error("No VIN data found. Please analyze a VIN first.");
+      router.push("/vin-intel");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!storedLookupData) {
+      toast.error("Session expired. Please analyze the VIN again.");
+      router.push("/vin-intel");
+      setIsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
 
     const run = async () => {
-      const storedVinData = sessionStorage.getItem("vinData");
-      const storedVin = sessionStorage.getItem("vin");
-
-      if (!storedVinData || !storedVin) {
-        toast.error("No VIN data found. Please analyze a VIN first.");
-        router.push("/vin-intel");
-        if (active) setIsLoading(false);
-        return;
-      }
-
       try {
         const rawData = JSON.parse(storedVinData) as RawVinReportData;
-        const miles =
-          extractLatestOdometer(rawData) ??
-          rawData?.vehicle_details?.mileage ??
-          null;
-        if (active) {
-          setActualMileage(miles != null && miles > 0 ? miles : null);
-        }
+        const lookupData = JSON.parse(storedLookupData) as AwsVinLookupData;
 
         const transformedData: VINData = {
           vin: storedVin,
@@ -267,34 +143,87 @@ export default function VINAnalysisPage() {
             rawData.trim ??
             "Base",
         };
-        if (active) {
+
+        const subjectListing = lookupData.activeLocal?.listings?.find(
+          (l) => l.vin?.toUpperCase() === storedVin.toUpperCase(),
+        );
+        const storedVinMiles = sessionStorage.getItem("vinMiles");
+        const userMiles =
+          storedVinMiles != null && storedVinMiles !== ""
+            ? Number.parseInt(storedVinMiles.replace(/\D/g, ""), 10)
+            : null;
+        const listingMileage =
+          userMiles != null && userMiles > 0
+            ? userMiles
+            : subjectListing?.miles ?? null;
+        const listingPrice = subjectListing?.price ?? null;
+
+        if (listingMileage != null && listingMileage > 0) {
+          setActualMileage(listingMileage);
+        }
+
+        const valuation = transformAwsVinLookupToValuationResults(
+          lookupData,
+          storedVin,
+          listingMileage,
+          listingPrice,
+        );
+
+        const odometerParam =
+          userMiles != null && userMiles > 0 ? String(userMiles) : "";
+        const mmrRes = await fetch(
+          `/api/mmr/${encodeURIComponent(storedVin)}?odometer=${odometerParam}&buildOptions=false`,
+          { cache: "no-store" },
+        );
+        const mmrJson = (await mmrRes.json().catch(() => null)) as
+          | { success?: boolean; data?: ValuationResultsData["mmr"] }
+          | null;
+        if (mmrJson?.success && mmrJson.data) {
+          valuation.mmr = mmrJson.data;
+        } else {
+          valuation.mmr = {
+            request_context: {
+              vin: storedVin,
+              odometer: userMiles ?? undefined,
+              build_options: false,
+            },
+            base_mmr: 0,
+            adjusted_mmr: 0,
+            avg_odo: userMiles ?? 0,
+            avg_condition: "N/A",
+            typical_range: { min: 0, max: 0 },
+            adjustments: { odometer: 0, region: 0, cr_score: 0, color: 0 },
+          };
+        }
+
+        if (!cancelled) {
           setVinData(transformedData);
           setVin(storedVin);
+          setValuationData(valuation);
+          setConfiguration(buildConfigurationFromAwsLookup(lookupData));
+          setImages(extractImagesFromAwsLookup(lookupData, storedVin));
           setValuationError(null);
         }
-        await loadAndTransform(storedVin, controller.signal);
       } catch (error) {
-        if (!active) return;
-        if (error instanceof DOMException && error.name === "AbortError") return;
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Error loading vehicle data. Please try again.";
-        console.error("Error processing VIN data:", error);
-        setValuationError(message);
-        toast.error(message);
+        if (!cancelled) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : "Error loading vehicle data. Please try again.";
+          console.error("Error processing VIN data:", error);
+          setValuationError(message);
+          toast.error(message);
+        }
       } finally {
-        if (active) setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
-    void run();
-
+    run();
     return () => {
-      active = false;
-      controller.abort();
+      cancelled = true;
     };
-  }, [loadAndTransform, router]);
+  }, [router]);
 
   const vehicleName = vinData
     ? `${vinData.year ?? ""} ${vinData.make ?? ""} ${vinData.model ?? ""}`.trim() ||
@@ -366,9 +295,8 @@ export default function VINAnalysisPage() {
                   <ValuationTabContent
                     defaultVin={vin}
                     valuationData={valuationData}
-                    hideConditionAndComparables={true}
-                    marketAvgOnly={true}
-                    hideTypicalRange={true}
+                    hideRetailValuation
+                    hideDaysOnMarket
                   />
                 ) : (
                   <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">

@@ -12,15 +12,16 @@ import { ValuationTabContent } from "@/components/valuation/ValuationTabContent"
 import { CostAnalysisTabContent } from "@/components/cost-analysis/CostAnalysisTabContent";
 import { SellerContactTabContent } from "@/components/seller-contact/SellerContactTabContent";
 import { AppointmentsTabContent } from "@/components/appointments/AppointmentsTabContent";
+import { EventFormModal } from "@/components/appointments/EventFormModal";
 import { NotesTabContent } from "@/components/notes/NotesTabContent";
 import type { ValuationResultsData } from "@/components/valuation/ValuationResultsContent";
 import type { VehicleDetailTabId } from "@/components/acquisition/VehicleDetailTabs";
 import type { ConfigItem } from "@/components/details/ConfigurationCard";
-import type { ListingItem, ListingDetail } from "@/types/listing";
+import type { ListingItem, ListingDetail, JobListingItem } from "@/types/listing";
 import type { CalendarEvent } from "@/components/appointments/AppointmentsCalendar";
 import type { DealNote } from "@/components/notes/DealNotesSection";
 import type { PriorityFlag } from "@/components/notes/InternalStrategySidebar";
-import { normalizeListingItem } from "@/lib/listing-utils";
+import { normalizeListingItemOrJobItem, isJobListingItem } from "@/lib/listing-utils";
 import { transformVindataToValuationResults } from "@/lib/vindata-transform";
 import {
   EMPTY_EVENTS,
@@ -35,6 +36,26 @@ import {
   EMPTY_SELLER_ACTIONS,
 } from "@/lib/sample-page-data";
 import { useSellerContact } from "@/hooks/useSellerContact";
+
+interface DealerData {
+  id: string;
+  dealershipId: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: string;
+  provisions?: {
+    id: string;
+    dealerId: string;
+    assignedEmail: string;
+    phoneNumber: string;
+    twilioSid: string;
+    nylasGrantId: string | null;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+}
 
 function buildConfiguration(listing: ListingDetail): ConfigItem[] {
   return [
@@ -55,6 +76,13 @@ export default function ListingDetailsPage() {
   const [activeTab, setActiveTab] = useState<VehicleDetailTabId>("details");
   const [valuationData, setValuationData] =
     useState<ValuationResultsData | null>(null);
+  const [dealerData, setDealerData] = useState<DealerData | null>(null);
+  const [isLoadingDealer, setIsLoadingDealer] = useState(false);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
+  const [eventFormOpen, setEventFormOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   const jobId = params.jobId;
   const listingSk = params.listingSk ? decodeURIComponent(params.listingSk) : "";
@@ -79,6 +107,9 @@ export default function ListingDetailsPage() {
       return;
     }
 
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     const fetchListing = async () => {
       setIsLoading(true);
       setError(null);
@@ -93,53 +124,371 @@ export default function ListingDetailsPage() {
       const headers = { Authorization: `Bearer ${accessToken}` };
 
       try {
-        let item: ListingItem | null = null;
+        let item: ListingItem | JobListingItem | null = null;
 
         const res = await fetch(`/api/listings/${encodeURIComponent(listingSk)}`, {
           headers,
+          signal,
         });
+
+        if (signal.aborted) return;
 
         if (res.ok) {
           const raw = await res.json();
           if (raw?.data?.items?.[0]) {
-            item = raw.data.items[0] as ListingItem;
+            item = raw.data.items[0] as ListingItem | JobListingItem;
           } else if (raw?.data && (raw.data.vehicle_details || raw.data.gallery)) {
             item = raw.data as ListingItem;
+          } else if (raw?.data && (raw.data.productId || raw.data.id)) {
+            item = raw.data as JobListingItem;
           } else if (raw?.vehicle_details || raw?.gallery) {
             item = raw as ListingItem;
+          } else if (raw?.productId || raw?.id) {
+            item = raw as JobListingItem;
           }
         }
 
         if (!item) {
           const jobRes = await fetch(`/api/listings/job/${encodeURIComponent(jobId)}`, {
             headers,
+            signal,
           });
+          if (signal.aborted) return;
           if (!jobRes.ok) throw new Error("Failed to fetch listing details");
           const jobRaw = await jobRes.json();
-          const items = (jobRaw?.data?.items ?? jobRaw?.items ?? []) as ListingItem[];
+          const items = (jobRaw?.data?.items ?? jobRaw?.items ?? []) as (ListingItem | JobListingItem)[];
           const arr = Array.isArray(items) ? items : [];
           item =
-            arr.find(
-              (it) =>
-                it.vehicle_details?.id === listingSk ||
-                (it as ListingItem & { SK?: string }).SK === listingSk ||
-                it.identifiers?.SK === listingSk,
-            ) ?? null;
+            arr.find((it) => {
+              if (isJobListingItem(it)) {
+                return it.productId === listingSk || it.id === listingSk;
+              }
+              const li = it as ListingItem;
+              return (
+                li.vehicle_details?.id === listingSk ||
+                (li as ListingItem & { SK?: string }).SK === listingSk ||
+                li.identifiers?.SK === listingSk
+              );
+            }) ?? null;
         }
 
         if (!item) throw new Error("Listing not found");
+        if (signal.aborted) return;
 
-        const detail = normalizeListingItem(item, listingSk);
+        const detail = normalizeListingItemOrJobItem(item, listingSk);
         setListing(detail);
       } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
         setError(err instanceof Error ? err.message : "Failed to load listing");
       } finally {
-        setIsLoading(false);
+        if (!signal.aborted) setIsLoading(false);
       }
     };
 
     fetchListing();
+    return () => controller.abort();
   }, [jobId, listingSk]);
+
+  useEffect(() => {
+    if (activeTab !== "appointments") return;
+
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) return;
+
+    const fetchDealer = async () => {
+      setIsLoadingDealer(true);
+      try {
+        const res = await fetch("/api/dealers/me", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDealerData(data.data);
+        }
+      } catch {
+        // Silently fail - user can still use the page
+      } finally {
+        setIsLoadingDealer(false);
+      }
+    };
+
+    fetchDealer();
+  }, [activeTab]);
+
+  // Fetch calendar events when appointments tab is active and calendar is connected
+  useEffect(() => {
+    if (activeTab !== "appointments") return;
+    
+    const nylasGrantId = dealerData?.provisions?.nylasGrantId;
+    if (!nylasGrantId || nylasGrantId === "null") return;
+
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) return;
+
+    fetchEvents(nylasGrantId, accessToken);
+  }, [activeTab, dealerData?.provisions?.nylasGrantId]);
+
+  const fetchEvents = async (grantId: string, token: string) => {
+    setIsLoadingEvents(true);
+    try {
+      const res = await fetch(`/api/calendar/${grantId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // Transform API events to CalendarEvent format
+        // API returns events in data.data.data (nested structure)
+        const eventsArray = data.data?.data || [];
+        console.log("Fetched events:", eventsArray.length, eventsArray);
+        const calendarEvents: CalendarEvent[] = eventsArray.map((event: {
+          id: string;
+          master_event_id?: string;
+          title: string;
+          description?: string;
+          location?: string;
+          when?: {
+            start_time?: number;
+            date?: string;
+            end_time?: number;
+          };
+          participants?: Array<{ name?: string; email?: string }>;
+        }) => {
+          const startTime = event.when?.start_time;
+          const endTime = event.when?.end_time;
+          const eventDate = startTime ? new Date(startTime * 1000) : new Date();
+          
+          // Build timeRange string
+          let timeRange: string | undefined;
+          if (startTime && endTime) {
+            const formatTime = (timestamp: number) => {
+              const d = new Date(timestamp * 1000);
+              let hours = d.getHours();
+              const minutes = d.getMinutes().toString().padStart(2, "0");
+              const period = hours >= 12 ? "PM" : "AM";
+              hours = hours % 12 || 12;
+              return `${hours}:${minutes} ${period}`;
+            };
+            timeRange = `${formatTime(startTime)} - ${formatTime(endTime)}`;
+          }
+          
+          // Use master_event_id for updates/deletes if available
+          const eventId = event.master_event_id || event.id;
+          
+          return {
+            id: eventId,
+            title: event.title,
+            date: eventDate,
+            variant: "inspection" as const,
+            description: event.description,
+            location: event.location,
+            attendee: event.participants?.[0]?.name,
+            attendeeEmail: event.participants?.[0]?.email,
+            timeRange,
+          };
+        });
+        console.log("Transformed events:", calendarEvents.length, calendarEvents);
+        setEvents(calendarEvents);
+      }
+    } catch {
+      // Silently fail - user can still use the page
+    } finally {
+      setIsLoadingEvents(false);
+    }
+  };
+
+  const handleSyncCalendar = () => {
+    // Refresh dealer data to get updated nylasGrantId
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) return;
+
+    const refreshDealer = async () => {
+      setIsLoadingDealer(true);
+      try {
+        const res = await fetch("/api/dealers/me", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDealerData(data.data);
+        }
+      } catch {
+        // Silently fail
+      } finally {
+        setIsLoadingDealer(false);
+      }
+    };
+
+    refreshDealer();
+  };
+
+  const handleNewEvent = () => {
+    setSelectedEvent(null);
+    setSelectedDate(new Date());
+    setEventFormOpen(true);
+  };
+
+  const handleDateClick = (date: Date) => {
+    setSelectedEvent(null);
+    setSelectedDate(date);
+    setEventFormOpen(true);
+  };
+
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setSelectedDate(undefined);
+    setEventFormOpen(true);
+  };
+
+  const handleEventSave = async (
+    eventData: Omit<CalendarEvent, "id"> & { id?: string }
+  ) => {
+    const nylasGrantId = dealerData?.provisions?.nylasGrantId;
+    if (!nylasGrantId || nylasGrantId === "null") {
+      toast.error("Calendar not connected");
+      return;
+    }
+
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      toast.error("Please log in again");
+      return;
+    }
+
+    try {
+      // Parse timeRange to get start and end times
+      let startTime: number;
+      let endTime: number;
+      
+      if (eventData.timeRange) {
+        const parts = eventData.timeRange.split(" - ").map((s) => s?.trim()).filter(Boolean);
+        const start = parts[0];
+        const end = parts[1] ?? parts[0];
+        const baseDate = eventData.date;
+
+        const parseTime = (timeStr: string) => {
+          if (!timeStr || typeof timeStr !== "string") return Math.floor(baseDate.getTime() / 1000);
+          const tokens = timeStr.trim().split(/\s+/);
+          const timePart = tokens[0];
+          const period = tokens[1];
+          if (!timePart) return Math.floor(baseDate.getTime() / 1000);
+          const [h, m] = timePart.split(":").map(Number);
+          const hours = Number.isFinite(h) ? h : 9;
+          const minutes = Number.isFinite(m) ? m : 0;
+          let hour = hours;
+          if (period === "PM" && hour !== 12) hour += 12;
+          if (period === "AM" && hour === 12) hour = 0;
+          const date = new Date(baseDate);
+          date.setHours(hour, minutes, 0, 0);
+          return Math.floor(date.getTime() / 1000);
+        };
+
+        startTime = parseTime(start);
+        endTime = parseTime(end);
+        if (endTime <= startTime) endTime = startTime + 3600;
+      } else {
+        // Default to 1 hour event
+        startTime = Math.floor(eventData.date.getTime() / 1000);
+        endTime = startTime + 3600;
+      }
+
+      const participants = [];
+      if (eventData.attendee || eventData.attendeeEmail) {
+        participants.push({
+          name: eventData.attendee || "",
+          email: eventData.attendeeEmail || "",
+        });
+      }
+
+      const payload = {
+        title: eventData.title,
+        description: eventData.description || "",
+        location: eventData.location || "",
+        when: {
+          start_time: startTime,
+          end_time: endTime,
+          start_timezone: "Asia/Colombo",
+          end_timezone: "Asia/Colombo",
+        },
+        participants,
+        reminders: {
+          use_default: false,
+          overrides: [
+            { reminder_minutes: 15, reminder_method: "popup" },
+            { reminder_minutes: 60, reminder_method: "email" },
+          ],
+        },
+      };
+
+      if (eventData.id) {
+        // Update existing event
+        const res = await fetch(`/api/calendar/${nylasGrantId}/events/${eventData.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) throw new Error("Failed to update event");
+        
+        // Refetch events from API to get updated data
+        await fetchEvents(nylasGrantId, accessToken);
+        toast.success("Event updated successfully");
+      } else {
+        // Create new event
+        const res = await fetch(`/api/calendar/${nylasGrantId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) throw new Error("Failed to create event");
+        
+        // Refetch events from API to get new event with proper ID
+        await fetchEvents(nylasGrantId, accessToken);
+        toast.success("Event created successfully");
+      }
+
+      setEventFormOpen(false);
+      setSelectedEvent(null);
+      setSelectedDate(undefined);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save event");
+    }
+  };
+
+  const handleEventDelete = async (eventId: string) => {
+    const nylasGrantId = dealerData?.provisions?.nylasGrantId;
+    if (!nylasGrantId || nylasGrantId === "null") {
+      toast.error("Calendar not connected");
+      return;
+    }
+
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      toast.error("Please log in again");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/calendar/${nylasGrantId}/events/${eventId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      if (!res.ok) throw new Error("Failed to delete event");
+      
+      // Refetch events from API to ensure sync
+      await fetchEvents(nylasGrantId, accessToken);
+      toast.success("Event deleted successfully");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete event");
+    }
+  };
 
   const handleFetchValuation = useCallback(
     async (vinToFetch: string) => {
@@ -194,6 +543,42 @@ export default function ListingDetailsPage() {
   const location = listing?.location ?? "N/A";
   const images = listing?.images ?? [];
   const configuration = listing ? buildConfiguration(listing) : [];
+
+  // Generate upcoming events from events list
+  const getUpcomingEvents = () => {
+    const now = new Date();
+    const sorted = [...events]
+      .filter((e) => e.date >= now)
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .slice(0, 3);
+
+    return sorted.map((ev) => {
+      const daysDiff = Math.ceil(
+        (ev.date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      let relativeLabel = "";
+      if (daysDiff === 0) relativeLabel = "TODAY";
+      else if (daysDiff === 1) relativeLabel = "TOMORROW";
+      else if (daysDiff <= 7) relativeLabel = `IN ${daysDiff} DAYS`;
+      else if (daysDiff <= 14) relativeLabel = "NEXT WEEK";
+      else
+        relativeLabel = ev.date
+          .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+          .toUpperCase();
+
+      return {
+        title: ev.title,
+        relativeLabel,
+        date: ev.date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        timeRange: ev.timeRange || "All Day",
+        attendee: ev.attendee,
+      };
+    });
+  };
 
   const domActive = (listing as { dom_active?: number })?.dom_active;
   const marketOverview = listing?.final_price
@@ -289,14 +674,27 @@ export default function ListingDetailsPage() {
             )}
 
             {!isLoading && !error && listing && activeTab === "appointments" && (
-              <AppointmentsTabContent
-                vehicleName={vehicleName}
-                events={EMPTY_EVENTS}
-                upcomingEvents={EMPTY_UPCOMING}
-                availability={EMPTY_AVAILABILITY}
-                onNewEvent={() => {}}
-                onSyncCalendar={() => {}}
-              />
+              <>
+                <AppointmentsTabContent
+                  vehicleName={vehicleName}
+                  events={events}
+                  upcomingEvents={getUpcomingEvents()}
+                  availability={EMPTY_AVAILABILITY}
+                  nylasGrantId={dealerData?.provisions?.nylasGrantId}
+                  onNewEvent={handleNewEvent}
+                  onSyncCalendar={handleSyncCalendar}
+                  onEventClick={handleEventClick}
+                  onEventDelete={handleEventDelete}
+                  onDateClick={handleDateClick}
+                />
+                <EventFormModal
+                  open={eventFormOpen}
+                  onOpenChange={setEventFormOpen}
+                  event={selectedEvent}
+                  selectedDate={selectedDate}
+                  onSave={handleEventSave}
+                />
+              </>
             )}
 
             {!isLoading && !error && listing && activeTab === "notes" && (

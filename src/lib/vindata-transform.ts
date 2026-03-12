@@ -41,11 +41,19 @@ interface MarketCompsData {
     days_on_market?: number;
     listing_date?: string;
     sale_date?: string;
+    last_seen_at_date?: string;
+    base_ext_color?: string;
+    base_int_color?: string;
+    source?: string;
   }>;
   listings?: Array<{
     miles?: number;
     price?: number;
     build?: { year?: number };
+    last_seen_at_date?: string;
+    base_ext_color?: string;
+    base_int_color?: string;
+    source?: string;
   }>;
   market_stats?: {
     average_price?: number;
@@ -59,11 +67,19 @@ interface SoldCompsData {
     mileage?: number;
     sale_price?: number;
     sale_date?: string;
+    last_seen_at_date?: string;
+    base_ext_color?: string;
+    base_int_color?: string;
+    source?: string;
   }>;
   listings?: Array<{
     miles?: number;
     price?: number;
     sold_at?: string;
+    last_seen_at_date?: string;
+    base_ext_color?: string;
+    base_int_color?: string;
+    source?: string;
   }>;
   market_stats?: {
     average_sale_price?: number;
@@ -110,6 +126,21 @@ function formatPrice(value: number | undefined | null): string {
   return `$${value.toLocaleString()}`;
 }
 
+function formatDate(dateString: string | undefined | null): string {
+  if (!dateString) return "—";
+  try {
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return "—";
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    });
+  } catch {
+    return "—";
+  }
+}
+
 function parseComparableRows(
   sold: SoldCompsData | null,
   active: MarketCompsData | null,
@@ -126,24 +157,23 @@ function parseComparableRows(
       (item as { sale_price?: number }).sale_price ??
       (item as { price?: number }).price ??
       0;
-    const date =
-      (item as { sale_date?: string }).sale_date ??
-      (item as { sold_at?: string }).sold_at ??
-      "";
+    const lastSeenDate = (item as { last_seen_at_date?: string }).last_seen_at_date;
+    const baseExtColor = (item as { base_ext_color?: string }).base_ext_color;
+    const baseIntColor = (item as { base_int_color?: string }).base_int_color;
+    const source = (item as { source?: string }).source;
+
     rows.push({
-      date: date
-        ? new Date(date).toLocaleDateString("en-US", {
-            month: "2-digit",
-            day: "2-digit",
-            year: "2-digit",
-          })
-        : "—",
+      date: formatDate(lastSeenDate),
       miles: Number(miles),
       price: formatPrice(priceVal),
+      lastSeenDate: formatDate(lastSeenDate),
+      baseExtColor,
+      baseIntColor,
+      source,
     });
   }
 
-  if (rows.length > 0) return rows.slice(0, 10);
+  if (rows.length > 0) return rows;
 
   const fromActive = active?.comparables ?? active?.listings ?? [];
   for (const item of fromActive) {
@@ -152,24 +182,23 @@ function parseComparableRows(
       (item as { miles?: number }).miles ??
       0;
     const priceVal = (item as { price?: number }).price ?? 0;
-    const date =
-      (item as { listing_date?: string }).listing_date ??
-      (item as { sale_date?: string }).sale_date ??
-      "";
+    const lastSeenDate = (item as { last_seen_at_date?: string }).last_seen_at_date;
+    const baseExtColor = (item as { base_ext_color?: string }).base_ext_color;
+    const baseIntColor = (item as { base_int_color?: string }).base_int_color;
+    const source = (item as { source?: string }).source;
+
     rows.push({
-      date: date
-        ? new Date(date).toLocaleDateString("en-US", {
-            month: "2-digit",
-            day: "2-digit",
-            year: "2-digit",
-          })
-        : "—",
+      date: formatDate(lastSeenDate),
       miles: Number(miles),
       price: formatPrice(priceVal),
+      lastSeenDate: formatDate(lastSeenDate),
+      baseExtColor,
+      baseIntColor,
+      source,
     });
   }
 
-  return rows.slice(0, 10);
+  return rows;
 }
 
 function parseMarketPosition(
@@ -367,7 +396,7 @@ export function transformVindataToValuationResults(
         max: mmrData?.typical_range?.max ?? Number(mmrAvg) * 1.05,
       },
       avg_odo:
-        mmrData?.avg_odo ?? (subjectMiles ? Number(subjectMiles) : 25000),
+        mmrData?.avg_odo ?? (subjectMiles ? Number(subjectMiles) : 0),
       avg_condition: mmrData?.avg_condition ?? "4.5",
       request_context: {
         vin,
@@ -577,5 +606,203 @@ export function extractBuildSheetSummary(
     exteriorColor: vd.exterior_color,
     interiorColor: vd.interior_color,
     mileage: vd.mileage,
+  };
+}
+
+/** AWS VIN lookup API response shape (data object). */
+export interface AwsVinLookupData {
+  id?: string;
+  vinNumber?: string;
+  spec?: {
+    make?: string;
+    model?: string;
+    year?: number;
+    trim?: string;
+    engine?: string;
+    transmission?: string;
+    body_type?: string;
+    fuel_type?: string;
+    drivetrain?: string;
+    is_valid?: boolean;
+    city_mpg?: number;
+    highway_mpg?: number;
+  };
+  marketDaysSupply?: { mds?: number };
+  recentSolds?: { listings?: AwsSoldListing[]; num_found?: number };
+  activeLocal?: { listings?: AwsActiveListing[]; num_found?: number };
+  numberOfSolds?: {
+    price_stats?: { median?: number };
+    dom_stats?: { median?: number };
+  };
+}
+
+interface AwsSoldListing {
+  vin?: string;
+  miles?: number;
+  price?: number;
+  last_seen_at_date?: string;
+  base_ext_color?: string;
+  base_int_color?: string;
+  source?: string;
+}
+
+interface AwsActiveListing {
+  vin?: string;
+  miles?: number;
+  price?: number;
+  dom?: number;
+  dom_active?: number;
+  media?: { photo_links?: string[]; photo_links_cached?: string[] };
+  last_seen_at_date?: string;
+  base_ext_color?: string;
+  base_int_color?: string;
+  source?: string;
+}
+
+/**
+ * Normalizes AWS VIN lookup response to the format expected by vin-analysis (vinData).
+ */
+export function normalizeAwsVinLookupToVinData(
+  raw: { data?: AwsVinLookupData } | AwsVinLookupData,
+  vin: string,
+): Record<string, unknown> {
+  const obj = raw && typeof raw === "object" && "data" in raw
+    ? (raw as { data?: AwsVinLookupData }).data
+    : (raw as AwsVinLookupData);
+  if (!obj || typeof obj !== "object") {
+    return { summary: {}, vehicle_details: { vin } };
+  }
+  const spec = obj.spec ?? {};
+  const year = Number(obj.spec?.year ?? obj.year) || undefined;
+  const make = String(spec.make ?? obj.make ?? "").trim() || undefined;
+  const model = String(spec.model ?? obj.model ?? "").trim() || undefined;
+  const trim = String(spec.trim ?? obj.trim ?? "").trim() || undefined;
+  const engine = String(spec.engine ?? "").trim() || undefined;
+  const transmission = String(spec.transmission ?? "").trim() || undefined;
+  const drivetrain = String(spec.drivetrain ?? "").trim() || undefined;
+  return {
+    ...obj,
+    summary: { make, model, year },
+    make,
+    model,
+    year,
+    trim,
+    trimLevels: trim ? { Default: { General: { Trim: trim } } } : undefined,
+    vehicle_details: {
+      year,
+      make,
+      model,
+      trim,
+      vin,
+      engine,
+      transmission,
+      drivetrain,
+    },
+  };
+}
+
+/**
+ * Transforms AWS VIN lookup response to ValuationResultsData. Used when vin-analysis
+ * receives pre-loaded data from the new AWS lookup API (no valuation API call).
+ */
+export function transformAwsVinLookupToValuationResults(
+  data: AwsVinLookupData,
+  vin: string,
+  listingMileage?: number | null,
+  listingPrice?: number | null,
+): ValuationResultsData {
+  const spec = data.spec ?? {};
+  const mds = data.marketDaysSupply?.mds ?? 0;
+  const soldListings = data.recentSolds?.listings ?? [];
+  const activeListings = data.activeLocal?.listings ?? [];
+  const subjectListing = activeListings.find(
+    (l) => l.vin?.toUpperCase() === vin.toUpperCase(),
+  );
+  const subjectMiles =
+    listingMileage ??
+    subjectListing?.miles ??
+    (spec as { mileage?: number }).mileage ??
+    0;
+  const subjectPrice =
+    listingPrice ??
+    subjectListing?.price ??
+    0;
+  const priceStats = data.numberOfSolds?.price_stats;
+  const avgPrice = priceStats?.median ?? 0;
+  const domStats = data.numberOfSolds?.dom_stats;
+  const avgDom = domStats?.median ?? 0;
+
+  const comparables: ComparableRow[] = soldListings.map((item) => ({
+    date: formatDate(item.last_seen_at_date),
+    miles: Number(item.miles ?? 0),
+    price: formatPrice(item.price),
+    lastSeenDate: formatDate(item.last_seen_at_date),
+    baseExtColor: item.base_ext_color,
+    baseIntColor: item.base_int_color,
+    source: item.source,
+  }));
+
+  const marketPosition: { sold: DataPoint[]; subject?: DataPoint } = {
+    sold: soldListings.slice(0, 12).map((item) => ({
+      mileage: Number(item.miles ?? 0),
+      price: Number(item.price ?? 0),
+    })),
+  };
+  if (subjectMiles > 0 && subjectPrice > 0) {
+    marketPosition.subject = {
+      mileage: subjectMiles,
+      price: subjectPrice,
+      isSubject: true,
+    };
+  }
+
+  return {
+    metrics: {
+      daysOnMarket: subjectListing?.dom_active ?? subjectListing?.dom ?? 0,
+      avgMarketDom: avgDom,
+      activeLocal: activeListings.length,
+      sold90dLocal: soldListings.length,
+      marketDaysSupply: Number(mds),
+      consumerInterest: "N/A",
+      consumerInterestPercentile: "N/A",
+    },
+    mmr: {
+      base_mmr: avgPrice,
+      adjusted_mmr: avgPrice,
+      adjustments: { odometer: 0, region: 0, cr_score: 0, color: 0 },
+      typical_range: { min: avgPrice * 0.95, max: avgPrice * 1.05 },
+      avg_odo: subjectMiles || 0,
+      avg_condition: "4.5",
+      request_context: { vin, odometer: subjectMiles || undefined },
+    },
+    retail: {
+      currentAsking: formatPrice(listingPrice ?? subjectPrice),
+      marketAvg: formatPrice(avgPrice || subjectPrice),
+      belowMarket:
+        listingPrice != null && avgPrice > 0
+          ? `$${Math.abs(avgPrice - listingPrice).toLocaleString()} ${listingPrice < avgPrice ? "below" : "above"} Market`
+          : undefined,
+      retailMargin:
+        listingPrice != null && avgPrice > 0
+          ? formatPrice(listingPrice - avgPrice)
+          : "N/A",
+      priceRank: "—",
+      competitivePositionPercent:
+        avgPrice > 0 && listingPrice != null
+          ? Math.round((listingPrice / avgPrice) * 100)
+          : undefined,
+    },
+    condition: { score: 0, bars: [] },
+    comparables:
+      comparables.length > 0
+        ? comparables
+        : [
+            {
+              date: "—",
+              miles: subjectMiles ? Number(subjectMiles) : 0,
+              price: formatPrice(subjectPrice),
+            },
+          ],
+    marketPosition,
   };
 }

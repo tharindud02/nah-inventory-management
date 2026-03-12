@@ -15,21 +15,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
   Plus,
-  Edit2,
-  Trash2,
   Lightbulb,
   Download,
   Search,
   Sparkles,
   ChevronDown,
-  ArrowLeft,
   Car,
   RefreshCw,
+  List,
 } from "lucide-react";
 import { fetchJobs as fetchJobsApi } from "@/lib/api/jobs";
 import { JobSummary } from "@/lib/types/jobs";
@@ -52,10 +48,7 @@ export default function AcquisitionSearchPage() {
   const [maxMileage, setMaxMileage] = useState(45);
   const [accidentPreference, setAccidentPreference] = useState("NONE");
   const [showMakeSuggestions, setShowMakeSuggestions] = useState(false);
-  const [sources, setSources] = useState({
-    facebook: true,
-    marketcheck: true,
-  });
+  const [source, setSource] = useState<"mc" | "bd">("mc");
 
   const allMakes = [
     "Toyota",
@@ -91,7 +84,7 @@ export default function AcquisitionSearchPage() {
   const [jobsError, setJobsError] = useState<string | null>(null);
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (signal?: AbortSignal) => {
     setJobsError(null);
     setIsLoadingJobs(true);
 
@@ -103,20 +96,23 @@ export default function AcquisitionSearchPage() {
     }
 
     try {
-      const jobs = await fetchJobsApi(accessToken);
+      const jobs = await fetchJobsApi(accessToken, signal);
+      if (signal?.aborted) return;
       setSearchCriteria(jobs);
     } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       setJobsError(
         error instanceof Error ? error.message : "Failed to load jobs",
       );
     } finally {
-      setIsLoadingJobs(false);
+      if (!signal?.aborted) setIsLoadingJobs(false);
     }
   };
 
   useEffect(() => {
-    fetchJobs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const controller = new AbortController();
+    fetchJobs(controller.signal);
+    return () => controller.abort();
   }, []);
 
   const opportunityHighlights: Array<{
@@ -168,10 +164,7 @@ export default function AcquisitionSearchPage() {
       minYear: yearMin,
       maxYear: yearMax,
       accidentPreference,
-      sources: {
-        facebook: sources.facebook,
-        marketcheck: sources.marketcheck,
-      },
+      source,
     };
 
     setIsCreating(true);
@@ -191,7 +184,7 @@ export default function AcquisitionSearchPage() {
       }
 
       setCreateMessage("Search created successfully.");
-      fetchJobs();
+      void fetchJobs();
     } catch (error) {
       setCreateError(
         error instanceof Error ? error.message : "Failed to create search",
@@ -249,20 +242,11 @@ export default function AcquisitionSearchPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => router.push("/acquisition/vehicle/sample")}
+              onClick={() => router.push("/acquisition-search/inventory")}
               className="gap-2"
             >
-              <Car className="h-4 w-4" />
-              View Sample (with VIN)
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push("/acquisition/vehicle/sample-no-vin")}
-              className="gap-2"
-            >
-              <Car className="h-4 w-4" />
-              View Sample (no VIN)
+              <List className="h-4 w-4" />
+              View All Inventory
             </Button>
           </div>
         </div>
@@ -419,29 +403,27 @@ export default function AcquisitionSearchPage() {
                   <label className="block text-xs font-semibold tracking-[0.15em] text-slate-500 uppercase mb-3">
                     Data Sources
                   </label>
-                  <div className="flex flex-wrap gap-6">
-                    <Checkbox
-                      id="facebook"
-                      checked={sources.facebook}
-                      onChange={(e) =>
-                        setSources((prev) => ({
-                          ...prev,
-                          facebook: e.target.checked,
-                        }))
-                      }
-                      label="Facebook Marketplace"
-                    />
-                    <Checkbox
-                      id="marketcheck"
-                      checked={sources.marketcheck}
-                      onChange={(e) =>
-                        setSources((prev) => ({
-                          ...prev,
-                          marketcheck: e.target.checked,
-                        }))
-                      }
-                      label="MarketCheck"
-                    />
+                  <div className="flex flex-wrap gap-4">
+                    <div className="inline-flex w-full max-w-md items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-2 py-1">
+                      {[
+                        { value: "mc" as const, label: "MarketCheck" },
+                        { value: "bd" as const, label: "Facebook" },
+                      ].map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setSource(option.value)}
+                          className={cn(
+                            "flex-1 rounded-2xl px-4 py-2 text-sm font-semibold tracking-wide uppercase transition",
+                            source === option.value
+                              ? "bg-white text-blue-600 shadow"
+                              : "text-slate-500",
+                          )}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -480,7 +462,7 @@ export default function AcquisitionSearchPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={fetchJobs}
+                  onClick={() => void fetchJobs()}
                   disabled={isLoadingJobs}
                   className="flex items-center gap-2"
                 >

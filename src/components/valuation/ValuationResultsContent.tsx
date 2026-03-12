@@ -68,18 +68,16 @@ export interface ValuationResultsContentProps {
   data: ValuationResultsData;
   onViewInspection?: () => void;
   onExportComparables?: () => void;
-  hideConditionAndComparables?: boolean;
-  marketAvgOnly?: boolean;
-  hideTypicalRange?: boolean;
+  hideRetailValuation?: boolean;
+  hideDaysOnMarket?: boolean;
 }
 
 export function ValuationResultsContent({
   data,
   onViewInspection,
   onExportComparables,
-  hideConditionAndComparables = false,
-  marketAvgOnly = false,
-  hideTypicalRange = false,
+  hideRetailValuation,
+  hideDaysOnMarket,
 }: ValuationResultsContentProps) {
   const { metrics, mmr, retail, condition, comparables, comparablesNumFound, marketPosition } =
     data;
@@ -111,12 +109,14 @@ export function ValuationResultsContent({
     <div className="space-y-6">
       {/* Top metric cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <ValuationMetricCard
-          label="Days on Market"
-          value={safeNum(m.daysOnMarket)}
-          unit="days"
-          sublabel={domSublabel}
-        />
+        {!hideDaysOnMarket && (
+          <ValuationMetricCard
+            label="Days on Market"
+            value={safeNum(m.daysOnMarket)}
+            unit="days"
+            sublabel={domSublabel}
+          />
+        )}
         <ValuationMetricCard
           label="Avg Market DOM"
           value={safeNum(m.avgMarketDom)}
@@ -151,38 +151,50 @@ export function ValuationResultsContent({
       </div>
 
       {/* MMR and Retail */}
-      <div className={marketAvgOnly ? "grid grid-cols-1 gap-6" : "grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]"}>
-        <MMRSection mmrData={mmr} hideTypicalRange={hideTypicalRange} />
-        <RetailValuationSection
-          currentAsking={retail.currentAsking}
-          marketAvg={retail.marketAvg}
-          belowMarket={retail.belowMarket}
-          retailMargin={retail.retailMargin}
-          priceRank={retail.priceRank}
-          competitivePositionPercent={retail.competitivePositionPercent}
-          marketAvgOnly={marketAvgOnly}
-        />
-      </div>
-
-      {/* Condition, Comparables, Market Position - hidden for VIN analysis */}
-      {!hideConditionAndComparables && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <ConditionCard
-            score={condition?.score}
-            bars={condition?.bars}
-            onViewReport={onViewInspection}
+      {hideRetailValuation ? (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
+          <MMRSection mmrData={mmr} hideTypicalRange hideRetailValuation />
+          <RetailValuationSection
+            currentAsking={retail.currentAsking}
+            marketAvg={retail.marketAvg}
+            belowMarket={retail.belowMarket}
+            retailMargin={retail.retailMargin}
+            priceRank={retail.priceRank}
+            competitivePositionPercent={retail.competitivePositionPercent}
+            marketAvgOnly={true}
           />
-          <RecentSoldComparablesTable
-            rows={comparables}
-            numFound={comparablesNumFound}
-            onExport={onExportComparables}
-          />
-          <MarketPositionChart
-            data={marketPosition.sold}
-            subjectPoint={marketPosition.subject}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
+          <MMRSection mmrData={mmr} />
+          <RetailValuationSection
+            currentAsking={retail.currentAsking}
+            marketAvg={retail.marketAvg}
+            belowMarket={retail.belowMarket}
+            retailMargin={retail.retailMargin}
+            priceRank={retail.priceRank}
+            competitivePositionPercent={retail.competitivePositionPercent}
           />
         </div>
       )}
+
+      {/* Condition, Comparables, Market Position */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <ConditionCard
+          score={condition?.score}
+          bars={condition?.bars}
+          onViewReport={onViewInspection}
+        />
+        <RecentSoldComparablesTable
+          rows={comparables}
+          numFound={comparablesNumFound}
+          onExport={onExportComparables}
+        />
+        <MarketPositionChart
+          data={marketPosition.sold}
+          subjectPoint={marketPosition.subject}
+        />
+      </div>
     </div>
   );
 }

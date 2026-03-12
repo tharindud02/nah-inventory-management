@@ -19,10 +19,10 @@ import {
   X,
   Heart,
 } from "lucide-react";
-import type { ListingItem } from "@/types/listing";
+import type { ListingItem, JobListingItem } from "@/types/listing";
 import {
-  normalizeListingItem,
-  getListingId,
+  normalizeListingItemOrJobItem,
+  getListingIdFromItem,
 } from "@/lib/listing-utils";
 import { bookmarkListing } from "@/lib/api/listings";
 import type { ListingDetail } from "@/types/listing";
@@ -286,7 +286,7 @@ export default function JobListingPage() {
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
   const [bookmarkingId, setBookmarkingId] = useState<string | null>(null);
 
-  const fetchListings = async () => {
+  const fetchListings = async (signal?: AbortSignal) => {
     if (!jobId) return;
 
     setIsLoading(true);
@@ -301,10 +301,11 @@ export default function JobListingPage() {
 
     try {
       const response = await fetch(`/api/listings/job/${encodeURIComponent(jobId)}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal,
       });
+
+      if (signal?.aborted) return;
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({})) as { error?: string };
@@ -312,7 +313,9 @@ export default function JobListingPage() {
       }
 
       const raw = await response.json();
-      const rawItems: ListingItem[] = Array.isArray(raw?.data?.items)
+      if (signal?.aborted) return;
+
+      const rawItems: (ListingItem | JobListingItem)[] = Array.isArray(raw?.data?.items)
         ? raw.data.items
         : Array.isArray(raw?.items)
           ? raw.items
@@ -320,9 +323,8 @@ export default function JobListingPage() {
             ? raw
             : [];
       const normalized = rawItems.map((item) =>
-        normalizeListingItem(item, getListingId(item)),
+        normalizeListingItemOrJobItem(item, getListingIdFromItem(item)),
       );
-      setListings(normalized);
 
       const initialBookmarked = new Set<string>();
       for (const listing of normalized) {
@@ -331,11 +333,13 @@ export default function JobListingPage() {
           initialBookmarked.add(String(id));
         }
       }
+      setListings(normalized);
       setBookmarkedIds(initialBookmarked);
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       setError(err instanceof Error ? err.message : "Failed to load listings");
     } finally {
-      setIsLoading(false);
+      if (!signal?.aborted) setIsLoading(false);
     }
   };
 
@@ -347,7 +351,7 @@ export default function JobListingPage() {
 
   const getBookmarkId = (listing: ListingDetail): string | null => {
     const id = listing.product_id ?? listing.SK;
-    return id != null ? String(id) : null;
+    return id != null && id !== "" ? String(id) : null;
   };
 
   const handleBookmark = async (listing: ListingDetail) => {
@@ -390,7 +394,10 @@ export default function JobListingPage() {
   };
 
   useEffect(() => {
-    fetchListings();
+    if (!jobId) return;
+    const controller = new AbortController();
+    fetchListings(controller.signal);
+    return () => controller.abort();
   }, [jobId]);
 
   return (
