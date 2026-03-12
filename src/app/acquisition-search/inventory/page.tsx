@@ -17,6 +17,7 @@ import {
   Search,
   Loader2,
   ArrowLeft,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { bookmarkListing } from "@/lib/api/listings";
@@ -445,6 +446,16 @@ export default function InventoryPage() {
     return () => controller.abort();
   }, []);
 
+  const handleViewDetails = (item: InventoryItem) => {
+    if (!item.jobId || !item.id) {
+      toast.error("Cannot view details: missing job or item identifier");
+      return;
+    }
+    router.push(
+      `/acquisition/vehicle/listing/${encodeURIComponent(item.jobId)}/${encodeURIComponent(item.id)}`,
+    );
+  };
+
   const handleLoadMore = () => {
     if (nextCursor && !isLoadingMore) {
       fetchListings(nextCursor);
@@ -693,7 +704,8 @@ export default function InventoryPage() {
                   return (
                     <Card
                       key={item.id}
-                      className="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 pt-0 pb-4"
+                      className="overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 pt-0 pb-4 cursor-pointer"
+                      onClick={() => window.open(item.url, "_blank")}
                     >
                       {/* Image with Favorite */}
                       <div className="relative">
@@ -772,14 +784,18 @@ export default function InventoryPage() {
                           Listed: {formatDate(item.listedAt)}
                         </p>
 
-                        {/* View Button */}
+                        {/* View Details Button - stops propagation */}
                         <Button
                           variant="outline"
                           size="sm"
                           className="w-full"
-                          onClick={() => window.open(item.url, "_blank")}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetails(item);
+                          }}
                         >
-                          View on {item.source}
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
                         </Button>
                       </CardContent>
                     </Card>

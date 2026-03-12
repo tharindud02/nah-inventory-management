@@ -73,16 +73,28 @@ export async function DELETE(
       }
     );
 
-    const data = await response.json();
+    // DELETE often returns 204 No Content or 200 with empty body - JSON parse would throw
+    let data: { message?: string } | null = null;
+    try {
+      const text = await response.text();
+      if (text.trim()) data = JSON.parse(text) as { message?: string };
+    } catch {
+      /* empty or invalid body - data stays null */
+    }
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || "Failed to delete event" },
+        {
+          error:
+            (data && typeof data === "object" && "message" in data
+              ? (data as { message?: string }).message
+              : null) || "Failed to delete event",
+        },
         { status: response.status },
       );
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(data ?? { success: true });
   } catch {
     return NextResponse.json(
       { error: "Internal server error" },

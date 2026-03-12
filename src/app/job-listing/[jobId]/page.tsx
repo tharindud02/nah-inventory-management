@@ -11,13 +11,11 @@ import {
   ArrowLeft,
   Download,
   Car,
-  MoreHorizontal,
-  Eye,
-  CheckCircle,
   ChevronLeft,
   ChevronRight,
   X,
   Heart,
+  Eye,
 } from "lucide-react";
 import type { ListingItem, JobListingItem } from "@/types/listing";
 import {
@@ -492,45 +490,90 @@ export default function JobListingPage() {
                     </div>
 
                     <CardContent className="px-4 py-0">
-                      {/* Title and Menu */}
-                      <div className="flex items-center justify-between mb-0">
-                        <h3 className="text-lg font-bold truncate flex-1 pr-2">
-                          {listing.title || "Untitled Listing"}
-                        </h3>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="p-1 h-8 shrink-0"
-                        >
-                          <MoreHorizontal className="w-4 h-4 text-gray-600" />
-                        </Button>
+                      {/* Title */}
+                      <h3 className="text-lg font-bold truncate mt-3 mb-1">
+                        {listing.title || "Untitled"}
+                      </h3>
+
+                      {/* Price */}
+                      <p className="text-xl font-bold text-blue-600 mb-2">
+                        {listing.final_price != null
+                          ? new Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: listing.currency || "USD",
+                              maximumFractionDigits: 0,
+                            }).format(listing.final_price)
+                          : "Price N/A"}
+                      </p>
+
+                      {/* Details Grid */}
+                      <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
+                        {listing.year && (
+                          <div>
+                            <span className="text-gray-400">Year:</span>{" "}
+                            <span className="font-medium">{listing.year}</span>
+                          </div>
+                        )}
+                        {listing.mileage != null && (
+                          <div>
+                            <span className="text-gray-400">Mileage:</span>{" "}
+                            <span className="font-medium">
+                              {new Intl.NumberFormat("en-US").format(listing.mileage)} mi
+                            </span>
+                          </div>
+                        )}
+                        {listing.make && (
+                          <div>
+                            <span className="text-gray-400">Make:</span>{" "}
+                            <span className="font-medium">{listing.make}</span>
+                          </div>
+                        )}
+                        {listing.model && (
+                          <div>
+                            <span className="text-gray-400">Model:</span>{" "}
+                            <span className="font-medium">{listing.model}</span>
+                          </div>
+                        )}
                       </div>
 
-                      {/* SK and scraped_at */}
-                      <div className="flex justify-between items-center bg-gray-100 p-3 rounded-md mb-2">
-                        <span className="text-xs font-mono text-gray-700">
-                          {listing.SK || ""}
-                        </span>
-                        <span className="text-sm font-semibold">
-                          {listing.scraped_at
-                            ? new Date(listing.scraped_at).toLocaleDateString()
-                            : ""}
-                        </span>
+                      {/* VIN */}
+                      {listing.vin && (
+                        <p className="text-xs font-mono text-gray-500 mb-2 truncate">
+                          VIN: {listing.vin}
+                        </p>
+                      )}
+
+                      {/* Location & Source */}
+                      <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
+                        <span>{listing.location || listing.city || "—"}</span>
+                        {listing.source && (
+                          <span className="capitalize bg-gray-100 px-2 py-1 rounded">
+                            {listing.source}
+                          </span>
+                        )}
                       </div>
 
-                      {/* Footer */}
-                      <div className="flex items-center justify-between text-sm text-gray-600 border-t pt-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewDetails(listing)}
-                          className="flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          View Details
-                        </Button>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      </div>
+                      {/* Listed Date */}
+                      {listing.listed_at && (
+                        <p className="text-xs text-gray-400 mb-3">
+                          Listed: {new Date(listing.listed_at).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </p>
+                      )}
+
+                      {/* View Details Button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleViewDetails(listing)}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Details
+                      </Button>
                     </CardContent>
                   </Card>
                 );

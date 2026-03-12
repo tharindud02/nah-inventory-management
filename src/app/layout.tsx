@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
 import TooltipProvider from "@/components/TooltipProvider";
+import { ChatAssistantWidget } from "@/components/ChatAssistantWidget";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +32,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <ChatAssistantWidget />
+        </AuthProvider>
         <Toaster richColors position="top-right" />
         <TooltipProvider />
       </body>

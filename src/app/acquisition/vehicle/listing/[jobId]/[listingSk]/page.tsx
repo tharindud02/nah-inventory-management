@@ -480,11 +480,18 @@ export default function ListingDetailsPage() {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
-      if (!res.ok) throw new Error("Failed to delete event");
-      
-      // Refetch events from API to ensure sync
-      await fetchEvents(nylasGrantId, accessToken);
+      if (!res.ok) {
+        const errPayload = await res.json().catch(() => null);
+        const errMessage =
+          (errPayload && typeof errPayload === "object" && "error" in errPayload
+            ? String((errPayload as { error?: string }).error)
+            : null) || "Failed to delete event";
+        throw new Error(errMessage);
+      }
+
+      setEvents((prev) => prev.filter((e) => e.id !== eventId));
       toast.success("Event deleted successfully");
+      await fetchEvents(nylasGrantId, accessToken);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to delete event");
     }
